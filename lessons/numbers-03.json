@@ -1,0 +1,245 @@
+{
+    "id": "numbers-03",
+    "title": "Numerele — Numbers",
+    "description": "Learn to count from 1 to 20 in Romanian",
+    "category": "Basics",
+    "level": 1,
+    "order": 3,
+    "icon": "🔢",
+    "vocabulary": [
+        {
+            "romanian": "Unu",
+            "english": "One (1)",
+            "pronunciation": "OO-noo"
+        },
+        {
+            "romanian": "Doi",
+            "english": "Two (2)",
+            "pronunciation": "DOY"
+        },
+        {
+            "romanian": "Trei",
+            "english": "Three (3)",
+            "pronunciation": "TRAY"
+        },
+        {
+            "romanian": "Patru",
+            "english": "Four (4)",
+            "pronunciation": "PAH-troo"
+        },
+        {
+            "romanian": "Cinci",
+            "english": "Five (5)",
+            "pronunciation": "CHEENCH"
+        },
+        {
+            "romanian": "Șase",
+            "english": "Six (6)",
+            "pronunciation": "SHAH-seh"
+        },
+        {
+            "romanian": "Șapte",
+            "english": "Seven (7)",
+            "pronunciation": "SHAHP-teh"
+        },
+        {
+            "romanian": "Opt",
+            "english": "Eight (8)",
+            "pronunciation": "OHPT"
+        },
+        {
+            "romanian": "Nouă",
+            "english": "Nine (9)",
+            "pronunciation": "NOH-wah"
+        },
+        {
+            "romanian": "Zece",
+            "english": "Ten (10)",
+            "pronunciation": "ZEH-cheh"
+        },
+        {
+            "romanian": "Unsprezece",
+            "english": "Eleven (11)",
+            "pronunciation": "OON-spreh-ZEH-cheh"
+        },
+        {
+            "romanian": "Doisprezece",
+            "english": "Twelve (12)",
+            "pronunciation": "DOY-spreh-ZEH-cheh"
+        },
+        {
+            "romanian": "Treisprezece",
+            "english": "Thirteen (13)",
+            "pronunciation": "TRAY-spreh-ZEH-cheh"
+        },
+        {
+            "romanian": "Paisprezece",
+            "english": "Fourteen (14)",
+            "pronunciation": "PIE-spreh-ZEH-cheh"
+        },
+        {
+            "romanian": "Cincisprezece",
+            "english": "Fifteen (15)",
+            "pronunciation": "CHEENCH-spreh-ZEH-cheh"
+        },
+        {
+            "romanian": "Șaisprezece",
+            "english": "Sixteen (16)",
+            "pronunciation": "SHIE-spreh-ZEH-cheh"
+        },
+        {
+            "romanian": "Șaptesprezece",
+            "english": "Seventeen (17)",
+            "pronunciation": "SHAHP-teh-spreh-ZEH-cheh"
+        },
+        {
+            "romanian": "Optsprezece",
+            "english": "Eighteen (18)",
+            "pronunciation": "OHPT-spreh-ZEH-cheh"
+        },
+        {
+            "romanian": "Nouăsprezece",
+            "english": "Nineteen (19)",
+            "pronunciation": "NOH-wah-spreh-ZEH-cheh"
+        },
+        {
+            "romanian": "Douăzeci",
+            "english": "Twenty (20)",
+            "pronunciation": "DOH-wah-ZETCH"
+        }
+    ],
+    "exercises": [
+        {
+            "type": "multiple_choice",
+            "question": "What number is 'Trei'?",
+            "options": [
+                "Two",
+                "Three",
+                "Four",
+                "Five"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "type": "multiple_choice",
+            "question": "What number is 'Șapte'?",
+            "options": [
+                "Six",
+                "Eight",
+                "Seven",
+                "Nine"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "type": "multiple_choice_romanian",
+            "question": "How do you say 'Five' in Romanian?",
+            "options": [
+                "Patru",
+                "Cinci",
+                "Șase",
+                "Trei"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "type": "multiple_choice_romanian",
+            "question": "How do you say 'Ten' in Romanian?",
+            "options": [
+                "Zece",
+                "Nouă",
+                "Opt",
+                "Șase"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "type": "match",
+            "instruction": "Match the numbers 1–5",
+            "pairs": [
+                {
+                    "romanian": "Unu",
+                    "english": "One"
+                },
+                {
+                    "romanian": "Doi",
+                    "english": "Two"
+                },
+                {
+                    "romanian": "Trei",
+                    "english": "Three"
+                },
+                {
+                    "romanian": "Patru",
+                    "english": "Four"
+                },
+                {
+                    "romanian": "Cinci",
+                    "english": "Five"
+                }
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian word for 'Three'",
+            "answer": "Trei",
+            "acceptAlternatives": [
+                "trei"
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian word for 'Eight'",
+            "answer": "Opt",
+            "acceptAlternatives": [
+                "opt"
+            ]
+        },
+        {
+            "type": "match",
+            "instruction": "Match the numbers 6–10",
+            "pairs": [
+                {
+                    "romanian": "Șase",
+                    "english": "Six"
+                },
+                {
+                    "romanian": "Șapte",
+                    "english": "Seven"
+                },
+                {
+                    "romanian": "Opt",
+                    "english": "Eight"
+                },
+                {
+                    "romanian": "Nouă",
+                    "english": "Nine"
+                },
+                {
+                    "romanian": "Zece",
+                    "english": "Ten"
+                }
+            ]
+        },
+        {
+            "type": "multiple_choice",
+            "question": "What number is 'Doisprezece'?",
+            "options": [
+                "Eleven",
+                "Twelve",
+                "Thirteen",
+                "Fourteen"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian word for 'Twenty'",
+            "answer": "Douăzeci",
+            "acceptAlternatives": [
+                "douazeci",
+                "Douazeci"
+            ]
+        }
+    ]
+}

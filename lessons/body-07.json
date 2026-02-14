@@ -1,0 +1,234 @@
+{
+    "id": "body-07",
+    "title": "Corpul — Body Parts",
+    "description": "Learn the names of body parts in Romanian",
+    "category": "Vocabulary",
+    "level": 2,
+    "order": 7,
+    "icon": "🦵",
+    "vocabulary": [
+        {
+            "romanian": "Cap",
+            "english": "Head",
+            "pronunciation": "KAHP",
+            "example": {
+                "romanian": "Capul meu e mare.",
+                "english": "My head is big."
+            }
+        },
+        {
+            "romanian": "Ochi",
+            "english": "Eyes",
+            "pronunciation": "OCH",
+            "example": {
+                "romanian": "Ochii mei sunt albaștri.",
+                "english": "My eyes are blue."
+            }
+        },
+        {
+            "romanian": "Nas",
+            "english": "Nose",
+            "pronunciation": "NAHS",
+            "example": {
+                "romanian": "Nasul este mic.",
+                "english": "The nose is small."
+            }
+        },
+        {
+            "romanian": "Gură",
+            "english": "Mouth",
+            "pronunciation": "GOO-rah",
+            "example": {
+                "romanian": "Deschide gura!",
+                "english": "Open your mouth!"
+            }
+        },
+        {
+            "romanian": "Ureche",
+            "english": "Ear",
+            "pronunciation": "OO-REH-keh",
+            "example": {
+                "romanian": "Urechea mea este roșie.",
+                "english": "My ear is red."
+            }
+        },
+        {
+            "romanian": "Mână",
+            "english": "Hand",
+            "pronunciation": "MUH-nah",
+            "example": {
+                "romanian": "Mâna mea este curată.",
+                "english": "My hand is clean."
+            }
+        },
+        {
+            "romanian": "Picior",
+            "english": "Leg / Foot",
+            "pronunciation": "PEE-chor",
+            "example": {
+                "romanian": "Piciorul meu e lung.",
+                "english": "My leg is long."
+            }
+        },
+        {
+            "romanian": "Deget",
+            "english": "Finger",
+            "pronunciation": "DEH-jet",
+            "example": {
+                "romanian": "Am cinci degete.",
+                "english": "I have five fingers."
+            }
+        },
+        {
+            "romanian": "Braț",
+            "english": "Arm",
+            "pronunciation": "BRAHTS",
+            "example": {
+                "romanian": "Brațul meu este puternic.",
+                "english": "My arm is strong."
+            }
+        },
+        {
+            "romanian": "Inimă",
+            "english": "Heart",
+            "pronunciation": "EE-nee-mah",
+            "example": {
+                "romanian": "Inima bate repede.",
+                "english": "The heart beats fast."
+            }
+        }
+    ],
+    "exercises": [
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Cap' mean?",
+            "options": [
+                "Foot",
+                "Hand",
+                "Head",
+                "Arm"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Ochi' mean?",
+            "options": [
+                "Ears",
+                "Nose",
+                "Mouth",
+                "Eyes"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "type": "multiple_choice_romanian",
+            "question": "How do you say 'Hand' in Romanian?",
+            "options": [
+                "Picior",
+                "Mână",
+                "Braț",
+                "Deget"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "type": "multiple_choice_romanian",
+            "question": "How do you say 'Heart' in Romanian?",
+            "options": [
+                "Gură",
+                "Ureche",
+                "Inimă",
+                "Cap"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "type": "match",
+            "instruction": "Match the body parts!",
+            "pairs": [
+                {
+                    "romanian": "Cap",
+                    "english": "Head"
+                },
+                {
+                    "romanian": "Ochi",
+                    "english": "Eyes"
+                },
+                {
+                    "romanian": "Nas",
+                    "english": "Nose"
+                },
+                {
+                    "romanian": "Gură",
+                    "english": "Mouth"
+                },
+                {
+                    "romanian": "Mână",
+                    "english": "Hand"
+                }
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian word for 'Head'",
+            "answer": "Cap",
+            "acceptAlternatives": [
+                "cap"
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian word for 'Eyes'",
+            "answer": "Ochi",
+            "acceptAlternatives": [
+                "ochi"
+            ]
+        },
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Deget' mean?",
+            "options": [
+                "Arm",
+                "Leg",
+                "Finger",
+                "Ear"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "type": "match",
+            "instruction": "Match the rest!",
+            "pairs": [
+                {
+                    "romanian": "Ureche",
+                    "english": "Ear"
+                },
+                {
+                    "romanian": "Picior",
+                    "english": "Leg"
+                },
+                {
+                    "romanian": "Deget",
+                    "english": "Finger"
+                },
+                {
+                    "romanian": "Braț",
+                    "english": "Arm"
+                },
+                {
+                    "romanian": "Inimă",
+                    "english": "Heart"
+                }
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian word for 'Nose'",
+            "answer": "Nas",
+            "acceptAlternatives": [
+                "nas"
+            ]
+        }
+    ]
+}

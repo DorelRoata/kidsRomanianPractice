@@ -1,0 +1,222 @@
+{
+    "id": "greetings-01",
+    "title": "Salutări — Greetings",
+    "description": "Learn how to say hello, goodbye, and be polite in Romanian",
+    "category": "Basics",
+    "level": 1,
+    "order": 1,
+    "icon": "👋",
+    "vocabulary": [
+        {
+            "romanian": "Bună ziua",
+            "english": "Hello / Good day",
+            "pronunciation": "BOO-nah ZEE-wah",
+            "example": {
+                "romanian": "Bună ziua, doamnă!",
+                "english": "Hello, ma'am!"
+            }
+        },
+        {
+            "romanian": "Salut",
+            "english": "Hi / Hey",
+            "pronunciation": "sah-LOOT",
+            "example": {
+                "romanian": "Salut, cum ești?",
+                "english": "Hi, how are you?"
+            }
+        },
+        {
+            "romanian": "Bună dimineața",
+            "english": "Good morning",
+            "pronunciation": "BOO-nah dee-mee-NYAH-tsah",
+            "example": {
+                "romanian": "Bună dimineața, tată!",
+                "english": "Good morning, dad!"
+            }
+        },
+        {
+            "romanian": "Bună seara",
+            "english": "Good evening",
+            "pronunciation": "BOO-nah SYAH-rah",
+            "example": {
+                "romanian": "Bună seara tuturor!",
+                "english": "Good evening everyone!"
+            }
+        },
+        {
+            "romanian": "Noapte bună",
+            "english": "Good night",
+            "pronunciation": "NWAHP-teh BOO-nah",
+            "example": {
+                "romanian": "Noapte bună, copii!",
+                "english": "Good night, kids!"
+            }
+        },
+        {
+            "romanian": "La revedere",
+            "english": "Goodbye",
+            "pronunciation": "lah reh-veh-DEH-reh",
+            "example": {
+                "romanian": "La revedere, prieteni!",
+                "english": "Goodbye, friends!"
+            }
+        },
+        {
+            "romanian": "Mulțumesc",
+            "english": "Thank you",
+            "pronunciation": "mool-tsoo-MESK",
+            "example": {
+                "romanian": "Mulțumesc foarte mult!",
+                "english": "Thank you very much!"
+            }
+        },
+        {
+            "romanian": "Te rog",
+            "english": "Please",
+            "pronunciation": "teh ROHG",
+            "example": {
+                "romanian": "Te rog, ajută-mă.",
+                "english": "Please, help me."
+            }
+        },
+        {
+            "romanian": "Cu plăcere",
+            "english": "You're welcome",
+            "pronunciation": "koo plah-CHEH-reh",
+            "example": {
+                "romanian": "Cu plăcere!",
+                "english": "You're welcome!"
+            }
+        },
+        {
+            "romanian": "Scuze",
+            "english": "Sorry / Excuse me",
+            "pronunciation": "SKOO-zeh",
+            "example": {
+                "romanian": "Scuze, nu am înțeles.",
+                "english": "Sorry, I didn't understand."
+            }
+        }
+    ],
+    "exercises": [
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Bună ziua' mean?",
+            "options": [
+                "Good night",
+                "Hello / Good day",
+                "Goodbye",
+                "Thank you"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Mulțumesc' mean?",
+            "options": [
+                "Please",
+                "Sorry",
+                "You're welcome",
+                "Thank you"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "type": "multiple_choice_romanian",
+            "question": "How do you say 'Goodbye' in Romanian?",
+            "options": [
+                "Salut",
+                "Bună ziua",
+                "La revedere",
+                "Noapte bună"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "type": "multiple_choice_romanian",
+            "question": "How do you say 'Please' in Romanian?",
+            "options": [
+                "Mulțumesc",
+                "Te rog",
+                "Scuze",
+                "Cu plăcere"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "type": "match",
+            "instruction": "Match the Romanian greetings with their English meanings",
+            "pairs": [
+                {
+                    "romanian": "Bună ziua",
+                    "english": "Hello"
+                },
+                {
+                    "romanian": "La revedere",
+                    "english": "Goodbye"
+                },
+                {
+                    "romanian": "Mulțumesc",
+                    "english": "Thank you"
+                },
+                {
+                    "romanian": "Noapte bună",
+                    "english": "Good night"
+                },
+                {
+                    "romanian": "Salut",
+                    "english": "Hi"
+                }
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian word for 'Thank you'",
+            "answer": "Mulțumesc",
+            "acceptAlternatives": [
+                "multumesc",
+                "Multumesc"
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian phrase for 'Goodbye'",
+            "answer": "La revedere",
+            "acceptAlternatives": [
+                "la revedere"
+            ]
+        },
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Cu plăcere' mean?",
+            "options": [
+                "Please",
+                "You're welcome",
+                "Thank you",
+                "Hi"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "type": "multiple_choice",
+            "question": "What is the INFORMAL way to say 'Hi' in Romanian?",
+            "options": [
+                "Bună ziua",
+                "La revedere",
+                "Salut",
+                "Bună seara"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "type": "type_answer",
+            "question": "Type 'Good morning' in Romanian",
+            "answer": "Bună dimineața",
+            "acceptAlternatives": [
+                "buna dimineata",
+                "Buna dimineata",
+                "bună dimineața"
+            ]
+        }
+    ]
+}

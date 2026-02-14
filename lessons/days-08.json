@@ -1,0 +1,194 @@
+{
+    "id": "days-08",
+    "title": "Zilele Săptămânii — Days of the Week",
+    "description": "Learn the days of the week and basic time words in Romanian",
+    "category": "Basics",
+    "level": 2,
+    "order": 8,
+    "icon": "📅",
+    "vocabulary": [
+        {
+            "romanian": "Luni",
+            "english": "Monday",
+            "pronunciation": "LOON"
+        },
+        {
+            "romanian": "Marți",
+            "english": "Tuesday",
+            "pronunciation": "MARTS"
+        },
+        {
+            "romanian": "Miercuri",
+            "english": "Wednesday",
+            "pronunciation": "MYEHR-koor"
+        },
+        {
+            "romanian": "Joi",
+            "english": "Thursday",
+            "pronunciation": "ZHOY"
+        },
+        {
+            "romanian": "Vineri",
+            "english": "Friday",
+            "pronunciation": "VEE-nehr"
+        },
+        {
+            "romanian": "Sâmbătă",
+            "english": "Saturday",
+            "pronunciation": "SUHM-bah-tah"
+        },
+        {
+            "romanian": "Duminică",
+            "english": "Sunday",
+            "pronunciation": "doo-MEE-nee-kah"
+        },
+        {
+            "romanian": "Azi",
+            "english": "Today",
+            "pronunciation": "AHZ"
+        },
+        {
+            "romanian": "Mâine",
+            "english": "Tomorrow",
+            "pronunciation": "MUH-ee-neh"
+        },
+        {
+            "romanian": "Ieri",
+            "english": "Yesterday",
+            "pronunciation": "YEHR"
+        }
+    ],
+    "exercises": [
+        {
+            "type": "multiple_choice",
+            "question": "What day is 'Luni'?",
+            "options": [
+                "Tuesday",
+                "Monday",
+                "Sunday",
+                "Friday"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "type": "multiple_choice",
+            "question": "What day is 'Vineri'?",
+            "options": [
+                "Thursday",
+                "Saturday",
+                "Friday",
+                "Wednesday"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "type": "multiple_choice_romanian",
+            "question": "How do you say 'Wednesday' in Romanian?",
+            "options": [
+                "Marți",
+                "Joi",
+                "Miercuri",
+                "Vineri"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "type": "multiple_choice_romanian",
+            "question": "How do you say 'Sunday' in Romanian?",
+            "options": [
+                "Sâmbătă",
+                "Duminică",
+                "Luni",
+                "Joi"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "type": "match",
+            "instruction": "Match the weekdays!",
+            "pairs": [
+                {
+                    "romanian": "Luni",
+                    "english": "Monday"
+                },
+                {
+                    "romanian": "Marți",
+                    "english": "Tuesday"
+                },
+                {
+                    "romanian": "Miercuri",
+                    "english": "Wednesday"
+                },
+                {
+                    "romanian": "Joi",
+                    "english": "Thursday"
+                },
+                {
+                    "romanian": "Vineri",
+                    "english": "Friday"
+                }
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian word for 'Monday'",
+            "answer": "Luni",
+            "acceptAlternatives": [
+                "luni"
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian word for 'Friday'",
+            "answer": "Vineri",
+            "acceptAlternatives": [
+                "vineri"
+            ]
+        },
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Mâine' mean?",
+            "options": [
+                "Yesterday",
+                "Today",
+                "Tomorrow",
+                "Monday"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "type": "match",
+            "instruction": "Match the time words!",
+            "pairs": [
+                {
+                    "romanian": "Sâmbătă",
+                    "english": "Saturday"
+                },
+                {
+                    "romanian": "Duminică",
+                    "english": "Sunday"
+                },
+                {
+                    "romanian": "Azi",
+                    "english": "Today"
+                },
+                {
+                    "romanian": "Mâine",
+                    "english": "Tomorrow"
+                },
+                {
+                    "romanian": "Ieri",
+                    "english": "Yesterday"
+                }
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian word for 'Today'",
+            "answer": "Azi",
+            "acceptAlternatives": [
+                "azi"
+            ]
+        }
+    ]
+}

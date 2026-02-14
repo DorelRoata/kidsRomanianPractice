@@ -1,0 +1,237 @@
+{
+    "id": "food-06",
+    "title": "Mâncare și Băuturi — Food & Drinks",
+    "description": "Learn the names of common foods and drinks in Romanian",
+    "category": "Vocabulary",
+    "level": 1,
+    "order": 6,
+    "icon": "🍕",
+    "vocabulary": [
+        {
+            "romanian": "Pâine",
+            "english": "Bread",
+            "pronunciation": "PUH-ee-neh",
+            "example": {
+                "romanian": "Pâinea este proaspătă.",
+                "english": "The bread is fresh."
+            }
+        },
+        {
+            "romanian": "Apă",
+            "english": "Water",
+            "pronunciation": "AH-pah",
+            "example": {
+                "romanian": "Vreau un pahar de apă.",
+                "english": "I want a glass of water."
+            }
+        },
+        {
+            "romanian": "Lapte",
+            "english": "Milk",
+            "pronunciation": "LAHP-teh",
+            "example": {
+                "romanian": "Laptele este rece.",
+                "english": "The milk is cold."
+            }
+        },
+        {
+            "romanian": "Măr",
+            "english": "Apple",
+            "pronunciation": "MUHR",
+            "example": {
+                "romanian": "Mărul este roșu.",
+                "english": "The apple is red."
+            }
+        },
+        {
+            "romanian": "Brânză",
+            "english": "Cheese",
+            "pronunciation": "BRUHN-zah",
+            "example": {
+                "romanian": "Brânza este bună.",
+                "english": "The cheese is good."
+            }
+        },
+        {
+            "romanian": "Carne",
+            "english": "Meat",
+            "pronunciation": "KAR-neh",
+            "example": {
+                "romanian": "Carnea este gătită.",
+                "english": "The meat is cooked."
+            }
+        },
+        {
+            "romanian": "Supă",
+            "english": "Soup",
+            "pronunciation": "SOO-pah",
+            "example": {
+                "romanian": "Supa este caldă.",
+                "english": "The soup is hot."
+            }
+        },
+        {
+            "romanian": "Ou",
+            "english": "Egg",
+            "pronunciation": "OH-oo",
+            "example": {
+                "romanian": "Oul este fiert.",
+                "english": "The egg is boiled."
+            }
+        },
+        {
+            "romanian": "Suc",
+            "english": "Juice",
+            "pronunciation": "SOOK",
+            "example": {
+                "romanian": "Sucul de portocale este dulce.",
+                "english": "The orange juice is sweet."
+            }
+        },
+        {
+            "romanian": "Tort",
+            "english": "Cake",
+            "pronunciation": "TORT",
+            "example": {
+                "romanian": "Tortul este de ciocolată.",
+                "english": "The cake is chocolate."
+            }
+        }
+    ],
+    "exercises": [
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Pâine' mean?",
+            "options": [
+                "Cake",
+                "Bread",
+                "Cheese",
+                "Meat"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Apă' mean?",
+            "options": [
+                "Juice",
+                "Milk",
+                "Water",
+                "Soup"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "type": "multiple_choice_romanian",
+            "question": "How do you say 'Milk' in Romanian?",
+            "options": [
+                "Apă",
+                "Suc",
+                "Lapte",
+                "Supă"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "type": "multiple_choice_romanian",
+            "question": "How do you say 'Egg' in Romanian?",
+            "options": [
+                "Ou",
+                "Măr",
+                "Tort",
+                "Carne"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "type": "match",
+            "instruction": "Match the foods!",
+            "pairs": [
+                {
+                    "romanian": "Pâine",
+                    "english": "Bread"
+                },
+                {
+                    "romanian": "Brânză",
+                    "english": "Cheese"
+                },
+                {
+                    "romanian": "Carne",
+                    "english": "Meat"
+                },
+                {
+                    "romanian": "Supă",
+                    "english": "Soup"
+                },
+                {
+                    "romanian": "Tort",
+                    "english": "Cake"
+                }
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian word for 'Water'",
+            "answer": "Apă",
+            "acceptAlternatives": [
+                "apa",
+                "Apa"
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian word for 'Apple'",
+            "answer": "Măr",
+            "acceptAlternatives": [
+                "mar",
+                "Mar"
+            ]
+        },
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Suc' mean?",
+            "options": [
+                "Soup",
+                "Milk",
+                "Water",
+                "Juice"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "type": "match",
+            "instruction": "Match the drinks!",
+            "pairs": [
+                {
+                    "romanian": "Apă",
+                    "english": "Water"
+                },
+                {
+                    "romanian": "Lapte",
+                    "english": "Milk"
+                },
+                {
+                    "romanian": "Suc",
+                    "english": "Juice"
+                },
+                {
+                    "romanian": "Ou",
+                    "english": "Egg"
+                },
+                {
+                    "romanian": "Măr",
+                    "english": "Apple"
+                }
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian word for 'Cheese'",
+            "answer": "Brânză",
+            "acceptAlternatives": [
+                "branza",
+                "Branza"
+            ]
+        }
+    ]
+}

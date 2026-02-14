@@ -1,0 +1,236 @@
+{
+    "id": "family-05",
+    "title": "Familia — Family",
+    "description": "Learn how to talk about your family in Romanian",
+    "category": "Vocabulary",
+    "level": 1,
+    "order": 5,
+    "icon": "👨‍👩‍👧‍👦",
+    "vocabulary": [
+        {
+            "romanian": "Mamă",
+            "english": "Mother / Mom",
+            "pronunciation": "MAH-mah",
+            "example": {
+                "romanian": "Mama mea este frumoasă.",
+                "english": "My mother is beautiful."
+            }
+        },
+        {
+            "romanian": "Tată",
+            "english": "Father / Dad",
+            "pronunciation": "TAH-tah",
+            "example": {
+                "romanian": "Tata meu este puternic.",
+                "english": "My father is strong."
+            }
+        },
+        {
+            "romanian": "Frate",
+            "english": "Brother",
+            "pronunciation": "FRAH-teh",
+            "example": {
+                "romanian": "Fratele meu este mare.",
+                "english": "My brother is big."
+            }
+        },
+        {
+            "romanian": "Soră",
+            "english": "Sister",
+            "pronunciation": "SOH-rah",
+            "example": {
+                "romanian": "Sora mea este drăguță.",
+                "english": "My sister is cute."
+            }
+        },
+        {
+            "romanian": "Bunic",
+            "english": "Grandfather",
+            "pronunciation": "BOO-neek",
+            "example": {
+                "romanian": "Bunicul povestește basme.",
+                "english": "Grandfather tells fairy tales."
+            }
+        },
+        {
+            "romanian": "Bunică",
+            "english": "Grandmother",
+            "pronunciation": "BOO-nee-kah",
+            "example": {
+                "romanian": "Bunica face prăjituri.",
+                "english": "Grandmother makes cakes."
+            }
+        },
+        {
+            "romanian": "Copil",
+            "english": "Child",
+            "pronunciation": "koh-PEEL",
+            "example": {
+                "romanian": "Copilul se joacă.",
+                "english": "The child is playing."
+            }
+        },
+        {
+            "romanian": "Familie",
+            "english": "Family",
+            "pronunciation": "fah-MEE-lee-eh",
+            "example": {
+                "romanian": "Familia mea este mare.",
+                "english": "My family is big."
+            }
+        },
+        {
+            "romanian": "Unchi",
+            "english": "Uncle",
+            "pronunciation": "OONK",
+            "example": {
+                "romanian": "Unchiul locuiește departe.",
+                "english": "Uncle lives far away."
+            }
+        },
+        {
+            "romanian": "Mătușă",
+            "english": "Aunt",
+            "pronunciation": "MAH-too-shah",
+            "example": {
+                "romanian": "Mătușa vine în vizită.",
+                "english": "Aunt is coming to visit."
+            }
+        }
+    ],
+    "exercises": [
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Mamă' mean?",
+            "options": [
+                "Father",
+                "Mother",
+                "Sister",
+                "Grandmother"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Frate' mean?",
+            "options": [
+                "Sister",
+                "Father",
+                "Uncle",
+                "Brother"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "type": "multiple_choice_romanian",
+            "question": "How do you say 'Father' in Romanian?",
+            "options": [
+                "Mamă",
+                "Frate",
+                "Tată",
+                "Bunic"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "type": "multiple_choice_romanian",
+            "question": "How do you say 'Grandmother' in Romanian?",
+            "options": [
+                "Bunică",
+                "Mătușă",
+                "Soră",
+                "Mamă"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "type": "match",
+            "instruction": "Match the family members!",
+            "pairs": [
+                {
+                    "romanian": "Mamă",
+                    "english": "Mother"
+                },
+                {
+                    "romanian": "Tată",
+                    "english": "Father"
+                },
+                {
+                    "romanian": "Frate",
+                    "english": "Brother"
+                },
+                {
+                    "romanian": "Soră",
+                    "english": "Sister"
+                },
+                {
+                    "romanian": "Copil",
+                    "english": "Child"
+                }
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type 'Mother' in Romanian",
+            "answer": "Mamă",
+            "acceptAlternatives": [
+                "mama",
+                "Mama"
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type 'Brother' in Romanian",
+            "answer": "Frate",
+            "acceptAlternatives": [
+                "frate"
+            ]
+        },
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Familie' mean?",
+            "options": [
+                "Father",
+                "Familiar",
+                "Family",
+                "Friend"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "type": "match",
+            "instruction": "Match the extended family!",
+            "pairs": [
+                {
+                    "romanian": "Bunic",
+                    "english": "Grandfather"
+                },
+                {
+                    "romanian": "Bunică",
+                    "english": "Grandmother"
+                },
+                {
+                    "romanian": "Unchi",
+                    "english": "Uncle"
+                },
+                {
+                    "romanian": "Mătușă",
+                    "english": "Aunt"
+                },
+                {
+                    "romanian": "Familie",
+                    "english": "Family"
+                }
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type 'Sister' in Romanian",
+            "answer": "Soră",
+            "acceptAlternatives": [
+                "sora",
+                "Sora"
+            ]
+        }
+    ]
+}

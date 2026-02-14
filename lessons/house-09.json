@@ -1,0 +1,236 @@
+{
+    "id": "house-09",
+    "title": "Casa — Around the House",
+    "description": "Learn the names of rooms and objects around the house",
+    "category": "Vocabulary",
+    "level": 2,
+    "order": 9,
+    "icon": "🏠",
+    "vocabulary": [
+        {
+            "romanian": "Casă",
+            "english": "House",
+            "pronunciation": "KAH-sah",
+            "example": {
+                "romanian": "Casa mea este mare.",
+                "english": "My house is big."
+            }
+        },
+        {
+            "romanian": "Ușă",
+            "english": "Door",
+            "pronunciation": "OO-shah",
+            "example": {
+                "romanian": "Deschide ușa!",
+                "english": "Open the door!"
+            }
+        },
+        {
+            "romanian": "Fereastră",
+            "english": "Window",
+            "pronunciation": "feh-RYAHS-trah",
+            "example": {
+                "romanian": "Fereastra este deschisă.",
+                "english": "The window is open."
+            }
+        },
+        {
+            "romanian": "Masă",
+            "english": "Table",
+            "pronunciation": "MAH-sah",
+            "example": {
+                "romanian": "Masa este în bucătărie.",
+                "english": "The table is in the kitchen."
+            }
+        },
+        {
+            "romanian": "Scaun",
+            "english": "Chair",
+            "pronunciation": "SKAH-oon",
+            "example": {
+                "romanian": "Scaunul este confortabil.",
+                "english": "The chair is comfortable."
+            }
+        },
+        {
+            "romanian": "Pat",
+            "english": "Bed",
+            "pronunciation": "PAHT",
+            "example": {
+                "romanian": "Patul meu este moale.",
+                "english": "My bed is soft."
+            }
+        },
+        {
+            "romanian": "Bucătărie",
+            "english": "Kitchen",
+            "pronunciation": "boo-kah-TAH-ree-eh",
+            "example": {
+                "romanian": "Mama gătește în bucătărie.",
+                "english": "Mom cooks in the kitchen."
+            }
+        },
+        {
+            "romanian": "Baie",
+            "english": "Bathroom",
+            "pronunciation": "BAH-yeh",
+            "example": {
+                "romanian": "Baia este curată.",
+                "english": "The bathroom is clean."
+            }
+        },
+        {
+            "romanian": "Cameră",
+            "english": "Room",
+            "pronunciation": "KAH-meh-rah",
+            "example": {
+                "romanian": "Camera mea este frumoasă.",
+                "english": "My room is beautiful."
+            }
+        },
+        {
+            "romanian": "Grădină",
+            "english": "Garden",
+            "pronunciation": "GRAH-dee-nah",
+            "example": {
+                "romanian": "Grădina are flori.",
+                "english": "The garden has flowers."
+            }
+        }
+    ],
+    "exercises": [
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Casă' mean?",
+            "options": [
+                "Chair",
+                "Door",
+                "House",
+                "Room"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Ușă' mean?",
+            "options": [
+                "Window",
+                "Table",
+                "Bed",
+                "Door"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "type": "multiple_choice_romanian",
+            "question": "How do you say 'Table' in Romanian?",
+            "options": [
+                "Scaun",
+                "Pat",
+                "Masă",
+                "Ușă"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "type": "multiple_choice_romanian",
+            "question": "How do you say 'Kitchen' in Romanian?",
+            "options": [
+                "Cameră",
+                "Bucătărie",
+                "Baie",
+                "Grădină"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "type": "match",
+            "instruction": "Match the rooms and furniture!",
+            "pairs": [
+                {
+                    "romanian": "Casă",
+                    "english": "House"
+                },
+                {
+                    "romanian": "Ușă",
+                    "english": "Door"
+                },
+                {
+                    "romanian": "Fereastră",
+                    "english": "Window"
+                },
+                {
+                    "romanian": "Masă",
+                    "english": "Table"
+                },
+                {
+                    "romanian": "Scaun",
+                    "english": "Chair"
+                }
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian word for 'Bed'",
+            "answer": "Pat",
+            "acceptAlternatives": [
+                "pat"
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian word for 'House'",
+            "answer": "Casă",
+            "acceptAlternatives": [
+                "casa",
+                "Casa"
+            ]
+        },
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Grădină' mean?",
+            "options": [
+                "Kitchen",
+                "Room",
+                "Bathroom",
+                "Garden"
+            ],
+            "correctAnswer": 3
+        },
+        {
+            "type": "match",
+            "instruction": "Match the rooms!",
+            "pairs": [
+                {
+                    "romanian": "Pat",
+                    "english": "Bed"
+                },
+                {
+                    "romanian": "Bucătărie",
+                    "english": "Kitchen"
+                },
+                {
+                    "romanian": "Baie",
+                    "english": "Bathroom"
+                },
+                {
+                    "romanian": "Cameră",
+                    "english": "Room"
+                },
+                {
+                    "romanian": "Grădină",
+                    "english": "Garden"
+                }
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian word for 'Door'",
+            "answer": "Ușă",
+            "acceptAlternatives": [
+                "usa",
+                "Usa"
+            ]
+        }
+    ]
+}

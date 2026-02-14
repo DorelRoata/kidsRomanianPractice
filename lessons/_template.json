@@ -1,0 +1,72 @@
+{
+    "id": "unique-lesson-id",
+    "title": "Lesson Title — Titlul Lecției",
+    "description": "A short description of what this lesson covers",
+    "category": "Basics",
+    "level": 1,
+    "order": 1,
+    "icon": "📚",
+    "vocabulary": [
+        {
+            "romanian": "Cuvânt",
+            "english": "Word",
+            "pronunciation": "coo-VUHNT",
+            "example": {
+                "romanian": "Acesta este un cuvânt.",
+                "english": "This is a word."
+            }
+        }
+    ],
+    "exercises": [
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Cuvânt' mean in English?",
+            "options": [
+                "Word",
+                "Sentence",
+                "Letter",
+                "Book"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "type": "multiple_choice_romanian",
+            "question": "How do you say 'Word' in Romanian?",
+            "options": [
+                "Propoziție",
+                "Cuvânt",
+                "Literă",
+                "Carte"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "type": "match",
+            "instruction": "Match the Romanian words with their English translations",
+            "pairs": [
+                {
+                    "romanian": "Cuvânt",
+                    "english": "Word"
+                }
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian word for 'Word'",
+            "answer": "Cuvânt",
+            "acceptAlternatives": [
+                "cuvant",
+                "cuvînt"
+            ]
+        },
+        {
+            "type": "translate",
+            "instruction": "Translate this sentence to English",
+            "sentence": "Acesta este un cuvânt.",
+            "answer": "This is a word.",
+            "acceptAlternatives": [
+                "This is a word"
+            ]
+        }
+    ]
+}

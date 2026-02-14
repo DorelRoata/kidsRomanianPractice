@@ -1,0 +1,236 @@
+{
+    "id": "colors-02",
+    "title": "Culorile — Colors",
+    "description": "Learn the names of colors in Romanian",
+    "category": "Vocabulary",
+    "level": 1,
+    "order": 2,
+    "icon": "🎨",
+    "vocabulary": [
+        {
+            "romanian": "Roșu",
+            "english": "Red",
+            "pronunciation": "ROH-shoo",
+            "example": {
+                "romanian": "Mărul este roșu.",
+                "english": "The apple is red."
+            }
+        },
+        {
+            "romanian": "Albastru",
+            "english": "Blue",
+            "pronunciation": "ahl-BAHS-troo",
+            "example": {
+                "romanian": "Cerul este albastru.",
+                "english": "The sky is blue."
+            }
+        },
+        {
+            "romanian": "Verde",
+            "english": "Green",
+            "pronunciation": "VEHR-deh",
+            "example": {
+                "romanian": "Iarba este verde.",
+                "english": "The grass is green."
+            }
+        },
+        {
+            "romanian": "Galben",
+            "english": "Yellow",
+            "pronunciation": "GAHL-ben",
+            "example": {
+                "romanian": "Soarele este galben.",
+                "english": "The sun is yellow."
+            }
+        },
+        {
+            "romanian": "Portocaliu",
+            "english": "Orange",
+            "pronunciation": "por-toh-KAH-lee-oo",
+            "example": {
+                "romanian": "Portocala este portocalie.",
+                "english": "The orange is orange."
+            }
+        },
+        {
+            "romanian": "Mov",
+            "english": "Purple",
+            "pronunciation": "MOHV",
+            "example": {
+                "romanian": "Floarea este mov.",
+                "english": "The flower is purple."
+            }
+        },
+        {
+            "romanian": "Roz",
+            "english": "Pink",
+            "pronunciation": "ROHZ",
+            "example": {
+                "romanian": "Rochia este roz.",
+                "english": "The dress is pink."
+            }
+        },
+        {
+            "romanian": "Alb",
+            "english": "White",
+            "pronunciation": "AHLB",
+            "example": {
+                "romanian": "Zăpada este albă.",
+                "english": "The snow is white."
+            }
+        },
+        {
+            "romanian": "Negru",
+            "english": "Black",
+            "pronunciation": "NEH-groo",
+            "example": {
+                "romanian": "Pisica este neagră.",
+                "english": "The cat is black."
+            }
+        },
+        {
+            "romanian": "Maro",
+            "english": "Brown",
+            "pronunciation": "MAH-roh",
+            "example": {
+                "romanian": "Câinele este maro.",
+                "english": "The dog is brown."
+            }
+        }
+    ],
+    "exercises": [
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Roșu' mean?",
+            "options": [
+                "Blue",
+                "Green",
+                "Red",
+                "Yellow"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Albastru' mean?",
+            "options": [
+                "Blue",
+                "White",
+                "Green",
+                "Black"
+            ],
+            "correctAnswer": 0
+        },
+        {
+            "type": "multiple_choice_romanian",
+            "question": "How do you say 'Green' in Romanian?",
+            "options": [
+                "Galben",
+                "Verde",
+                "Albastru",
+                "Roșu"
+            ],
+            "correctAnswer": 1
+        },
+        {
+            "type": "multiple_choice_romanian",
+            "question": "How do you say 'Yellow' in Romanian?",
+            "options": [
+                "Maro",
+                "Roz",
+                "Galben",
+                "Mov"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "type": "match",
+            "instruction": "Match the colors!",
+            "pairs": [
+                {
+                    "romanian": "Roșu",
+                    "english": "Red"
+                },
+                {
+                    "romanian": "Albastru",
+                    "english": "Blue"
+                },
+                {
+                    "romanian": "Verde",
+                    "english": "Green"
+                },
+                {
+                    "romanian": "Galben",
+                    "english": "Yellow"
+                },
+                {
+                    "romanian": "Negru",
+                    "english": "Black"
+                }
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type 'Red' in Romanian",
+            "answer": "Roșu",
+            "acceptAlternatives": [
+                "rosu",
+                "Rosu",
+                "roshu"
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type 'Blue' in Romanian",
+            "answer": "Albastru",
+            "acceptAlternatives": [
+                "albastru"
+            ]
+        },
+        {
+            "type": "multiple_choice",
+            "question": "What color is 'Portocaliu'?",
+            "options": [
+                "Purple",
+                "Pink",
+                "Orange",
+                "Brown"
+            ],
+            "correctAnswer": 2
+        },
+        {
+            "type": "match",
+            "instruction": "Match these colors!",
+            "pairs": [
+                {
+                    "romanian": "Alb",
+                    "english": "White"
+                },
+                {
+                    "romanian": "Maro",
+                    "english": "Brown"
+                },
+                {
+                    "romanian": "Roz",
+                    "english": "Pink"
+                },
+                {
+                    "romanian": "Mov",
+                    "english": "Purple"
+                },
+                {
+                    "romanian": "Portocaliu",
+                    "english": "Orange"
+                }
+            ]
+        },
+        {
+            "type": "type_answer",
+            "question": "Type the Romanian word for 'Black'",
+            "answer": "Negru",
+            "acceptAlternatives": [
+                "negru"
+            ]
+        }
+    ]
+}
