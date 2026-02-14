@@ -1,7 +1,7 @@
 {
     "id": "food-06",
     "title": "Mâncare și Băuturi — Food & Drinks",
-    "description": "Learn the names of common foods and drinks in Romanian",
+    "description": "Learn words for yummy food and drinks",
     "category": "Vocabulary",
     "level": 1,
     "order": 6,
@@ -11,6 +11,7 @@
             "romanian": "Pâine",
             "english": "Bread",
             "pronunciation": "PUH-ee-neh",
+            "emoji": "🍞",
             "example": {
                 "romanian": "Pâinea este proaspătă.",
                 "english": "The bread is fresh."
@@ -20,6 +21,7 @@
             "romanian": "Apă",
             "english": "Water",
             "pronunciation": "AH-pah",
+            "emoji": "💧",
             "example": {
                 "romanian": "Vreau un pahar de apă.",
                 "english": "I want a glass of water."
@@ -29,6 +31,7 @@
             "romanian": "Lapte",
             "english": "Milk",
             "pronunciation": "LAHP-teh",
+            "emoji": "🥛",
             "example": {
                 "romanian": "Laptele este rece.",
                 "english": "The milk is cold."
@@ -38,6 +41,7 @@
             "romanian": "Măr",
             "english": "Apple",
             "pronunciation": "MUHR",
+            "emoji": "🍎",
             "example": {
                 "romanian": "Mărul este roșu.",
                 "english": "The apple is red."
@@ -47,6 +51,7 @@
             "romanian": "Brânză",
             "english": "Cheese",
             "pronunciation": "BRUHN-zah",
+            "emoji": "🧀",
             "example": {
                 "romanian": "Brânza este bună.",
                 "english": "The cheese is good."
@@ -56,6 +61,7 @@
             "romanian": "Carne",
             "english": "Meat",
             "pronunciation": "KAR-neh",
+            "emoji": "🍖",
             "example": {
                 "romanian": "Carnea este gătită.",
                 "english": "The meat is cooked."
@@ -65,6 +71,7 @@
             "romanian": "Supă",
             "english": "Soup",
             "pronunciation": "SOO-pah",
+            "emoji": "🍲",
             "example": {
                 "romanian": "Supa este caldă.",
                 "english": "The soup is hot."
@@ -74,6 +81,7 @@
             "romanian": "Ou",
             "english": "Egg",
             "pronunciation": "OH-oo",
+            "emoji": "🥚",
             "example": {
                 "romanian": "Oul este fiert.",
                 "english": "The egg is boiled."
@@ -83,6 +91,7 @@
             "romanian": "Suc",
             "english": "Juice",
             "pronunciation": "SOOK",
+            "emoji": "🧃",
             "example": {
                 "romanian": "Sucul de portocale este dulce.",
                 "english": "The orange juice is sweet."
@@ -92,6 +101,7 @@
             "romanian": "Tort",
             "english": "Cake",
             "pronunciation": "TORT",
+            "emoji": "🎂",
             "example": {
                 "romanian": "Tortul este de ciocolată.",
                 "english": "The cake is chocolate."
@@ -111,6 +121,29 @@
             "correctAnswer": 1
         },
         {
+            "type": "select_image",
+            "question": "Where is the **Pâine**?",
+            "correctAnswer": 0,
+            "options": [
+                {
+                    "text": "Pâine",
+                    "emoji": "🍞"
+                },
+                {
+                    "text": "Tort",
+                    "emoji": "🎂"
+                },
+                {
+                    "text": "Carne",
+                    "emoji": "🍖"
+                },
+                {
+                    "text": "Brânză",
+                    "emoji": "🧀"
+                }
+            ]
+        },
+        {
             "type": "multiple_choice",
             "question": "What does 'Apă' mean?",
             "options": [
@@ -122,6 +155,29 @@
             "correctAnswer": 2
         },
         {
+            "type": "select_image",
+            "question": "Which is **Apă**?",
+            "correctAnswer": 2,
+            "options": [
+                {
+                    "text": "Lapte",
+                    "emoji": "🥛"
+                },
+                {
+                    "text": "Suc",
+                    "emoji": "🧃"
+                },
+                {
+                    "text": "Apă",
+                    "emoji": "💧"
+                },
+                {
+                    "text": "Supă",
+                    "emoji": "🍲"
+                }
+            ]
+        },
+        {
             "type": "multiple_choice_romanian",
             "question": "How do you say 'Milk' in Romanian?",
             "options": [
@@ -131,17 +187,6 @@
                 "Supă"
             ],
             "correctAnswer": 2
-        },
-        {
-            "type": "multiple_choice_romanian",
-            "question": "How do you say 'Egg' in Romanian?",
-            "options": [
-                "Ou",
-                "Măr",
-                "Tort",
-                "Carne"
-            ],
-            "correctAnswer": 0
         },
         {
             "type": "match",
@@ -179,48 +224,25 @@
             ]
         },
         {
-            "type": "type_answer",
-            "question": "Type the Romanian word for 'Apple'",
-            "answer": "Măr",
-            "acceptAlternatives": [
-                "mar",
-                "Mar"
-            ]
-        },
-        {
-            "type": "multiple_choice",
-            "question": "What does 'Suc' mean?",
+            "type": "select_image",
+            "question": "Find the **Măr** (Apple)",
+            "correctAnswer": 1,
             "options": [
-                "Soup",
-                "Milk",
-                "Water",
-                "Juice"
-            ],
-            "correctAnswer": 3
-        },
-        {
-            "type": "match",
-            "instruction": "Match the drinks!",
-            "pairs": [
                 {
-                    "romanian": "Apă",
-                    "english": "Water"
+                    "text": "Portocală",
+                    "emoji": "🍊"
                 },
                 {
-                    "romanian": "Lapte",
-                    "english": "Milk"
+                    "text": "Măr",
+                    "emoji": "🍎"
                 },
                 {
-                    "romanian": "Suc",
-                    "english": "Juice"
+                    "text": "Banane",
+                    "emoji": "🍌"
                 },
                 {
-                    "romanian": "Ou",
-                    "english": "Egg"
-                },
-                {
-                    "romanian": "Măr",
-                    "english": "Apple"
+                    "text": "Strugure",
+                    "emoji": "🍇"
                 }
             ]
         },

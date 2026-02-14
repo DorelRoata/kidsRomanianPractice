@@ -4,76 +4,76 @@
 
 // ─── State ────────────────────────────────────────────────
 const state = {
-    user: null,
-    lessons: [],
-    currentLesson: null,
-    currentPhase: 'vocab', // 'vocab' | 'exercise'
-    vocabIndex: 0,
-    exerciseIndex: 0,
-    answers: [],
-    score: 0,
-    lessonStartTime: null,
-    selectedAvatar: '🧒',
-    charts: {},
+  user: null,
+  lessons: [],
+  currentLesson: null,
+  currentPhase: 'vocab', // 'vocab' | 'exercise'
+  vocabIndex: 0,
+  exerciseIndex: 0,
+  answers: [],
+  score: 0,
+  lessonStartTime: null,
+  selectedAvatar: '🧒',
+  charts: {},
 };
 
 const AVATARS = ['🧒', '👦', '👧', '🧒🏻', '👦🏻', '👧🏻', '🧒🏽', '👦🏽', '👧🏽', '🧒🏿', '👦🏿', '👧🏿', '🦸', '🧙', '🦊', '🐱', '🐶', '🦁', '🐼', '🦄', '🐸', '🐵'];
 
 // ─── API Helper ───────────────────────────────────────────
 async function api(method, url, body = null) {
-    const opts = { method, headers: { 'Content-Type': 'application/json' } };
-    if (body) opts.body = JSON.stringify(body);
-    const res = await fetch(url, opts);
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Request failed');
-    return data;
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
 }
 
 // ─── Router ───────────────────────────────────────────────
 function navigate(hash) {
-    window.location.hash = hash;
+  window.location.hash = hash;
 }
 
 function getRoute() {
-    return window.location.hash.slice(1) || '/';
+  return window.location.hash.slice(1) || '/';
 }
 
 window.addEventListener('hashchange', () => router());
 
 async function router() {
-    const route = getRoute();
-    const app = document.getElementById('app');
+  const route = getRoute();
+  const app = document.getElementById('app');
 
-    // Not logged in — show auth page
-    if (!state.user) {
-        if (route === '/register') {
-            renderRegister(app);
-        } else {
-            renderLogin(app);
-        }
-        return;
-    }
-
-    // Logged in
-    if (route.startsWith('/lesson/')) {
-        const lessonId = route.split('/lesson/')[1];
-        await startLesson(app, lessonId);
-    } else if (route === '/parent') {
-        await renderParentDashboard(app);
+  // Not logged in — show auth page
+  if (!state.user) {
+    if (route === '/register') {
+      renderRegister(app);
     } else {
-        await renderDashboard(app);
+      renderLogin(app);
     }
+    return;
+  }
+
+  // Logged in
+  if (route.startsWith('/lesson/')) {
+    const lessonId = route.split('/lesson/')[1];
+    await startLesson(app, lessonId);
+  } else if (route === '/parent') {
+    await renderParentDashboard(app);
+  } else {
+    await renderDashboard(app);
+  }
 }
 
 // ─── Init ─────────────────────────────────────────────────
 async function init() {
-    try {
-        const data = await api('GET', '/api/auth/me');
-        state.user = data.user;
-    } catch {
-        state.user = null;
-    }
-    router();
+  try {
+    const data = await api('GET', '/api/auth/me');
+    state.user = data.user;
+  } catch {
+    state.user = null;
+  }
+  router();
 }
 
 document.addEventListener('DOMContentLoaded', init);
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', init);
 // ═══════════════════════════════════════════════════════════
 
 function renderLogin(container) {
-    container.innerHTML = `
+  container.innerHTML = `
     <div class="auth-screen">
       <div class="auth-card">
         <div class="auth-flag">🇷🇴</div>
@@ -106,27 +106,27 @@ function renderLogin(container) {
     </div>
   `;
 
-    document.getElementById('go-register').addEventListener('click', () => navigate('/register'));
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const errEl = document.getElementById('auth-error');
-        errEl.classList.remove('visible');
-        try {
-            const data = await api('POST', '/api/auth/login', {
-                username: document.getElementById('login-user').value.trim(),
-                password: document.getElementById('login-pass').value,
-            });
-            state.user = data.user;
-            navigate('/');
-        } catch (err) {
-            errEl.textContent = err.message;
-            errEl.classList.add('visible');
-        }
-    });
+  document.getElementById('go-register').addEventListener('click', () => navigate('/register'));
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errEl = document.getElementById('auth-error');
+    errEl.classList.remove('visible');
+    try {
+      const data = await api('POST', '/api/auth/login', {
+        username: document.getElementById('login-user').value.trim(),
+        password: document.getElementById('login-pass').value,
+      });
+      state.user = data.user;
+      navigate('/');
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.classList.add('visible');
+    }
+  });
 }
 
 function renderRegister(container) {
-    container.innerHTML = `
+  container.innerHTML = `
     <div class="auth-screen">
       <div class="auth-card">
         <div class="auth-flag">🇷🇴</div>
@@ -159,42 +159,42 @@ function renderRegister(container) {
     </div>
   `;
 
-    state.selectedAvatar = '🧒';
-    document.getElementById('go-login').addEventListener('click', () => navigate('/'));
+  state.selectedAvatar = '🧒';
+  document.getElementById('go-login').addEventListener('click', () => navigate('/'));
 
-    // Avatar picker
-    document.getElementById('avatar-picker').addEventListener('click', (e) => {
-        const opt = e.target.closest('.avatar-option');
-        if (!opt) return;
-        document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('selected'));
-        opt.classList.add('selected');
-        state.selectedAvatar = opt.dataset.avatar;
-    });
+  // Avatar picker
+  document.getElementById('avatar-picker').addEventListener('click', (e) => {
+    const opt = e.target.closest('.avatar-option');
+    if (!opt) return;
+    document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    state.selectedAvatar = opt.dataset.avatar;
+  });
 
-    document.getElementById('register-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const errEl = document.getElementById('auth-error');
-        errEl.classList.remove('visible');
-        try {
-            await api('POST', '/api/auth/register', {
-                displayName: document.getElementById('reg-display').value.trim(),
-                username: document.getElementById('reg-user').value.trim(),
-                password: document.getElementById('reg-pass').value,
-                avatar: state.selectedAvatar,
-                role: 'student',
-            });
-            // Auto-login
-            const data = await api('POST', '/api/auth/login', {
-                username: document.getElementById('reg-user').value.trim(),
-                password: document.getElementById('reg-pass').value,
-            });
-            state.user = data.user;
-            navigate('/');
-        } catch (err) {
-            errEl.textContent = err.message;
-            errEl.classList.add('visible');
-        }
-    });
+  document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errEl = document.getElementById('auth-error');
+    errEl.classList.remove('visible');
+    try {
+      await api('POST', '/api/auth/register', {
+        displayName: document.getElementById('reg-display').value.trim(),
+        username: document.getElementById('reg-user').value.trim(),
+        password: document.getElementById('reg-pass').value,
+        avatar: state.selectedAvatar,
+        role: 'student',
+      });
+      // Auto-login
+      const data = await api('POST', '/api/auth/login', {
+        username: document.getElementById('reg-user').value.trim(),
+        password: document.getElementById('reg-pass').value,
+      });
+      state.user = data.user;
+      navigate('/');
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.classList.add('visible');
+    }
+  });
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -202,20 +202,20 @@ function renderRegister(container) {
 // ═══════════════════════════════════════════════════════════
 
 async function renderDashboard(container) {
-    // Load lessons & stats
-    try {
-        const [lessonData, statsData] = await Promise.all([
-            api('GET', '/api/lessons'),
-            api('GET', `/api/progress/stats/${state.user.id}`),
-        ]);
-        state.lessons = lessonData.lessons;
+  // Load lessons & stats
+  try {
+    const [lessonData, statsData] = await Promise.all([
+      api('GET', '/api/lessons'),
+      api('GET', `/api/progress/stats/${state.user.id}`),
+    ]);
+    state.lessons = lessonData.lessons;
 
-        const stats = statsData;
-        const totalMinutes = Math.round((stats.totalTimeSec || 0) / 60);
-        const bestScoresMap = {};
-        (stats.bestScores || []).forEach(b => { bestScoresMap[b.lessonId] = b; });
+    const stats = statsData;
+    const totalMinutes = Math.round((stats.totalTimeSec || 0) / 60);
+    const bestScoresMap = {};
+    (stats.bestScores || []).forEach(b => { bestScoresMap[b.lessonId] = b; });
 
-        container.innerHTML = `
+    container.innerHTML = `
       ${renderNavbar()}
       <div class="dashboard">
         <div class="hero">
@@ -251,10 +251,10 @@ async function renderDashboard(container) {
         </div>
         <div class="lessons-grid">
           ${state.lessons.map(l => {
-            const best = bestScoresMap[l.id];
-            const pct = best ? best.bestScore : 0;
-            const isCompleted = pct >= 80;
-            return `
+      const best = bestScoresMap[l.id];
+      const pct = best ? best.bestScore : 0;
+      const isCompleted = pct >= 80;
+      return `
               <div class="lesson-card${isCompleted ? ' completed' : ''}" data-lesson="${l.id}" id="lesson-${l.id}">
                 <div class="lesson-card-icon">${l.icon || '📚'}</div>
                 <div class="lesson-card-title">${l.title}</div>
@@ -277,22 +277,22 @@ async function renderDashboard(container) {
                 ` : ''}
               </div>
             `;
-        }).join('')}
+    }).join('')}
         </div>
       </div>
     `;
 
-        // Lesson card clicks
-        document.querySelectorAll('.lesson-card').forEach(card => {
-            card.addEventListener('click', () => {
-                navigate(`/lesson/${card.dataset.lesson}`);
-            });
-        });
+    // Lesson card clicks
+    document.querySelectorAll('.lesson-card').forEach(card => {
+      card.addEventListener('click', () => {
+        navigate(`/lesson/${card.dataset.lesson}`);
+      });
+    });
 
-        setupNavbar();
-    } catch (err) {
-        container.innerHTML = `<div class="flex-center" style="min-height:100vh"><p>Error loading: ${err.message}</p></div>`;
-    }
+    setupNavbar();
+  } catch (err) {
+    container.innerHTML = `<div class="flex-center" style="min-height:100vh"><p>Error loading: ${err.message}</p></div>`;
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -300,7 +300,7 @@ async function renderDashboard(container) {
 // ═══════════════════════════════════════════════════════════
 
 function renderNavbar() {
-    return `
+  return `
     <nav class="navbar">
       <a class="navbar-brand" id="nav-home">
         <span class="flag">🇷🇴</span>
@@ -317,13 +317,13 @@ function renderNavbar() {
 }
 
 function setupNavbar() {
-    document.getElementById('nav-home')?.addEventListener('click', () => navigate('/'));
-    document.getElementById('nav-logout')?.addEventListener('click', async () => {
-        await api('POST', '/api/auth/logout');
-        state.user = null;
-        navigate('/');
-    });
-    document.getElementById('nav-parent')?.addEventListener('click', () => navigate('/parent'));
+  document.getElementById('nav-home')?.addEventListener('click', () => navigate('/'));
+  document.getElementById('nav-logout')?.addEventListener('click', async () => {
+    await api('POST', '/api/auth/logout');
+    state.user = null;
+    navigate('/');
+  });
+  document.getElementById('nav-parent')?.addEventListener('click', () => navigate('/parent'));
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -331,52 +331,52 @@ function setupNavbar() {
 // ═══════════════════════════════════════════════════════════
 
 async function startLesson(container, lessonId) {
+  try {
+    const { lesson } = await api('GET', `/api/lessons/${lessonId}`);
+    state.currentLesson = lesson;
+    state.currentPhase = 'vocab';
+    state.vocabIndex = 0;
+    state.exerciseIndex = 0;
+    state.answers = [];
+    state.score = 0;
+    state.lessonStartTime = Date.now();
+
+    // Check for saved progress
     try {
-        const { lesson } = await api('GET', `/api/lessons/${lessonId}`);
-        state.currentLesson = lesson;
-        state.currentPhase = 'vocab';
-        state.vocabIndex = 0;
-        state.exerciseIndex = 0;
-        state.answers = [];
-        state.score = 0;
-        state.lessonStartTime = Date.now();
+      const { progress } = await api('GET', `/api/progress/lesson/${lessonId}`);
+      if (progress && progress.currentExercise > 0) {
+        state.currentPhase = 'exercise';
+        state.exerciseIndex = progress.currentExercise;
+        state.answers = progress.answers || [];
+        state.score = state.answers.filter(a => a === true).length;
+      }
+    } catch { }
 
-        // Check for saved progress
-        try {
-            const { progress } = await api('GET', `/api/progress/lesson/${lessonId}`);
-            if (progress && progress.currentExercise > 0) {
-                state.currentPhase = 'exercise';
-                state.exerciseIndex = progress.currentExercise;
-                state.answers = progress.answers || [];
-                state.score = state.answers.filter(a => a === true).length;
-            }
-        } catch { }
-
-        renderLesson(container);
-    } catch (err) {
-        container.innerHTML = `<div class="flex-center" style="min-height:100vh"><p>Error: ${err.message}</p></div>`;
-    }
+    renderLesson(container);
+  } catch (err) {
+    container.innerHTML = `<div class="flex-center" style="min-height:100vh"><p>Error: ${err.message}</p></div>`;
+  }
 }
 
 function renderLesson(container) {
-    const lesson = state.currentLesson;
-    const totalSteps = (lesson.vocabulary ? lesson.vocabulary.length : 0) + (lesson.exercises ? lesson.exercises.length : 0);
-    let currentStep;
-    if (state.currentPhase === 'vocab') {
-        currentStep = state.vocabIndex;
-    } else {
-        currentStep = (lesson.vocabulary ? lesson.vocabulary.length : 0) + state.exerciseIndex;
-    }
-    const progress = totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0;
+  const lesson = state.currentLesson;
+  const totalSteps = (lesson.vocabulary ? lesson.vocabulary.length : 0) + (lesson.exercises ? lesson.exercises.length : 0);
+  let currentStep;
+  if (state.currentPhase === 'vocab') {
+    currentStep = state.vocabIndex;
+  } else {
+    currentStep = (lesson.vocabulary ? lesson.vocabulary.length : 0) + state.exerciseIndex;
+  }
+  const progress = totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0;
 
-    let contentHtml = '';
-    if (state.currentPhase === 'vocab') {
-        contentHtml = renderVocabCard();
-    } else {
-        contentHtml = renderExercise();
-    }
+  let contentHtml = '';
+  if (state.currentPhase === 'vocab') {
+    contentHtml = renderVocabCard();
+  } else {
+    contentHtml = renderExercise();
+  }
 
-    container.innerHTML = `
+  container.innerHTML = `
     <div class="lesson-screen">
       <div class="lesson-progress-bar">
         <div class="lesson-progress-fill" style="width: ${progress}%"></div>
@@ -394,47 +394,54 @@ function renderLesson(container) {
     </div>
   `;
 
-    document.getElementById('lesson-back').addEventListener('click', () => {
-        // Save progress before leaving
-        if (state.currentPhase === 'exercise' && state.exerciseIndex > 0) {
-            api('POST', '/api/progress/save', {
-                lessonId: lesson.id,
-                currentExercise: state.exerciseIndex,
-                answers: state.answers,
-            });
-        }
-        navigate('/');
-    });
-
-    if (state.currentPhase === 'vocab') {
-        setupVocabInteraction();
-    } else {
-        setupExerciseInteraction();
+  document.getElementById('lesson-back').addEventListener('click', () => {
+    // Save progress before leaving
+    if (state.currentPhase === 'exercise' && state.exerciseIndex > 0) {
+      api('POST', '/api/progress/save', {
+        lessonId: lesson.id,
+        currentExercise: state.exerciseIndex,
+        answers: state.answers,
+      });
     }
+    navigate('/');
+  });
+
+  if (state.currentPhase === 'vocab') {
+    setupVocabInteraction();
+  } else {
+    setupExerciseInteraction();
+  }
 }
 
 // ─── Vocabulary Phase ──────────────────────────────────────
 function renderVocabCard() {
-    const lesson = state.currentLesson;
-    const vocab = lesson.vocabulary;
-    if (!vocab || vocab.length === 0) {
-        state.currentPhase = 'exercise';
-        return renderExercise();
-    }
+  const lesson = state.currentLesson;
+  const vocab = lesson.vocabulary;
+  if (!vocab || vocab.length === 0) {
+    state.currentPhase = 'exercise';
+    return renderExercise();
+  }
 
-    const v = vocab[state.vocabIndex];
-    const hasExample = v.example && v.example.romanian;
+  const v = vocab[state.vocabIndex];
+  const hasExample = v.example && v.example.romanian;
 
-    return `
+  // Decide what to show as the "Image" (File path or Emoji fallback)
+  const imageHtml = v.image
+    ? `<img src="${v.image}" class="vocab-image" alt="${v.english}">`
+    : `<div class="vocab-emoji">${v.emoji || state.currentLesson.icon || '📚'}</div>`;
+
+  return `
     <div class="vocab-phase-title">📖 Learn New Words</div>
     <div class="vocab-phase-subtitle">Tap the card to see the translation</div>
     <div class="vocab-card" id="vocab-card">
       <div class="vocab-front">
+        ${imageHtml}
         <div class="vocab-word">${v.romanian}</div>
         ${v.pronunciation ? `<div class="vocab-pronunciation">[ ${v.pronunciation} ]</div>` : ''}
         <div class="vocab-hint">Tap to reveal meaning</div>
       </div>
       <div class="vocab-back">
+        ${imageHtml}
         <div class="vocab-word">${v.romanian}</div>
         ${v.pronunciation ? `<div class="vocab-pronunciation">[ ${v.pronunciation} ]</div>` : ''}
         <div class="vocab-translation">= ${v.english}</div>
@@ -457,62 +464,64 @@ function renderVocabCard() {
 }
 
 function setupVocabInteraction() {
-    const card = document.getElementById('vocab-card');
-    if (!card) return;
+  const card = document.getElementById('vocab-card');
+  if (!card) return;
 
-    card.addEventListener('click', () => {
-        card.classList.toggle('flipped');
-    });
+  card.addEventListener('click', () => {
+    card.classList.toggle('flipped');
+  });
 
-    document.getElementById('vocab-prev')?.addEventListener('click', () => {
-        state.vocabIndex--;
-        updateLessonContent();
-    });
+  document.getElementById('vocab-prev')?.addEventListener('click', () => {
+    state.vocabIndex--;
+    updateLessonContent();
+  });
 
-    document.getElementById('vocab-next')?.addEventListener('click', () => {
-        const vocab = state.currentLesson.vocabulary;
-        if (state.vocabIndex < vocab.length - 1) {
-            state.vocabIndex++;
-            updateLessonContent();
-        } else {
-            // Move to exercises
-            state.currentPhase = 'exercise';
-            state.exerciseIndex = 0;
-            renderLesson(document.getElementById('app'));
-        }
-    });
+  document.getElementById('vocab-next')?.addEventListener('click', () => {
+    const vocab = state.currentLesson.vocabulary;
+    if (state.vocabIndex < vocab.length - 1) {
+      state.vocabIndex++;
+      updateLessonContent();
+    } else {
+      // Move to exercises
+      state.currentPhase = 'exercise';
+      state.exerciseIndex = 0;
+      renderLesson(document.getElementById('app'));
+    }
+  });
 }
 
 // ─── Exercises ─────────────────────────────────────────────
 function renderExercise() {
-    const lesson = state.currentLesson;
-    const exercises = lesson.exercises || [];
-    if (state.exerciseIndex >= exercises.length) {
-        return ''; // Will be handled by completion
-    }
+  const lesson = state.currentLesson;
+  const exercises = lesson.exercises || [];
+  if (state.exerciseIndex >= exercises.length) {
+    return ''; // Will be handled by completion
+  }
 
-    const ex = exercises[state.exerciseIndex];
+  const ex = exercises[state.exerciseIndex];
 
-    switch (ex.type) {
-        case 'multiple_choice':
-        case 'multiple_choice_romanian':
-            return renderMultipleChoice(ex);
-        case 'match':
-            return renderMatch(ex);
-        case 'type_answer':
-        case 'translate':
-            return renderTypeAnswer(ex);
-        default:
-            return `<p>Unknown exercise type: ${ex.type}</p>`;
-    }
+  switch (ex.type) {
+    case 'multiple_choice':
+    case 'multiple_choice_romanian':
+      return renderMultipleChoice(ex);
+    case 'match':
+      return renderMatch(ex);
+    case 'select_image':
+      return renderSelectImage(ex);
+    case 'type_answer':
+    case 'translate':
+      return renderTypeAnswer(ex);
+    default:
+      return `<p>Unknown exercise type: ${ex.type}</p>`;
+  }
 }
 
 function renderMultipleChoice(ex) {
-    const qLabel = ex.type === 'multiple_choice_romanian'
-        ? `🇷🇴 ${ex.question}`
-        : `🇬🇧 ${ex.question}`;
+  const qLabel = ex.type === 'multiple_choice_romanian'
+    ? `🇷🇴 ${ex.question}`
+    : `🇬🇧 ${ex.question}`;
 
-    return `
+  return `
     <div class="exercise-question">${qLabel}</div>
     <div class="mc-options">
       ${ex.options.map((opt, i) => `
@@ -526,12 +535,12 @@ function renderMultipleChoice(ex) {
 }
 
 function renderMatch(ex) {
-    // Shuffle both columns independently
-    const pairs = ex.pairs;
-    const leftItems = [...pairs].sort(() => Math.random() - 0.5);
-    const rightItems = [...pairs].sort(() => Math.random() - 0.5);
+  // Shuffle both columns independently
+  const pairs = ex.pairs;
+  const leftItems = [...pairs].sort(() => Math.random() - 0.5);
+  const rightItems = [...pairs].sort(() => Math.random() - 0.5);
 
-    return `
+  return `
     <div class="exercise-question">${ex.instruction || 'Match the pairs!'}</div>
     <div class="match-container">
       <div>
@@ -553,12 +562,29 @@ function renderMatch(ex) {
   `;
 }
 
-function renderTypeAnswer(ex) {
-    const question = ex.type === 'translate'
-        ? `📝 ${ex.instruction || 'Translate:'}<br><strong style="font-size:1.5rem;color:var(--primary)">${ex.sentence}</strong>`
-        : `✍️ ${ex.question}`;
+function renderSelectImage(ex) {
+  return `
+    <div class="exercise-question">🖼️ ${ex.question}</div>
+    <div class="image-options">
+      ${ex.options.map((opt, i) => `
+        <div class="image-option" data-index="${i}" id="img-opt-${i}">
+          ${opt.image ? `<img src="${opt.image}" alt="${opt.text}">` : `<div class="img-emoji">${opt.emoji || '❓'}</div>`}
+          <div class="image-label">${opt.text}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="exercise-continue hidden" id="ex-continue">
+      <button class="btn btn-primary btn-lg" id="continue-btn">Continue →</button>
+    </div>
+  `;
+}
 
-    return `
+function renderTypeAnswer(ex) {
+  const question = ex.type === 'translate'
+    ? `📝 ${ex.instruction || 'Translate:'}<br><strong style="font-size:1.5rem;color:var(--primary)">${ex.sentence}</strong>`
+    : `✍️ ${ex.question}`;
+
+  return `
     <div class="exercise-question">${question}</div>
     <input type="text" class="type-answer-input" id="type-input" placeholder="Type your answer..." autocomplete="off" autocapitalize="off" spellcheck="false">
     <div class="type-answer-submit text-center">
@@ -572,268 +598,307 @@ function renderTypeAnswer(ex) {
 }
 
 function setupExerciseInteraction() {
-    const lesson = state.currentLesson;
-    const exercises = lesson.exercises || [];
-    if (state.exerciseIndex >= exercises.length) {
-        completeLesson();
-        return;
-    }
+  const lesson = state.currentLesson;
+  const exercises = lesson.exercises || [];
+  if (state.exerciseIndex >= exercises.length) {
+    completeLesson();
+    return;
+  }
 
-    const ex = exercises[state.exerciseIndex];
+  const ex = exercises[state.exerciseIndex];
 
-    switch (ex.type) {
-        case 'multiple_choice':
-        case 'multiple_choice_romanian':
-            setupMultipleChoice(ex);
-            break;
-        case 'match':
-            setupMatch(ex);
-            break;
-        case 'type_answer':
-        case 'translate':
-            setupTypeAnswer(ex);
-            break;
-    }
+  switch (ex.type) {
+    case 'multiple_choice':
+    case 'multiple_choice_romanian':
+      setupMultipleChoice(ex);
+      break;
+    case 'match':
+      setupMatch(ex);
+      break;
+    case 'select_image':
+      setupSelectImage(ex);
+      break;
+    case 'type_answer':
+    case 'translate':
+      setupTypeAnswer(ex);
+      break;
+  }
 }
 
 function setupMultipleChoice(ex) {
-    const options = document.querySelectorAll('.mc-option');
-    let answered = false;
+  const options = document.querySelectorAll('.mc-option');
+  let answered = false;
 
-    options.forEach(opt => {
-        opt.addEventListener('click', () => {
-            if (answered) return;
-            answered = true;
+  options.forEach(opt => {
+    opt.addEventListener('click', () => {
+      if (answered) return;
+      answered = true;
 
-            const idx = parseInt(opt.dataset.index);
-            const correct = idx === ex.correctAnswer;
+      const idx = parseInt(opt.dataset.index);
+      const correct = idx === ex.correctAnswer;
 
-            // Disable all options
-            options.forEach(o => o.classList.add('disabled'));
+      // Disable all options
+      options.forEach(o => o.classList.add('disabled'));
 
-            if (correct) {
-                opt.classList.add('correct');
-                state.score++;
-                state.answers.push(true);
-            } else {
-                opt.classList.add('incorrect');
-                state.answers.push(false);
-                // Show correct answer
-                options[ex.correctAnswer].classList.add('show-correct');
-            }
+      if (correct) {
+        opt.classList.add('correct');
+        state.score++;
+        state.answers.push(true);
+      } else {
+        opt.classList.add('incorrect');
+        state.answers.push(false);
+        // Show correct answer
+        options[ex.correctAnswer].classList.add('show-correct');
+      }
 
-            // Show continue button
-            setTimeout(() => {
-                document.getElementById('ex-continue').classList.remove('hidden');
-                setupContinueButton();
-            }, 600);
-        });
+      // Show continue button
+      setTimeout(() => {
+        document.getElementById('ex-continue').classList.remove('hidden');
+        setupContinueButton();
+      }, 600);
     });
+  });
 }
 
 function setupMatch(ex) {
-    let selectedLeft = null;
-    let selectedRight = null;
-    let matchedCount = 0;
-    const totalPairs = ex.pairs.length;
-    let matchErrors = 0;
+  let selectedLeft = null;
+  let selectedRight = null;
+  let matchedCount = 0;
+  const totalPairs = ex.pairs.length;
+  let matchErrors = 0;
 
-    document.querySelectorAll('.match-item').forEach(item => {
-        item.addEventListener('click', () => {
-            if (item.classList.contains('matched')) return;
+  document.querySelectorAll('.match-item').forEach(item => {
+    item.addEventListener('click', () => {
+      if (item.classList.contains('matched')) return;
 
-            const side = item.dataset.side;
+      const side = item.dataset.side;
 
-            if (side === 'left') {
-                // Deselect previous left selection
-                if (selectedLeft) selectedLeft.classList.remove('selected');
-                selectedLeft = item;
-                item.classList.add('selected');
-            } else {
-                // Deselect previous right selection
-                if (selectedRight) selectedRight.classList.remove('selected');
-                selectedRight = item;
-                item.classList.add('selected');
-            }
+      if (side === 'left') {
+        // Deselect previous left selection
+        if (selectedLeft) selectedLeft.classList.remove('selected');
+        selectedLeft = item;
+        item.classList.add('selected');
+      } else {
+        // Deselect previous right selection
+        if (selectedRight) selectedRight.classList.remove('selected');
+        selectedRight = item;
+        item.classList.add('selected');
+      }
 
-            // Check if both sides selected
-            if (selectedLeft && selectedRight) {
-                const leftPair = parseInt(selectedLeft.dataset.pair);
-                const rightPair = parseInt(selectedRight.dataset.pair);
+      // Check if both sides selected
+      if (selectedLeft && selectedRight) {
+        const leftPair = parseInt(selectedLeft.dataset.pair);
+        const rightPair = parseInt(selectedRight.dataset.pair);
 
-                if (leftPair === rightPair) {
-                    // Correct match!
-                    selectedLeft.classList.remove('selected');
-                    selectedRight.classList.remove('selected');
-                    selectedLeft.classList.add('matched');
-                    selectedRight.classList.add('matched');
-                    matchedCount++;
+        if (leftPair === rightPair) {
+          // Correct match!
+          selectedLeft.classList.remove('selected');
+          selectedRight.classList.remove('selected');
+          selectedLeft.classList.add('matched');
+          selectedRight.classList.add('matched');
+          matchedCount++;
 
-                    selectedLeft = null;
-                    selectedRight = null;
+          selectedLeft = null;
+          selectedRight = null;
 
-                    if (matchedCount === totalPairs) {
-                        // All matched — count as correct if few errors
-                        state.answers.push(matchErrors < totalPairs);
-                        if (matchErrors < totalPairs) state.score++;
-                        setTimeout(() => {
-                            document.getElementById('ex-continue').classList.remove('hidden');
-                            setupContinueButton();
-                        }, 400);
-                    }
-                } else {
-                    // Wrong match
-                    matchErrors++;
-                    selectedLeft.classList.add('wrong');
-                    selectedRight.classList.add('wrong');
-                    const l = selectedLeft;
-                    const r = selectedRight;
-                    setTimeout(() => {
-                        l.classList.remove('wrong', 'selected');
-                        r.classList.remove('wrong', 'selected');
-                    }, 500);
-                    selectedLeft = null;
-                    selectedRight = null;
-                }
-            }
-        });
+          if (matchedCount === totalPairs) {
+            // All matched — count as correct if few errors
+            state.answers.push(matchErrors < totalPairs);
+            if (matchErrors < totalPairs) state.score++;
+            setTimeout(() => {
+              document.getElementById('ex-continue').classList.remove('hidden');
+              setupContinueButton();
+            }, 400);
+          }
+        } else {
+          // Wrong match
+          matchErrors++;
+          selectedLeft.classList.add('wrong');
+          selectedRight.classList.add('wrong');
+          const l = selectedLeft;
+          const r = selectedRight;
+          setTimeout(() => {
+            l.classList.remove('wrong', 'selected');
+            r.classList.remove('wrong', 'selected');
+          }, 500);
+          selectedLeft = null;
+          selectedRight = null;
+        }
+      }
     });
+  });
+}
+
+function setupSelectImage(ex) {
+  const options = document.querySelectorAll('.image-option');
+  let answered = false;
+
+  options.forEach(opt => {
+    opt.addEventListener('click', () => {
+      if (answered) return;
+      answered = true;
+
+      const idx = parseInt(opt.dataset.index);
+      const correct = idx === ex.correctAnswer;
+
+      // Disable interactions
+      options.forEach(o => o.style.pointerEvents = 'none');
+
+      if (correct) {
+        opt.classList.add('correct');
+        state.score++;
+        state.answers.push(true);
+        launchConfetti(); // Little burst for correct image pick
+      } else {
+        opt.classList.add('incorrect');
+        state.answers.push(false);
+        // Highlight correct one
+        const correctOpt = document.getElementById(`img-opt-${ex.correctAnswer}`);
+        if (correctOpt) correctOpt.classList.add('show-correct');
+      }
+
+      setTimeout(() => {
+        document.getElementById('ex-continue').classList.remove('hidden');
+        setupContinueButton();
+      }, 500);
+    });
+  });
 }
 
 function setupTypeAnswer(ex) {
-    const input = document.getElementById('type-input');
-    const submitBtn = document.getElementById('type-submit');
-    const feedback = document.getElementById('type-feedback');
-    let answered = false;
+  const input = document.getElementById('type-input');
+  const submitBtn = document.getElementById('type-submit');
+  const feedback = document.getElementById('type-feedback');
+  let answered = false;
 
-    function checkAnswer() {
-        if (answered) return;
-        answered = true;
+  function checkAnswer() {
+    if (answered) return;
+    answered = true;
 
-        const userAnswer = input.value.trim();
-        const correctAnswer = ex.answer || ex.sentence;
-        const alternatives = ex.acceptAlternatives || [];
-        const allAccepted = [correctAnswer, ...alternatives].map(a => a.toLowerCase().trim());
+    const userAnswer = input.value.trim();
+    const correctAnswer = ex.answer || ex.sentence;
+    const alternatives = ex.acceptAlternatives || [];
+    const allAccepted = [correctAnswer, ...alternatives].map(a => a.toLowerCase().trim());
 
-        const isCorrect = allAccepted.includes(userAnswer.toLowerCase().trim());
+    const isCorrect = allAccepted.includes(userAnswer.toLowerCase().trim());
 
-        input.disabled = true;
-        submitBtn.style.display = 'none';
-        feedback.classList.remove('hidden');
+    input.disabled = true;
+    submitBtn.style.display = 'none';
+    feedback.classList.remove('hidden');
 
-        if (isCorrect) {
-            input.classList.add('correct');
-            feedback.className = 'type-answer-feedback correct';
-            feedback.textContent = '✅ Correct! Great job!';
-            state.score++;
-            state.answers.push(true);
-        } else {
-            input.classList.add('incorrect');
-            feedback.className = 'type-answer-feedback incorrect';
-            feedback.innerHTML = `❌ The correct answer is: <strong>${correctAnswer}</strong>`;
-            state.answers.push(false);
-        }
-
-        setTimeout(() => {
-            document.getElementById('ex-continue').classList.remove('hidden');
-            setupContinueButton();
-        }, 400);
+    if (isCorrect) {
+      input.classList.add('correct');
+      feedback.className = 'type-answer-feedback correct';
+      feedback.textContent = '✅ Correct! Great job!';
+      state.score++;
+      state.answers.push(true);
+    } else {
+      input.classList.add('incorrect');
+      feedback.className = 'type-answer-feedback incorrect';
+      feedback.innerHTML = `❌ The correct answer is: <strong>${correctAnswer}</strong>`;
+      state.answers.push(false);
     }
 
-    submitBtn.addEventListener('click', checkAnswer);
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') checkAnswer();
-    });
+    setTimeout(() => {
+      document.getElementById('ex-continue').classList.remove('hidden');
+      setupContinueButton();
+    }, 400);
+  }
 
-    // Focus input
-    setTimeout(() => input.focus(), 100);
+  submitBtn.addEventListener('click', checkAnswer);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') checkAnswer();
+  });
+
+  // Focus input
+  setTimeout(() => input.focus(), 100);
 }
 
 function setupContinueButton() {
-    document.getElementById('continue-btn')?.addEventListener('click', () => {
-        state.exerciseIndex++;
-        const exercises = state.currentLesson.exercises || [];
+  document.getElementById('continue-btn')?.addEventListener('click', () => {
+    state.exerciseIndex++;
+    const exercises = state.currentLesson.exercises || [];
 
-        if (state.exerciseIndex >= exercises.length) {
-            completeLesson();
-        } else {
-            // Save progress
-            api('POST', '/api/progress/save', {
-                lessonId: state.currentLesson.id,
-                currentExercise: state.exerciseIndex,
-                answers: state.answers,
-            });
-            renderLesson(document.getElementById('app'));
-        }
-    });
+    if (state.exerciseIndex >= exercises.length) {
+      completeLesson();
+    } else {
+      // Save progress
+      api('POST', '/api/progress/save', {
+        lessonId: state.currentLesson.id,
+        currentExercise: state.exerciseIndex,
+        answers: state.answers,
+      });
+      renderLesson(document.getElementById('app'));
+    }
+  });
 }
 
 function updateLessonContent() {
-    const inner = document.getElementById('lesson-inner');
-    if (!inner) return;
+  const inner = document.getElementById('lesson-inner');
+  if (!inner) return;
 
-    if (state.currentPhase === 'vocab') {
-        inner.innerHTML = renderVocabCard();
-        setupVocabInteraction();
-    } else {
-        inner.innerHTML = renderExercise();
-        setupExerciseInteraction();
-    }
+  if (state.currentPhase === 'vocab') {
+    inner.innerHTML = renderVocabCard();
+    setupVocabInteraction();
+  } else {
+    inner.innerHTML = renderExercise();
+    setupExerciseInteraction();
+  }
 
-    // Update progress bar
-    const lesson = state.currentLesson;
-    const totalSteps = (lesson.vocabulary ? lesson.vocabulary.length : 0) + (lesson.exercises ? lesson.exercises.length : 0);
-    let currentStep = state.currentPhase === 'vocab' ? state.vocabIndex :
-        (lesson.vocabulary ? lesson.vocabulary.length : 0) + state.exerciseIndex;
-    const progress = totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0;
-    const fill = document.querySelector('.lesson-progress-fill');
-    if (fill) fill.style.width = `${progress}%`;
+  // Update progress bar
+  const lesson = state.currentLesson;
+  const totalSteps = (lesson.vocabulary ? lesson.vocabulary.length : 0) + (lesson.exercises ? lesson.exercises.length : 0);
+  let currentStep = state.currentPhase === 'vocab' ? state.vocabIndex :
+    (lesson.vocabulary ? lesson.vocabulary.length : 0) + state.exerciseIndex;
+  const progress = totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0;
+  const fill = document.querySelector('.lesson-progress-fill');
+  if (fill) fill.style.width = `${progress}%`;
 
-    // Update counter
-    const counter = document.querySelector('.lesson-header-progress');
-    if (counter) counter.textContent = `${currentStep + 1} / ${totalSteps}`;
+  // Update counter
+  const counter = document.querySelector('.lesson-header-progress');
+  if (counter) counter.textContent = `${currentStep + 1} / ${totalSteps}`;
 }
 
 // ─── Lesson Completion ─────────────────────────────────────
 async function completeLesson() {
-    const lesson = state.currentLesson;
-    const total = lesson.exercises ? lesson.exercises.length : 0;
-    const percentage = total > 0 ? Math.round((state.score / total) * 100) : 100;
-    const timeSpent = Math.round((Date.now() - state.lessonStartTime) / 1000);
+  const lesson = state.currentLesson;
+  const total = lesson.exercises ? lesson.exercises.length : 0;
+  const percentage = total > 0 ? Math.round((state.score / total) * 100) : 100;
+  const timeSpent = Math.round((Date.now() - state.lessonStartTime) / 1000);
 
-    // Send results to server
-    try {
-        await api('POST', '/api/progress/complete', {
-            lessonId: lesson.id,
-            score: state.score,
-            totalQuestions: total,
-            timeSpentSec: timeSpent,
-        });
-    } catch (err) {
-        console.error('Failed to save results:', err);
-    }
+  // Send results to server
+  try {
+    await api('POST', '/api/progress/complete', {
+      lessonId: lesson.id,
+      score: state.score,
+      totalQuestions: total,
+      timeSpentSec: timeSpent,
+    });
+  } catch (err) {
+    console.error('Failed to save results:', err);
+  }
 
-    // Determine result tier
-    let icon, title, subtitle, color;
-    if (percentage >= 90) {
-        icon = '🏆'; title = 'Excelent!'; subtitle = 'Outstanding work!'; color = '#FFD700';
-        launchConfetti();
-    } else if (percentage >= 70) {
-        icon = '⭐'; title = 'Bine!'; subtitle = 'Good job!'; color = 'var(--accent-teal)';
-        launchConfetti();
-    } else if (percentage >= 50) {
-        icon = '👍'; title = 'OK!'; subtitle = 'Keep practicing!'; color = 'var(--accent-orange)';
-    } else {
-        icon = '💪'; title = 'Try Again!'; subtitle = "Practice makes perfect!"; color = 'var(--accent-coral)';
-    }
+  // Determine result tier
+  let icon, title, subtitle, color;
+  if (percentage >= 90) {
+    icon = '🏆'; title = 'Excelent!'; subtitle = 'Outstanding work!'; color = '#FFD700';
+    launchConfetti();
+  } else if (percentage >= 70) {
+    icon = '⭐'; title = 'Bine!'; subtitle = 'Good job!'; color = 'var(--accent-teal)';
+    launchConfetti();
+  } else if (percentage >= 50) {
+    icon = '👍'; title = 'OK!'; subtitle = 'Keep practicing!'; color = 'var(--accent-orange)';
+  } else {
+    icon = '💪'; title = 'Try Again!'; subtitle = "Practice makes perfect!"; color = 'var(--accent-coral)';
+  }
 
-    const circumference = 2 * Math.PI * 60;
-    const offset = circumference * (1 - percentage / 100);
-    const minutes = Math.floor(timeSpent / 60);
-    const seconds = timeSpent % 60;
+  const circumference = 2 * Math.PI * 60;
+  const offset = circumference * (1 - percentage / 100);
+  const minutes = Math.floor(timeSpent / 60);
+  const seconds = timeSpent % 60;
 
-    const container = document.getElementById('app');
-    container.innerHTML = `
+  const container = document.getElementById('app');
+  container.innerHTML = `
     <div class="results-screen">
       <div class="results-card">
         <div class="results-icon">${icon}</div>
@@ -870,12 +935,12 @@ async function completeLesson() {
     </div>
   `;
 
-    document.getElementById('results-retry').addEventListener('click', () => {
-        navigate(`/lesson/${lesson.id}`);
-    });
-    document.getElementById('results-home').addEventListener('click', () => {
-        navigate('/');
-    });
+  document.getElementById('results-retry').addEventListener('click', () => {
+    navigate(`/lesson/${lesson.id}`);
+  });
+  document.getElementById('results-home').addEventListener('click', () => {
+    navigate('/');
+  });
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -883,23 +948,23 @@ async function completeLesson() {
 // ═══════════════════════════════════════════════════════════
 
 async function renderParentDashboard(container) {
-    if (state.user.role !== 'parent') {
-        navigate('/');
-        return;
-    }
+  if (state.user.role !== 'parent') {
+    navigate('/');
+    return;
+  }
 
-    try {
-        const [usersData, resultsData, lessonsData] = await Promise.all([
-            api('GET', '/api/users'),
-            api('GET', '/api/progress/all-results'),
-            api('GET', '/api/lessons'),
-        ]);
+  try {
+    const [usersData, resultsData, lessonsData] = await Promise.all([
+      api('GET', '/api/users'),
+      api('GET', '/api/progress/all-results'),
+      api('GET', '/api/lessons'),
+    ]);
 
-        const users = usersData.users;
-        const results = resultsData.results;
-        const lessons = lessonsData.lessons;
+    const users = usersData.users;
+    const results = resultsData.results;
+    const lessons = lessonsData.lessons;
 
-        container.innerHTML = `
+    container.innerHTML = `
       ${renderNavbar()}
       <div class="parent-dash">
         <div class="hero">
@@ -917,38 +982,38 @@ async function renderParentDashboard(container) {
       </div>
     `;
 
-        setupNavbar();
+    setupNavbar();
 
-        // Tab switching
-        let activeTab = 'progress';
-        document.querySelectorAll('.parent-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.parent-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                activeTab = tab.dataset.tab;
-                renderTab(activeTab);
-            });
-        });
-
-        function renderTab(tab) {
-            const content = document.getElementById('tab-content');
-            switch (tab) {
-                case 'progress': renderProgressTab(content, users, results, lessons); break;
-                case 'users': renderUsersTab(content, users); break;
-                case 'lessons-manage': renderLessonsTab(content, lessons); break;
-            }
-        }
-
+    // Tab switching
+    let activeTab = 'progress';
+    document.querySelectorAll('.parent-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.parent-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        activeTab = tab.dataset.tab;
         renderTab(activeTab);
-    } catch (err) {
-        container.innerHTML = `<div class="flex-center" style="min-height:100vh"><p>Error: ${err.message}</p></div>`;
+      });
+    });
+
+    function renderTab(tab) {
+      const content = document.getElementById('tab-content');
+      switch (tab) {
+        case 'progress': renderProgressTab(content, users, results, lessons); break;
+        case 'users': renderUsersTab(content, users); break;
+        case 'lessons-manage': renderLessonsTab(content, lessons); break;
+      }
     }
+
+    renderTab(activeTab);
+  } catch (err) {
+    container.innerHTML = `<div class="flex-center" style="min-height:100vh"><p>Error: ${err.message}</p></div>`;
+  }
 }
 
 function renderProgressTab(container, users, results, lessons) {
-    const students = users.filter(u => u.role === 'student');
+  const students = users.filter(u => u.role === 'student');
 
-    container.innerHTML = `
+  container.innerHTML = `
     <h3 class="section-title mb-2">Select a student</h3>
     <div class="user-cards" id="student-cards">
       ${students.map(u => `
@@ -965,23 +1030,23 @@ function renderProgressTab(container, users, results, lessons) {
     <div id="student-detail"></div>
   `;
 
-    document.querySelectorAll('.user-card').forEach(card => {
-        card.addEventListener('click', async () => {
-            document.querySelectorAll('.user-card').forEach(c => c.classList.remove('active'));
-            card.classList.add('active');
-            const userId = parseInt(card.dataset.userId);
-            await renderStudentDetail(document.getElementById('student-detail'), userId, results, lessons);
-        });
+  document.querySelectorAll('.user-card').forEach(card => {
+    card.addEventListener('click', async () => {
+      document.querySelectorAll('.user-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      const userId = parseInt(card.dataset.userId);
+      await renderStudentDetail(document.getElementById('student-detail'), userId, results, lessons);
     });
+  });
 }
 
 async function renderStudentDetail(container, userId, allResults, lessons) {
-    try {
-        const statsData = await api('GET', `/api/progress/stats/${userId}`);
-        const userResults = allResults.filter(r => r.userId === userId);
-        const totalMinutes = Math.round((statsData.totalTimeSec || 0) / 60);
+  try {
+    const statsData = await api('GET', `/api/progress/stats/${userId}`);
+    const userResults = allResults.filter(r => r.userId === userId);
+    const totalMinutes = Math.round((statsData.totalTimeSec || 0) / 60);
 
-        container.innerHTML = `
+    container.innerHTML = `
       <div class="stats-row mt-3">
         <div class="stat-card">
           <div class="stat-icon">📚</div>
@@ -1025,11 +1090,11 @@ async function renderStudentDetail(container, userId, allResults, lessons) {
               </thead>
               <tbody>
                 ${userResults.slice(0, 20).map(r => {
-            const lesson = lessons.find(l => l.id === r.lessonId);
-            const scoreClass = r.percentage >= 80 ? 'high' : r.percentage >= 50 ? 'mid' : 'low';
-            const mins = Math.floor(r.timeSpentSec / 60);
-            const secs = r.timeSpentSec % 60;
-            return `
+      const lesson = lessons.find(l => l.id === r.lessonId);
+      const scoreClass = r.percentage >= 80 ? 'high' : r.percentage >= 50 ? 'mid' : 'low';
+      const mins = Math.floor(r.timeSpentSec / 60);
+      const secs = r.timeSpentSec % 60;
+      return `
                     <tr>
                       <td><strong>${lesson ? lesson.title : r.lessonId}</strong></td>
                       <td><span class="score-badge ${scoreClass}">${r.percentage}%</span></td>
@@ -1037,7 +1102,7 @@ async function renderStudentDetail(container, userId, allResults, lessons) {
                       <td>${new Date(r.completedAt + 'Z').toLocaleDateString()}</td>
                     </tr>
                   `;
-        }).join('')}
+    }).join('')}
               </tbody>
             </table>
           </div>
@@ -1045,95 +1110,95 @@ async function renderStudentDetail(container, userId, allResults, lessons) {
       </div>
     `;
 
-        // Draw charts
-        drawScoresChart(userResults, lessons);
-        drawBestScoresChart(statsData.bestScores || [], lessons);
-    } catch (err) {
-        container.innerHTML = `<p>Error loading stats: ${err.message}</p>`;
-    }
+    // Draw charts
+    drawScoresChart(userResults, lessons);
+    drawBestScoresChart(statsData.bestScores || [], lessons);
+  } catch (err) {
+    container.innerHTML = `<p>Error loading stats: ${err.message}</p>`;
+  }
 }
 
 function drawScoresChart(results, lessons) {
-    // Destroy existing chart
-    if (state.charts.scores) state.charts.scores.destroy();
+  // Destroy existing chart
+  if (state.charts.scores) state.charts.scores.destroy();
 
-    const canvas = document.getElementById('scores-chart');
-    if (!canvas || results.length === 0) return;
+  const canvas = document.getElementById('scores-chart');
+  if (!canvas || results.length === 0) return;
 
-    const sorted = [...results].reverse(); // chronological
-    const labels = sorted.map((r, i) => {
-        const lesson = lessons.find(l => l.id === r.lessonId);
-        return lesson ? lesson.title.split('—')[0].trim() : `#${i + 1}`;
-    });
-    const data = sorted.map(r => r.percentage);
+  const sorted = [...results].reverse(); // chronological
+  const labels = sorted.map((r, i) => {
+    const lesson = lessons.find(l => l.id === r.lessonId);
+    return lesson ? lesson.title.split('—')[0].trim() : `#${i + 1}`;
+  });
+  const data = sorted.map(r => r.percentage);
 
-    state.charts.scores = new Chart(canvas, {
-        type: 'line',
-        data: {
-            labels,
-            datasets: [{
-                label: 'Score %',
-                data,
-                borderColor: '#6C5CE7',
-                backgroundColor: 'rgba(108, 92, 231, 0.1)',
-                fill: true,
-                tension: 0.4,
-                pointBackgroundColor: '#6C5CE7',
-                pointRadius: 5,
-                pointHoverRadius: 7,
-            }],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { min: 0, max: 100, ticks: { callback: v => v + '%' } },
-                x: { ticks: { maxRotation: 45 } },
-            },
-        },
-    });
+  state.charts.scores = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Score %',
+        data,
+        borderColor: '#6C5CE7',
+        backgroundColor: 'rgba(108, 92, 231, 0.1)',
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#6C5CE7',
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { min: 0, max: 100, ticks: { callback: v => v + '%' } },
+        x: { ticks: { maxRotation: 45 } },
+      },
+    },
+  });
 }
 
 function drawBestScoresChart(bestScores, lessons) {
-    if (state.charts.bestScores) state.charts.bestScores.destroy();
+  if (state.charts.bestScores) state.charts.bestScores.destroy();
 
-    const canvas = document.getElementById('best-scores-chart');
-    if (!canvas || bestScores.length === 0) return;
+  const canvas = document.getElementById('best-scores-chart');
+  if (!canvas || bestScores.length === 0) return;
 
-    const labels = bestScores.map(b => {
-        const lesson = lessons.find(l => l.id === b.lessonId);
-        return lesson ? lesson.title.split('—')[0].trim() : b.lessonId;
-    });
-    const data = bestScores.map(b => b.bestScore);
-    const colors = data.map(d => d >= 80 ? '#00B894' : d >= 50 ? '#FDCB6E' : '#FF6B6B');
+  const labels = bestScores.map(b => {
+    const lesson = lessons.find(l => l.id === b.lessonId);
+    return lesson ? lesson.title.split('—')[0].trim() : b.lessonId;
+  });
+  const data = bestScores.map(b => b.bestScore);
+  const colors = data.map(d => d >= 80 ? '#00B894' : d >= 50 ? '#FDCB6E' : '#FF6B6B');
 
-    state.charts.bestScores = new Chart(canvas, {
-        type: 'bar',
-        data: {
-            labels,
-            datasets: [{
-                label: 'Best Score %',
-                data,
-                backgroundColor: colors,
-                borderRadius: 8,
-                barThickness: 40,
-            }],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { min: 0, max: 100, ticks: { callback: v => v + '%' } },
-            },
-        },
-    });
+  state.charts.bestScores = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Best Score %',
+        data,
+        backgroundColor: colors,
+        borderRadius: 8,
+        barThickness: 40,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { min: 0, max: 100, ticks: { callback: v => v + '%' } },
+      },
+    },
+  });
 }
 
 // ─── Users Tab ─────────────────────────────────────────────
 function renderUsersTab(container, users) {
-    container.innerHTML = `
+  container.innerHTML = `
     <div class="card mb-2">
       <h3 class="section-title mb-2">➕ Add Student Account</h3>
       <form id="add-user-form" style="display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:0.75rem; align-items:end">
@@ -1167,41 +1232,41 @@ function renderUsersTab(container, users) {
     </div>
   `;
 
-    document.getElementById('add-user-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        try {
-            await api('POST', '/api/auth/register', {
-                displayName: document.getElementById('new-display').value.trim(),
-                username: document.getElementById('new-user').value.trim(),
-                password: document.getElementById('new-pass').value,
-                role: 'student',
-                avatar: '🧒',
-            });
-            showToast('Student added!', 'success');
-            // Refresh
-            navigate('/parent');
-        } catch (err) {
-            showToast(err.message, 'error');
-        }
-    });
+  document.getElementById('add-user-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await api('POST', '/api/auth/register', {
+        displayName: document.getElementById('new-display').value.trim(),
+        username: document.getElementById('new-user').value.trim(),
+        password: document.getElementById('new-pass').value,
+        role: 'student',
+        avatar: '🧒',
+      });
+      showToast('Student added!', 'success');
+      // Refresh
+      navigate('/parent');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  });
 
-    document.querySelectorAll('[data-delete-user]').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            if (!confirm('Delete this user and all their progress?')) return;
-            try {
-                await api('DELETE', `/api/users/${btn.dataset.deleteUser}`);
-                showToast('User deleted', 'success');
-                navigate('/parent');
-            } catch (err) {
-                showToast(err.message, 'error');
-            }
-        });
+  document.querySelectorAll('[data-delete-user]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Delete this user and all their progress?')) return;
+      try {
+        await api('DELETE', `/api/users/${btn.dataset.deleteUser}`);
+        showToast('User deleted', 'success');
+        navigate('/parent');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
     });
+  });
 }
 
 // ─── Lessons Management Tab ────────────────────────────────
 function renderLessonsTab(container, lessons) {
-    container.innerHTML = `
+  container.innerHTML = `
     <div class="card mb-2">
       <h3 class="section-title mb-2">📝 Add New Lesson</h3>
       <p style="color:var(--text-secondary);margin-bottom:1rem;font-size:0.9rem">
@@ -1252,63 +1317,63 @@ function renderLessonsTab(container, lessons) {
     </div>
   `;
 
-    document.getElementById('load-template').addEventListener('click', async () => {
-        try {
-            const { template } = await api('GET', '/api/lesson-template');
-            document.getElementById('lesson-json').value = JSON.stringify(template, null, 2);
-            showToast('Template loaded!', 'success');
-        } catch (err) {
-            showToast(err.message, 'error');
-        }
-    });
+  document.getElementById('load-template').addEventListener('click', async () => {
+    try {
+      const { template } = await api('GET', '/api/lesson-template');
+      document.getElementById('lesson-json').value = JSON.stringify(template, null, 2);
+      showToast('Template loaded!', 'success');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  });
 
-    document.getElementById('validate-json').addEventListener('click', () => {
-        try {
-            const json = JSON.parse(document.getElementById('lesson-json').value);
-            if (!json.id || !json.title) throw new Error('Lesson must have "id" and "title"');
-            if (!json.exercises || !Array.isArray(json.exercises)) throw new Error('Lesson must have "exercises" array');
-            showToast('✅ Valid lesson JSON!', 'success');
-        } catch (err) {
-            showToast(`Invalid: ${err.message}`, 'error');
-        }
-    });
+  document.getElementById('validate-json').addEventListener('click', () => {
+    try {
+      const json = JSON.parse(document.getElementById('lesson-json').value);
+      if (!json.id || !json.title) throw new Error('Lesson must have "id" and "title"');
+      if (!json.exercises || !Array.isArray(json.exercises)) throw new Error('Lesson must have "exercises" array');
+      showToast('✅ Valid lesson JSON!', 'success');
+    } catch (err) {
+      showToast(`Invalid: ${err.message}`, 'error');
+    }
+  });
 
-    document.getElementById('save-lesson').addEventListener('click', async () => {
-        try {
-            const lesson = JSON.parse(document.getElementById('lesson-json').value);
-            await api('POST', '/api/lessons', lesson);
-            showToast('Lesson saved!', 'success');
-            navigate('/parent');
-        } catch (err) {
-            showToast(err.message, 'error');
-        }
-    });
+  document.getElementById('save-lesson').addEventListener('click', async () => {
+    try {
+      const lesson = JSON.parse(document.getElementById('lesson-json').value);
+      await api('POST', '/api/lessons', lesson);
+      showToast('Lesson saved!', 'success');
+      navigate('/parent');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  });
 
-    document.querySelectorAll('[data-edit-lesson]').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            try {
-                const { lesson } = await api('GET', `/api/lessons/${btn.dataset.editLesson}`);
-                document.getElementById('lesson-json').value = JSON.stringify(lesson, null, 2);
-                document.getElementById('lesson-json').scrollIntoView({ behavior: 'smooth' });
-                showToast('Lesson loaded for editing', 'success');
-            } catch (err) {
-                showToast(err.message, 'error');
-            }
-        });
+  document.querySelectorAll('[data-edit-lesson]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      try {
+        const { lesson } = await api('GET', `/api/lessons/${btn.dataset.editLesson}`);
+        document.getElementById('lesson-json').value = JSON.stringify(lesson, null, 2);
+        document.getElementById('lesson-json').scrollIntoView({ behavior: 'smooth' });
+        showToast('Lesson loaded for editing', 'success');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
     });
+  });
 
-    document.querySelectorAll('[data-delete-lesson]').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            if (!confirm('Delete this lesson?')) return;
-            try {
-                await api('DELETE', `/api/lessons/${btn.dataset.deleteLesson}`);
-                showToast('Lesson deleted', 'success');
-                navigate('/parent');
-            } catch (err) {
-                showToast(err.message, 'error');
-            }
-        });
+  document.querySelectorAll('[data-delete-lesson]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Delete this lesson?')) return;
+      try {
+        await api('DELETE', `/api/lessons/${btn.dataset.deleteLesson}`);
+        showToast('Lesson deleted', 'success');
+        navigate('/parent');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
     });
+  });
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1316,24 +1381,24 @@ function renderLessonsTab(container, lessons) {
 // ═══════════════════════════════════════════════════════════
 
 function launchConfetti() {
-    const container = document.getElementById('confetti-container');
-    const colors = ['#6C5CE7', '#FF6B6B', '#00B894', '#FDCB6E', '#FD79A8', '#74B9FF', '#A29BFE', '#FFD700'];
+  const container = document.getElementById('confetti-container');
+  const colors = ['#6C5CE7', '#FF6B6B', '#00B894', '#FDCB6E', '#FD79A8', '#74B9FF', '#A29BFE', '#FFD700'];
 
-    for (let i = 0; i < 80; i++) {
-        const confetti = document.createElement('div');
-        confetti.className = 'confetti';
-        confetti.style.left = `${Math.random() * 100}%`;
-        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        confetti.style.width = `${Math.random() * 8 + 6}px`;
-        confetti.style.height = `${Math.random() * 8 + 6}px`;
-        confetti.style.animationDuration = `${Math.random() * 2 + 1.5}s`;
-        confetti.style.animationDelay = `${Math.random() * 0.5}s`;
-        if (Math.random() > 0.5) confetti.style.borderRadius = '50%';
-        container.appendChild(confetti);
-    }
+  for (let i = 0; i < 80; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti';
+    confetti.style.left = `${Math.random() * 100}%`;
+    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.width = `${Math.random() * 8 + 6}px`;
+    confetti.style.height = `${Math.random() * 8 + 6}px`;
+    confetti.style.animationDuration = `${Math.random() * 2 + 1.5}s`;
+    confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+    if (Math.random() > 0.5) confetti.style.borderRadius = '50%';
+    container.appendChild(confetti);
+  }
 
-    // Clean up after animation
-    setTimeout(() => { container.innerHTML = ''; }, 4000);
+  // Clean up after animation
+  setTimeout(() => { container.innerHTML = ''; }, 4000);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1341,20 +1406,20 @@ function launchConfetti() {
 // ═══════════════════════════════════════════════════════════
 
 function showToast(message, type = '') {
-    const existing = document.querySelector('.toast');
-    if (existing) existing.remove();
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
 
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
 
-    requestAnimationFrame(() => {
-        toast.classList.add('visible');
-    });
+  requestAnimationFrame(() => {
+    toast.classList.add('visible');
+  });
 
-    setTimeout(() => {
-        toast.classList.remove('visible');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
+  setTimeout(() => {
+    toast.classList.remove('visible');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
 }

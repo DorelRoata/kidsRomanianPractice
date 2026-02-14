@@ -1,7 +1,7 @@
 {
     "id": "animals-04",
     "title": "Animalele — Animals",
-    "description": "Learn the names of common animals in Romanian",
+    "description": "Learn the names of common animals",
     "category": "Vocabulary",
     "level": 1,
     "order": 4,
@@ -11,33 +11,37 @@
             "romanian": "Pisică",
             "english": "Cat",
             "pronunciation": "pee-SEE-kah",
+            "emoji": "🐱",
             "example": {
-                "romanian": "Pisica doarme pe canapea.",
-                "english": "The cat is sleeping on the couch."
+                "romanian": "Pisica doarme.",
+                "english": "The cat is sleeping."
             }
         },
         {
             "romanian": "Câine",
             "english": "Dog",
             "pronunciation": "KUH-ee-neh",
+            "emoji": "🐶",
             "example": {
-                "romanian": "Câinele aleargă în parc.",
-                "english": "The dog runs in the park."
+                "romanian": "Câinele latră.",
+                "english": "The dog is barking."
             }
         },
         {
             "romanian": "Cal",
             "english": "Horse",
             "pronunciation": "KAHL",
+            "emoji": "🐴",
             "example": {
-                "romanian": "Calul este mare.",
-                "english": "The horse is big."
+                "romanian": "Calul aleargă repede.",
+                "english": "The horse runs fast."
             }
         },
         {
             "romanian": "Vacă",
             "english": "Cow",
             "pronunciation": "VAH-kah",
+            "emoji": "🐮",
             "example": {
                 "romanian": "Vaca dă lapte.",
                 "english": "The cow gives milk."
@@ -47,6 +51,7 @@
             "romanian": "Porc",
             "english": "Pig",
             "pronunciation": "PORK",
+            "emoji": "🐷",
             "example": {
                 "romanian": "Porcul este roz.",
                 "english": "The pig is pink."
@@ -56,6 +61,7 @@
             "romanian": "Oaie",
             "english": "Sheep",
             "pronunciation": "WAH-yeh",
+            "emoji": "🐑",
             "example": {
                 "romanian": "Oaia are lână.",
                 "english": "The sheep has wool."
@@ -64,84 +70,123 @@
         {
             "romanian": "Iepure",
             "english": "Rabbit",
-            "pronunciation": "yeh-POO-reh",
+            "pronunciation": "YEH-poo-reh",
+            "emoji": "🐰",
             "example": {
-                "romanian": "Iepurele sare în grădină.",
-                "english": "The rabbit jumps in the garden."
+                "romanian": "Iepurele sare.",
+                "english": "The rabbit jumps."
             }
         },
         {
             "romanian": "Pasăre",
             "english": "Bird",
             "pronunciation": "PAH-sah-reh",
+            "emoji": "🐦",
             "example": {
-                "romanian": "Pasărea cântă frumos.",
-                "english": "The bird sings beautifully."
+                "romanian": "Pasărea zboară.",
+                "english": "The bird flies."
             }
         },
         {
             "romanian": "Pește",
             "english": "Fish",
             "pronunciation": "PESH-teh",
+            "emoji": "🐟",
             "example": {
-                "romanian": "Peștele înoată în apă.",
-                "english": "The fish swims in the water."
+                "romanian": "Peștele înoată.",
+                "english": "The fish swims."
             }
         },
         {
             "romanian": "Urs",
             "english": "Bear",
             "pronunciation": "OORS",
+            "emoji": "🐻",
             "example": {
-                "romanian": "Ursul este puternic.",
-                "english": "The bear is strong."
+                "romanian": "Ursul este mare.",
+                "english": "The bear is big."
             }
         }
     ],
     "exercises": [
         {
             "type": "multiple_choice",
-            "question": "What animal is 'Pisică'?",
+            "question": "What does 'Pisică' mean?",
             "options": [
                 "Dog",
                 "Cat",
-                "Bird",
-                "Fish"
+                "Fish",
+                "Bird"
             ],
             "correctAnswer": 1
         },
         {
-            "type": "multiple_choice",
-            "question": "What animal is 'Câine'?",
+            "type": "select_image",
+            "question": "Where is the **Pisică**?",
+            "correctAnswer": 0,
             "options": [
-                "Cat",
-                "Horse",
+                {
+                    "text": "Pisică",
+                    "emoji": "🐱"
+                },
+                {
+                    "text": "Câine",
+                    "emoji": "🐶"
+                },
+                {
+                    "text": "Cal",
+                    "emoji": "🐴"
+                },
+                {
+                    "text": "Vacă",
+                    "emoji": "🐮"
+                }
+            ]
+        },
+        {
+            "type": "multiple_choice",
+            "question": "What does 'Câine' mean?",
+            "options": [
+                "Cow",
+                "Pig",
                 "Dog",
-                "Pig"
+                "Sheep"
             ],
             "correctAnswer": 2
         },
         {
-            "type": "multiple_choice_romanian",
-            "question": "How do you say 'Horse' in Romanian?",
+            "type": "select_image",
+            "question": "Select the **Câine** (Dog)",
+            "correctAnswer": 1,
             "options": [
-                "Vacă",
-                "Cal",
-                "Porc",
-                "Oaie"
-            ],
-            "correctAnswer": 1
+                {
+                    "text": "Oaie",
+                    "emoji": "🐑"
+                },
+                {
+                    "text": "Câine",
+                    "emoji": "🐶"
+                },
+                {
+                    "text": "Porc",
+                    "emoji": "🐷"
+                },
+                {
+                    "text": "Urs",
+                    "emoji": "🐻"
+                }
+            ]
         },
         {
             "type": "multiple_choice_romanian",
-            "question": "How do you say 'Rabbit' in Romanian?",
+            "question": "How do you say 'Bird' in Romanian?",
             "options": [
-                "Iepure",
-                "Pasăre",
                 "Pește",
-                "Urs"
+                "Pasăre",
+                "Iepure",
+                "Cal"
             ],
-            "correctAnswer": 0
+            "correctAnswer": 1
         },
         {
             "type": "match",
@@ -164,8 +209,31 @@
                     "english": "Cow"
                 },
                 {
-                    "romanian": "Urs",
-                    "english": "Bear"
+                    "romanian": "Porc",
+                    "english": "Pig"
+                }
+            ]
+        },
+        {
+            "type": "select_image",
+            "question": "Which one is **Pește**?",
+            "correctAnswer": 2,
+            "options": [
+                {
+                    "text": "Pasăre",
+                    "emoji": "🐦"
+                },
+                {
+                    "text": "Iepure",
+                    "emoji": "🐰"
+                },
+                {
+                    "text": "Pește",
+                    "emoji": "🐟"
+                },
+                {
+                    "text": "Oaie",
+                    "emoji": "🐑"
                 }
             ]
         },
@@ -176,52 +244,6 @@
             "acceptAlternatives": [
                 "pisica",
                 "Pisica"
-            ]
-        },
-        {
-            "type": "type_answer",
-            "question": "Type the Romanian word for 'Dog'",
-            "answer": "Câine",
-            "acceptAlternatives": [
-                "caine",
-                "Caine"
-            ]
-        },
-        {
-            "type": "multiple_choice",
-            "question": "What does 'Pește' mean?",
-            "options": [
-                "Bird",
-                "Pig",
-                "Bear",
-                "Fish"
-            ],
-            "correctAnswer": 3
-        },
-        {
-            "type": "match",
-            "instruction": "Match these animals!",
-            "pairs": [
-                {
-                    "romanian": "Porc",
-                    "english": "Pig"
-                },
-                {
-                    "romanian": "Oaie",
-                    "english": "Sheep"
-                },
-                {
-                    "romanian": "Iepure",
-                    "english": "Rabbit"
-                },
-                {
-                    "romanian": "Pasăre",
-                    "english": "Bird"
-                },
-                {
-                    "romanian": "Pește",
-                    "english": "Fish"
-                }
             ]
         },
         {
