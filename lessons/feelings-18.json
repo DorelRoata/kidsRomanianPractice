@@ -1,0 +1,97 @@
+{
+  "id": "feelings-18",
+  "title": "Sentimente — Feelings",
+  "description": "Learn common feelings and simple emotional words in Romanian.",
+  "category": "Daily Life",
+  "level": 1,
+  "order": 11,
+  "icon": "🙂",
+  "vocabulary": [
+    { "romanian": "fericit", "english": "happy", "pronunciation": "feh-ree-CHEET" },
+    { "romanian": "trist", "english": "sad", "pronunciation": "treest" },
+    { "romanian": "supărat", "english": "upset", "pronunciation": "soo-puh-RAHT" },
+    { "romanian": "obosit", "english": "tired", "pronunciation": "oh-boh-SEET" },
+    { "romanian": "flămând", "english": "hungry", "pronunciation": "fluh-MUHN" },
+    { "romanian": "sete", "english": "thirsty", "pronunciation": "SEH-teh" },
+    { "romanian": "speriat", "english": "scared", "pronunciation": "speh-ree-AHT" },
+    { "romanian": "calm", "english": "calm", "pronunciation": "kahlm" },
+    { "romanian": "entuziasmat", "english": "excited", "pronunciation": "en-too-zee-ahs-MAHT" },
+    { "romanian": "plictisit", "english": "bored", "pronunciation": "pleek-tee-SEET" }
+  ],
+  "exercises": [
+    {
+      "type": "multiple_choice",
+      "question": "What does 'fericit' mean?",
+      "options": ["sad", "angry", "happy", "tired"],
+      "correctAnswer": 2
+    },
+    {
+      "type": "multiple_choice_romanian",
+      "question": "How do you say 'hungry' in Romanian?",
+      "options": ["sete", "flămând", "obosit", "calm"],
+      "correctAnswer": 1
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "trist",
+      "instruction": "Tap Play, then pick the matching face.",
+      "options": [
+        { "emoji": "😢", "text": "sad" },
+        { "emoji": "😄", "text": "happy" },
+        { "emoji": "😴", "text": "tired" },
+        { "emoji": "😋", "text": "hungry" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "obosit",
+      "instruction": "Tap Play, then pick the matching face.",
+      "options": [
+        { "emoji": "😴", "text": "tired" },
+        { "emoji": "😎", "text": "cool" },
+        { "emoji": "🤩", "text": "excited" },
+        { "emoji": "😡", "text": "angry" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "match",
+      "instruction": "Match feelings",
+      "pairs": [
+        { "romanian": "fericit", "english": "happy" },
+        { "romanian": "trist", "english": "sad" },
+        { "romanian": "obosit", "english": "tired" },
+        { "romanian": "sete", "english": "thirsty" },
+        { "romanian": "calm", "english": "calm" }
+      ]
+    },
+    {
+      "type": "type_answer",
+      "question": "Type 'thirsty' in Romanian",
+      "answer": "sete",
+      "acceptAlternatives": ["Sete"]
+    },
+    {
+      "type": "multiple_choice",
+      "question": "What does 'plictisit' mean?",
+      "options": ["excited", "bored", "scared", "hungry"],
+      "correctAnswer": 1
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "flămând",
+      "instruction": "Tap Play, then pick the matching face.",
+      "options": [
+        { "emoji": "😋", "text": "hungry" },
+        { "emoji": "🥶", "text": "cold" },
+        { "emoji": "😇", "text": "calm" },
+        { "emoji": "🤒", "text": "sick" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    }
+  ]
+}

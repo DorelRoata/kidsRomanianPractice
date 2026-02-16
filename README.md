@@ -4,10 +4,14 @@ A **Rosetta Stone-style** Romanian language learning app built for your kids. Ru
 
 ## Features
 
-- 🔐 **Simple login system** — each kid has their own account
+- 🔐 **Simple login system** — student/parent/admin roles
+- 👶 **Guest mode** — practice any lesson without login (no saved progress/stats)
 - 📚 **Structured lessons** — vocabulary intro → exercises (multiple choice, matching, typing)
+- 🔁 **Adaptive review** — missed items are repeated automatically within the lesson
+- ➡️ **Auto progression** — move to the next lesson automatically after strong scores
 - 💾 **Progress saving** — kids can leave and come back to where they left off
-- 📊 **Parent dashboard** — view each child's scores, progress charts, and analytics
+- 📊 **Parent dashboard** — view each child's scores and progress charts
+- 🌐 **Admin analytics** — site visits, top paths, auth activity, and recent traffic
 - ✏️ **Easy lesson creation** — drop JSON files in the `/lessons` folder or use the admin panel
 - 📱 **iPad-friendly** — responsive design optimized for touch devices
 - 🎉 **Fun & engaging** — confetti on good scores, playful animations, kid-friendly design
@@ -28,6 +32,10 @@ Then open `http://localhost:3000` in your browser.
 - Username: `parent`
 - Password: `parent123`
 
+**Default admin account:**
+- Username: `admin`
+- Password: `admin123`
+
 ### Access from iPads on your network
 
 Find your computer's local IP address and have the kids go to `http://<your-ip>:3000` on their iPads.
@@ -38,7 +46,7 @@ Find your computer's local IP address and have the kids go to `http://<your-ip>:
 Create a `.json` file in the `/lessons` folder following the template in `_template.json`. Restart the server.
 
 ### Option 2: Admin panel
-Log in as a parent → Dashboard → Manage Lessons → paste JSON and save.
+Log in as a parent/admin → Dashboard → Manage Lessons → paste JSON and save.
 
 ### Lesson JSON Format
 
@@ -81,6 +89,20 @@ Log in as a parent → Dashboard → Manage Lessons → paste JSON and save.
       "question": "Type 'Word' in Romanian",
       "answer": "Cuvânt",
       "acceptAlternatives": ["cuvant"]
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "măr",
+      "instruction": "Tap play, then choose the right image",
+      "options": [
+        { "emoji": "🍎", "text": "apple" },
+        { "emoji": "📚", "text": "book" },
+        { "emoji": "🚗", "text": "car" },
+        { "emoji": "⭐", "text": "star" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false
     }
   ]
 }
@@ -95,6 +117,7 @@ Log in as a parent → Dashboard → Manage Lessons → paste JSON and save.
 | `match` | Match Romanian ↔ English pairs |
 | `type_answer` | Type the translation |
 | `translate` | Translate a sentence |
+| `listen_and_select` | Tap play, hear Romanian audio (TTS), choose image/action |
 
 ## Included Lessons
 
@@ -103,6 +126,18 @@ Log in as a parent → Dashboard → Manage Lessons → paste JSON and save.
 3. 🔢 **Numerele** — Numbers 1–20
 4. 🐾 **Animalele** — Animals
 5. 👨‍👩‍👧‍👦 **Familia** — Family members
+6. 🧸 **Pre-K — Ascultă și Alege** — Audio-first object picking (non-readers)
+7. 🤸 **Pre-K — Ascultă și Mișcă** — Audio-first action picking (non-readers)
+8. 🐾 **Pre-K — Animals** — Audio-first animal recognition
+9. 🧍 **Pre-K — Body Parts** — Audio-first body part recognition
+10. 🧸 **Pre-K — Toys** — Audio-first toy recognition
+11. 🪥 **Pre-K — Daily Routines** — Audio-first everyday actions
+12. 🏫 **Pre-K — Classroom Commands** — Audio-first classroom prompts
+13. 🏠 **Acasă — Home Commands** — core commands used at home
+14. 🙂 **Sentimente — Feelings** — emotional vocabulary for kids
+15. 🍎 **Mâncare — Food & Snacks** — common food/drink words
+16. 📍 **Locuri — Places** — home/school/park and nearby places
+17. ↕️ **Opuse — Opposites** — high-frequency opposite pairs
 
 ## Tech Stack
 

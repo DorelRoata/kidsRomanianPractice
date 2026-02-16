@@ -1,0 +1,140 @@
+{
+  "id": "pre-k-actions-11",
+  "title": "Pre-K — Ascultă și Mișcă (Actions)",
+  "description": "For pre-readers: listen to the Romanian action and choose the matching action card.",
+  "category": "Pre-K Audio",
+  "level": 0,
+  "order": 0.1,
+  "icon": "🤸",
+  "vocabulary": [],
+  "exercises": [
+    {
+      "type": "listen_and_select",
+      "prompt": "sari",
+      "instruction": "Tap Play, then pick the right action.",
+      "options": [
+        { "emoji": "🤸", "text": "jump" },
+        { "emoji": "🏃", "text": "run" },
+        { "emoji": "😴", "text": "sleep" },
+        { "emoji": "🍽️", "text": "eat" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "autoPlay": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "aleargă",
+      "instruction": "Tap Play, then pick the right action.",
+      "options": [
+        { "emoji": "🚶", "text": "walk" },
+        { "emoji": "🏃", "text": "run" },
+        { "emoji": "👏", "text": "clap" },
+        { "emoji": "💃", "text": "dance" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "autoPlay": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "dormi",
+      "instruction": "Tap Play, then pick the right action.",
+      "options": [
+        { "emoji": "😴", "text": "sleep" },
+        { "emoji": "🧼", "text": "wash" },
+        { "emoji": "🎨", "text": "draw" },
+        { "emoji": "🧍", "text": "stand" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "autoPlay": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "mănâncă",
+      "instruction": "Tap Play, then pick the right action.",
+      "options": [
+        { "emoji": "🍽️", "text": "eat" },
+        { "emoji": "📖", "text": "read" },
+        { "emoji": "🎵", "text": "sing" },
+        { "emoji": "🛌", "text": "lie down" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "autoPlay": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "bea apă",
+      "instruction": "Tap Play, then pick the right action.",
+      "options": [
+        { "emoji": "🧃", "text": "drink" },
+        { "emoji": "🧎", "text": "kneel" },
+        { "emoji": "🎲", "text": "play game" },
+        { "emoji": "👋", "text": "wave" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "autoPlay": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "bate din palme",
+      "instruction": "Tap Play, then pick the right action.",
+      "options": [
+        { "emoji": "👏", "text": "clap" },
+        { "emoji": "🧠", "text": "think" },
+        { "emoji": "🚴", "text": "ride bike" },
+        { "emoji": "🛁", "text": "bath" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "autoPlay": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "dansează",
+      "instruction": "Tap Play, then pick the right action.",
+      "options": [
+        { "emoji": "🧘", "text": "stretch" },
+        { "emoji": "💃", "text": "dance" },
+        { "emoji": "🧺", "text": "clean" },
+        { "emoji": "🖐️", "text": "high five" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "autoPlay": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "stai jos",
+      "instruction": "Tap Play, then pick the right action.",
+      "options": [
+        { "emoji": "🪑", "text": "sit" },
+        { "emoji": "🏁", "text": "finish" },
+        { "emoji": "🎁", "text": "gift" },
+        { "emoji": "🤝", "text": "shake hands" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "autoPlay": false,
+      "speechRate": 0.8
+    }
+  ]
+}

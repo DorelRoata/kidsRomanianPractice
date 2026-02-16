@@ -1,0 +1,132 @@
+{
+  "id": "pre-k-routines-15",
+  "title": "Pre-K — Ascultă și Alege (Daily Routines)",
+  "description": "For pre-readers: hear the Romanian routine/action and pick the matching card.",
+  "category": "Pre-K Audio",
+  "level": 0,
+  "order": 0.5,
+  "icon": "🪥",
+  "vocabulary": [],
+  "exercises": [
+    {
+      "type": "listen_and_select",
+      "prompt": "spală-te pe mâini",
+      "instruction": "Tap Play, then choose the right action.",
+      "options": [
+        { "emoji": "🧼", "text": "wash hands" },
+        { "emoji": "😴", "text": "sleep" },
+        { "emoji": "📖", "text": "read" },
+        { "emoji": "🎵", "text": "sing" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "spală-te pe dinți",
+      "instruction": "Tap Play, then choose the right action.",
+      "options": [
+        { "emoji": "🪥", "text": "brush teeth" },
+        { "emoji": "🚴", "text": "ride bike" },
+        { "emoji": "🎲", "text": "play game" },
+        { "emoji": "🍽️", "text": "eat" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "îmbracă-te",
+      "instruction": "Tap Play, then choose the right action.",
+      "options": [
+        { "emoji": "👕", "text": "get dressed" },
+        { "emoji": "🎨", "text": "paint" },
+        { "emoji": "🧩", "text": "puzzle" },
+        { "emoji": "🌙", "text": "night" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "mănâncă",
+      "instruction": "Tap Play, then choose the right action.",
+      "options": [
+        { "emoji": "🍽️", "text": "eat" },
+        { "emoji": "🧃", "text": "drink" },
+        { "emoji": "🛌", "text": "rest" },
+        { "emoji": "🏃", "text": "run" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "bea apă",
+      "instruction": "Tap Play, then choose the right action.",
+      "options": [
+        { "emoji": "🧃", "text": "drink" },
+        { "emoji": "🍎", "text": "apple" },
+        { "emoji": "🚪", "text": "door" },
+        { "emoji": "🧸", "text": "toy" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "dormi",
+      "instruction": "Tap Play, then choose the right action.",
+      "options": [
+        { "emoji": "😴", "text": "sleep" },
+        { "emoji": "🧍", "text": "stand" },
+        { "emoji": "🖍️", "text": "color" },
+        { "emoji": "🎈", "text": "balloon" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "fă ordine",
+      "instruction": "Tap Play, then choose the right action.",
+      "options": [
+        { "emoji": "🧹", "text": "tidy up" },
+        { "emoji": "🐶", "text": "dog" },
+        { "emoji": "🍓", "text": "fruit" },
+        { "emoji": "📦", "text": "box" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "citește",
+      "instruction": "Tap Play, then choose the right action.",
+      "options": [
+        { "emoji": "📖", "text": "read" },
+        { "emoji": "⚽", "text": "play ball" },
+        { "emoji": "🛁", "text": "bath" },
+        { "emoji": "🧩", "text": "puzzle" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    }
+  ]
+}

@@ -8,12 +8,13 @@ const db = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const SESSION_SECRET = process.env.SESSION_SECRET || 'romanian-kids-practice-secret-2026';
+const LESSON_ID_RE = /^[a-z0-9][a-z0-9-_]*$/i;
 
 // ─── Middleware ────────────────────────────────────────────
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-    secret: 'romanian-kids-practice-secret-2026',
+    secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 } // 1 week
@@ -26,12 +27,68 @@ function requireAuth(req, res, next) {
 }
 function requireParent(req, res, next) {
     if (!req.session.userId) return res.status(401).json({ error: 'Not logged in' });
-    if (req.session.role !== 'parent') return res.status(403).json({ error: 'Parents only' });
+    if (!['parent', 'admin'].includes(req.session.role)) return res.status(403).json({ error: 'Parents/Admin only' });
+    next();
+}
+function requireAdmin(req, res, next) {
+    if (!req.session.userId) return res.status(401).json({ error: 'Not logged in' });
+    if (req.session.role !== 'admin') return res.status(403).json({ error: 'Admins only' });
     next();
 }
 
 // ─── Lesson Loader ─────────────────────────────────────────
 const LESSONS_DIR = path.join(__dirname, 'lessons');
+function isSafeLessonId(id) {
+    return LESSON_ID_RE.test(String(id || ''));
+}
+function lessonFilePathFromId(id) {
+    if (!isSafeLessonId(id)) return null;
+    return path.join(LESSONS_DIR, `${id}.json`);
+}
+
+function shouldTrackVisit(reqPath) {
+    if (!reqPath) return false;
+    if (reqPath === '/favicon.ico') return false;
+    if (reqPath.startsWith('/css/') || reqPath.startsWith('/js/') || reqPath.startsWith('/icons/')) return false;
+    if (/\.(css|js|map|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf)$/i.test(reqPath)) return false;
+    return true;
+}
+
+app.use((req, res, next) => {
+    const startedAt = Date.now();
+    res.on('finish', () => {
+        if (!shouldTrackVisit(req.path)) return;
+        try {
+            const forwardedFor = req.headers['x-forwarded-for'];
+            const rawIp = Array.isArray(forwardedFor) ? forwardedFor[0] : (forwardedFor || req.socket.remoteAddress || '');
+            const ip = String(rawIp).split(',')[0].trim().slice(0, 128);
+            const userAgent = String(req.headers['user-agent'] || '').slice(0, 512);
+            const referer = String(req.headers.referer || '').slice(0, 512) || null;
+            const role = req.session?.role || 'guest';
+            db.run(
+                `INSERT INTO site_visits (method, path, userId, role, ip, userAgent, referer, isApi, statusCode, durationMs)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    req.method,
+                    req.path,
+                    req.session?.userId || null,
+                    role,
+                    ip || null,
+                    userAgent || null,
+                    referer,
+                    req.path.startsWith('/api') ? 1 : 0,
+                    res.statusCode || 200,
+                    Date.now() - startedAt
+                ]
+            );
+        } catch (err) {
+            console.warn('Failed to track visit:', err.message);
+        }
+    });
+    next();
+});
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 function loadLessons() {
     const files = fs.readdirSync(LESSONS_DIR).filter(f => f.endsWith('.json') && !f.startsWith('_'));
@@ -71,6 +128,12 @@ app.post('/api/auth/register', async (req, res) => {
             return res.status(400).json({ error: 'Username, display name, and password are required' });
         }
 
+        // Only admins can assign parent/admin roles; everyone else creates student accounts.
+        const requestedRole = String(role || 'student').toLowerCase();
+        const safeRole = (req.session?.role === 'admin' && ['student', 'parent', 'admin'].includes(requestedRole))
+            ? requestedRole
+            : 'student';
+
         // Check if username exists
         const existing = db.get('SELECT id FROM users WHERE username = ?', [username.toLowerCase()]);
         if (existing) return res.status(409).json({ error: 'Username already taken' });
@@ -78,12 +141,12 @@ app.post('/api/auth/register', async (req, res) => {
         const hash = await bcrypt.hash(password, 10);
         db.run(
             'INSERT INTO users (username, displayName, password, role, avatar) VALUES (?, ?, ?, ?, ?)',
-            [username.toLowerCase(), displayName, hash, role, avatar]
+            [username.toLowerCase(), displayName, hash, safeRole, avatar]
         );
         const id = db.lastInsertId();
         db.save();
 
-        res.json({ success: true, user: { id, username: username.toLowerCase(), displayName, role, avatar } });
+        res.json({ success: true, user: { id, username: username.toLowerCase(), displayName, role: safeRole, avatar } });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -137,7 +200,16 @@ app.get('/api/users', requireParent, (req, res) => {
 
 app.delete('/api/users/:id', requireParent, (req, res) => {
     const userId = parseInt(req.params.id);
+    if (Number.isNaN(userId)) return res.status(400).json({ error: 'Invalid user ID' });
     if (userId === req.session.userId) return res.status(400).json({ error: 'Cannot delete yourself' });
+    const target = db.get('SELECT id, role FROM users WHERE id = ?', [userId]);
+    if (!target) return res.status(404).json({ error: 'User not found' });
+    if (target.role === 'admin' && req.session.role !== 'admin') {
+        return res.status(403).json({ error: 'Only admins can delete admin accounts' });
+    }
+    if (target.role === 'parent' && req.session.role !== 'admin') {
+        return res.status(403).json({ error: 'Only admins can delete parent accounts' });
+    }
     db.run('DELETE FROM lesson_results WHERE userId = ?', [userId]);
     db.run('DELETE FROM lesson_progress WHERE userId = ?', [userId]);
     db.run('DELETE FROM users WHERE id = ?', [userId]);
@@ -150,7 +222,7 @@ app.delete('/api/users/:id', requireParent, (req, res) => {
 // ═══════════════════════════════════════════════════════════
 
 // Get all lessons (metadata only, no exercises)
-app.get('/api/lessons', requireAuth, (req, res) => {
+app.get('/api/lessons', (req, res) => {
     const lessons = getLessons().map(l => ({
         id: l.id,
         title: l.title,
@@ -166,7 +238,7 @@ app.get('/api/lessons', requireAuth, (req, res) => {
 });
 
 // Get a single lesson with all content
-app.get('/api/lessons/:id', requireAuth, (req, res) => {
+app.get('/api/lessons/:id', (req, res) => {
     const lesson = getLessons().find(l => l.id === req.params.id);
     if (!lesson) return res.status(404).json({ error: 'Lesson not found' });
     res.json({ lesson });
@@ -177,9 +249,10 @@ app.post('/api/lessons', requireParent, (req, res) => {
     try {
         const lesson = req.body;
         if (!lesson.id || !lesson.title) return res.status(400).json({ error: 'Lesson must have id and title' });
+        if (!isSafeLessonId(lesson.id)) return res.status(400).json({ error: 'Lesson ID must contain only letters, numbers, dashes, or underscores' });
 
-        const filename = `${lesson.id}.json`;
-        const filepath = path.join(LESSONS_DIR, filename);
+        const filepath = lessonFilePathFromId(lesson.id);
+        if (!filepath) return res.status(400).json({ error: 'Invalid lesson ID' });
 
         if (fs.existsSync(filepath)) return res.status(409).json({ error: 'A lesson with this ID already exists' });
 
@@ -194,11 +267,15 @@ app.post('/api/lessons', requireParent, (req, res) => {
 // Update a lesson (parent only)
 app.put('/api/lessons/:id', requireParent, (req, res) => {
     try {
-        const lesson = req.body;
-        const filename = `${req.params.id}.json`;
-        const filepath = path.join(LESSONS_DIR, filename);
+        const lessonId = req.params.id;
+        if (!isSafeLessonId(lessonId)) return res.status(400).json({ error: 'Invalid lesson ID' });
+        const lesson = req.body || {};
+        const filepath = lessonFilePathFromId(lessonId);
+        if (!filepath) return res.status(400).json({ error: 'Invalid lesson ID' });
+        if (!lesson.title) return res.status(400).json({ error: 'Lesson must have title' });
 
         if (!fs.existsSync(filepath)) return res.status(404).json({ error: 'Lesson not found' });
+        lesson.id = lessonId;
 
         fs.writeFileSync(filepath, JSON.stringify(lesson, null, 2), 'utf-8');
         reloadLessons();
@@ -211,8 +288,10 @@ app.put('/api/lessons/:id', requireParent, (req, res) => {
 // Delete a lesson (parent only)
 app.delete('/api/lessons/:id', requireParent, (req, res) => {
     try {
-        const filename = `${req.params.id}.json`;
-        const filepath = path.join(LESSONS_DIR, filename);
+        const lessonId = req.params.id;
+        if (!isSafeLessonId(lessonId)) return res.status(400).json({ error: 'Invalid lesson ID' });
+        const filepath = lessonFilePathFromId(lessonId);
+        if (!filepath) return res.status(400).json({ error: 'Invalid lesson ID' });
         if (fs.existsSync(filepath)) fs.unlinkSync(filepath);
         reloadLessons();
         res.json({ success: true });
@@ -300,7 +379,7 @@ app.get('/api/progress/all-results', requireParent, (req, res) => {
 app.get('/api/progress/stats/:userId', requireAuth, (req, res) => {
     const userId = parseInt(req.params.userId);
     // Only allow viewing own stats or parent viewing any
-    if (userId !== req.session.userId && req.session.role !== 'parent') {
+    if (userId !== req.session.userId && !['parent', 'admin'].includes(req.session.role)) {
         return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -335,6 +414,62 @@ app.get('/api/progress/stats/:userId', requireAuth, (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════
+//  ADMIN ANALYTICS ROUTES
+// ═══════════════════════════════════════════════════════════
+
+app.get('/api/admin/analytics', requireAdmin, (req, res) => {
+    try {
+        const totalVisits = db.get('SELECT COUNT(*) as count FROM site_visits');
+        const visitsToday = db.get("SELECT COUNT(*) as count FROM site_visits WHERE date(visitedAt) = date('now')");
+        const uniqueVisitors7d = db.get(
+            "SELECT COUNT(DISTINCT ip) as count FROM site_visits WHERE visitedAt >= datetime('now', '-7 days') AND ip IS NOT NULL AND ip <> ''"
+        );
+        const apiCalls7d = db.get(
+            "SELECT COUNT(*) as count FROM site_visits WHERE isApi = 1 AND visitedAt >= datetime('now', '-7 days')"
+        );
+        const pageViews7d = db.get(
+            "SELECT COUNT(*) as count FROM site_visits WHERE isApi = 0 AND visitedAt >= datetime('now', '-7 days')"
+        );
+        const authActivity7d = db.all(
+            "SELECT path, COUNT(*) as count FROM site_visits WHERE path LIKE '/api/auth/%' AND visitedAt >= datetime('now', '-7 days') GROUP BY path ORDER BY count DESC"
+        );
+        const topPaths14d = db.all(
+            "SELECT path, COUNT(*) as visits FROM site_visits WHERE visitedAt >= datetime('now', '-14 days') GROUP BY path ORDER BY visits DESC LIMIT 20"
+        );
+        const dailyVisits14d = db.all(
+            "SELECT date(visitedAt) as day, COUNT(*) as visits FROM site_visits WHERE visitedAt >= datetime('now', '-14 days') GROUP BY date(visitedAt) ORDER BY day"
+        );
+        const statusBreakdown7d = db.all(
+            "SELECT statusCode, COUNT(*) as count FROM site_visits WHERE visitedAt >= datetime('now', '-7 days') GROUP BY statusCode ORDER BY count DESC"
+        );
+        const recent = db.all(`
+            SELECT sv.visitedAt, sv.method, sv.path, sv.statusCode, sv.role, sv.ip, u.displayName
+            FROM site_visits sv
+            LEFT JOIN users u ON u.id = sv.userId
+            ORDER BY sv.visitedAt DESC
+            LIMIT 100
+        `);
+
+        res.json({
+            totals: {
+                totalVisits: totalVisits ? totalVisits.count : 0,
+                visitsToday: visitsToday ? visitsToday.count : 0,
+                uniqueVisitors7d: uniqueVisitors7d ? uniqueVisitors7d.count : 0,
+                apiCalls7d: apiCalls7d ? apiCalls7d.count : 0,
+                pageViews7d: pageViews7d ? pageViews7d.count : 0
+            },
+            authActivity7d,
+            topPaths14d,
+            dailyVisits14d,
+            statusBreakdown7d,
+            recent
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ═══════════════════════════════════════════════════════════
 //  LESSON TEMPLATE ROUTE
 // ═══════════════════════════════════════════════════════════
 
@@ -364,7 +499,7 @@ async function start() {
     await db.initDatabase();
 
     // Ensure a default parent account exists
-    const parentExists = db.get("SELECT id FROM users WHERE role = 'parent'");
+    const parentExists = db.get("SELECT id FROM users WHERE username = 'parent'");
     if (!parentExists) {
         const hash = await bcrypt.hash('parent123', 10);
         db.run(
@@ -375,6 +510,18 @@ async function start() {
         console.log('👨‍👩‍👧‍👦 Default parent account created — username: parent / password: parent123');
     }
 
+    // Ensure a default admin account exists
+    const adminExists = db.get("SELECT id FROM users WHERE username = 'admin'");
+    if (!adminExists) {
+        const hash = await bcrypt.hash('admin123', 10);
+        db.run(
+            "INSERT INTO users (username, displayName, password, role, avatar) VALUES (?, ?, ?, ?, ?)",
+            ['admin', 'Administrator', hash, 'admin', '🛡️']
+        );
+        db.save();
+        console.log('🛡️  Default admin account created — username: admin / password: admin123');
+    }
+
     app.listen(PORT, '0.0.0.0', () => {
         console.log('');
         console.log('🇷🇴  Kids Romanian Practice is running!');
@@ -382,6 +529,7 @@ async function start() {
         console.log(`   Network: http://<your-ip>:${PORT}`);
         console.log('');
         console.log('   Parent login — username: parent / password: parent123');
+        console.log('   Admin login  — username: admin / password: admin123');
         console.log('');
     });
 }

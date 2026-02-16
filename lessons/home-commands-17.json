@@ -1,0 +1,97 @@
+{
+  "id": "home-commands-17",
+  "title": "Acasă — Home Commands",
+  "description": "Useful Romanian commands kids hear at home every day.",
+  "category": "Daily Life",
+  "level": 1,
+  "order": 10,
+  "icon": "🏠",
+  "vocabulary": [
+    { "romanian": "vino", "english": "come", "pronunciation": "VEE-no" },
+    { "romanian": "stai", "english": "stay", "pronunciation": "stigh" },
+    { "romanian": "așteaptă", "english": "wait", "pronunciation": "ahsh-TEHP-tuh" },
+    { "romanian": "deschide", "english": "open", "pronunciation": "dehs-KEE-deh" },
+    { "romanian": "închide", "english": "close", "pronunciation": "een-KEE-deh" },
+    { "romanian": "ia", "english": "take", "pronunciation": "ee-ah" },
+    { "romanian": "dă-mi", "english": "give me", "pronunciation": "duh-mee" },
+    { "romanian": "pune", "english": "put", "pronunciation": "POO-neh" },
+    { "romanian": "spală", "english": "wash", "pronunciation": "SPAH-luh" },
+    { "romanian": "grăbește-te", "english": "hurry up", "pronunciation": "gruh-BEHSH-teh-teh" }
+  ],
+  "exercises": [
+    {
+      "type": "multiple_choice",
+      "question": "What does 'vino' mean?",
+      "options": ["wait", "come", "close", "take"],
+      "correctAnswer": 1
+    },
+    {
+      "type": "multiple_choice_romanian",
+      "question": "How do you say 'open' in Romanian?",
+      "options": ["deschide", "stai", "spală", "dă-mi"],
+      "correctAnswer": 0
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "vino",
+      "instruction": "Tap Play, then pick the right action.",
+      "options": [
+        { "emoji": "➡️", "text": "come" },
+        { "emoji": "🛑", "text": "stop" },
+        { "emoji": "😴", "text": "sleep" },
+        { "emoji": "🍽️", "text": "eat" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "așteaptă",
+      "instruction": "Tap Play, then pick the right action.",
+      "options": [
+        { "emoji": "⏱️", "text": "wait" },
+        { "emoji": "🏃", "text": "run" },
+        { "emoji": "🚪", "text": "open door" },
+        { "emoji": "🎵", "text": "sing" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "match",
+      "instruction": "Match the home commands",
+      "pairs": [
+        { "romanian": "vino", "english": "come" },
+        { "romanian": "stai", "english": "stay" },
+        { "romanian": "deschide", "english": "open" },
+        { "romanian": "închide", "english": "close" },
+        { "romanian": "spală", "english": "wash" }
+      ]
+    },
+    {
+      "type": "type_answer",
+      "question": "Type 'give me' in Romanian",
+      "answer": "dă-mi",
+      "acceptAlternatives": ["da-mi", "dami"]
+    },
+    {
+      "type": "multiple_choice",
+      "question": "What does 'grăbește-te' mean?",
+      "options": ["sit down", "hurry up", "be quiet", "drink water"],
+      "correctAnswer": 1
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "închide",
+      "instruction": "Tap Play, then pick the right action.",
+      "options": [
+        { "emoji": "❌", "text": "close" },
+        { "emoji": "✅", "text": "open" },
+        { "emoji": "🙋", "text": "raise hand" },
+        { "emoji": "🧸", "text": "toy" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    }
+  ]
+}

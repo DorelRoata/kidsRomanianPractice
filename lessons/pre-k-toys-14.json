@@ -1,0 +1,132 @@
+{
+  "id": "pre-k-toys-14",
+  "title": "Pre-K — Ascultă și Alege (Toys)",
+  "description": "For pre-readers: hear the Romanian toy word and pick the matching toy.",
+  "category": "Pre-K Audio",
+  "level": 0,
+  "order": 0.4,
+  "icon": "🧸",
+  "vocabulary": [],
+  "exercises": [
+    {
+      "type": "listen_and_select",
+      "prompt": "minge",
+      "instruction": "Tap Play, then choose the right toy.",
+      "options": [
+        { "emoji": "⚽", "text": "ball" },
+        { "emoji": "🧩", "text": "puzzle" },
+        { "emoji": "🧸", "text": "teddy bear" },
+        { "emoji": "🚂", "text": "train" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "păpușă",
+      "instruction": "Tap Play, then choose the right toy.",
+      "options": [
+        { "emoji": "🚗", "text": "car" },
+        { "emoji": "🪁", "text": "kite" },
+        { "emoji": "🪆", "text": "doll" },
+        { "emoji": "🧱", "text": "blocks" }
+      ],
+      "correctAnswer": 2,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "trenuleț",
+      "instruction": "Tap Play, then choose the right toy.",
+      "options": [
+        { "emoji": "🚂", "text": "train" },
+        { "emoji": "🚲", "text": "bike" },
+        { "emoji": "🧸", "text": "teddy bear" },
+        { "emoji": "🪀", "text": "yo-yo" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "cuburi",
+      "instruction": "Tap Play, then choose the right toy.",
+      "options": [
+        { "emoji": "🧱", "text": "blocks" },
+        { "emoji": "🎈", "text": "balloon" },
+        { "emoji": "🧢", "text": "hat" },
+        { "emoji": "🎨", "text": "paint" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "ursuleț",
+      "instruction": "Tap Play, then choose the right toy.",
+      "options": [
+        { "emoji": "🧸", "text": "teddy bear" },
+        { "emoji": "🚁", "text": "helicopter" },
+        { "emoji": "🧃", "text": "juice" },
+        { "emoji": "🪅", "text": "pinata" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "mașină",
+      "instruction": "Tap Play, then choose the right toy.",
+      "options": [
+        { "emoji": "🚜", "text": "tractor" },
+        { "emoji": "🚗", "text": "car" },
+        { "emoji": "🏓", "text": "paddle" },
+        { "emoji": "🎲", "text": "dice" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "zmeu",
+      "instruction": "Tap Play, then choose the right toy.",
+      "options": [
+        { "emoji": "🪁", "text": "kite" },
+        { "emoji": "📚", "text": "book" },
+        { "emoji": "🧤", "text": "glove" },
+        { "emoji": "🎧", "text": "headphones" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "puzzle",
+      "instruction": "Tap Play, then choose the right toy.",
+      "options": [
+        { "emoji": "🧮", "text": "abacus" },
+        { "emoji": "🧩", "text": "puzzle" },
+        { "emoji": "📸", "text": "camera" },
+        { "emoji": "⌛", "text": "hourglass" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    }
+  ]
+}

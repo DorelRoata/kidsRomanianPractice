@@ -1,0 +1,97 @@
+{
+  "id": "places-20",
+  "title": "Locuri — Places",
+  "description": "Learn Romanian words for places kids visit often.",
+  "category": "Daily Life",
+  "level": 1,
+  "order": 13,
+  "icon": "📍",
+  "vocabulary": [
+    { "romanian": "acasă", "english": "home", "pronunciation": "ah-KAH-suh" },
+    { "romanian": "grădiniță", "english": "kindergarten", "pronunciation": "gruh-dee-NEE-tsuh" },
+    { "romanian": "parc", "english": "park", "pronunciation": "park" },
+    { "romanian": "școală", "english": "school", "pronunciation": "SHKWA-luh" },
+    { "romanian": "baie", "english": "bathroom", "pronunciation": "BAH-yeh" },
+    { "romanian": "bucătărie", "english": "kitchen", "pronunciation": "boo-kuh-tuh-REE-eh" },
+    { "romanian": "dormitor", "english": "bedroom", "pronunciation": "dor-mee-TOR" },
+    { "romanian": "curte", "english": "yard", "pronunciation": "KOOR-teh" },
+    { "romanian": "magazin", "english": "store", "pronunciation": "mah-gah-ZEEN" },
+    { "romanian": "stradă", "english": "street", "pronunciation": "STRAH-duh" }
+  ],
+  "exercises": [
+    {
+      "type": "multiple_choice",
+      "question": "What does 'parc' mean?",
+      "options": ["school", "park", "street", "yard"],
+      "correctAnswer": 1
+    },
+    {
+      "type": "multiple_choice_romanian",
+      "question": "How do you say 'home' in Romanian?",
+      "options": ["acasă", "baie", "parc", "magazin"],
+      "correctAnswer": 0
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "școală",
+      "instruction": "Tap Play, then choose the matching place.",
+      "options": [
+        { "emoji": "🏫", "text": "school" },
+        { "emoji": "🏠", "text": "home" },
+        { "emoji": "🛁", "text": "bathroom" },
+        { "emoji": "🛒", "text": "store" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "baie",
+      "instruction": "Tap Play, then choose the matching place.",
+      "options": [
+        { "emoji": "🛁", "text": "bathroom" },
+        { "emoji": "🛏️", "text": "bedroom" },
+        { "emoji": "🍳", "text": "kitchen" },
+        { "emoji": "🌳", "text": "yard" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "match",
+      "instruction": "Match places",
+      "pairs": [
+        { "romanian": "acasă", "english": "home" },
+        { "romanian": "parc", "english": "park" },
+        { "romanian": "baie", "english": "bathroom" },
+        { "romanian": "bucătărie", "english": "kitchen" },
+        { "romanian": "dormitor", "english": "bedroom" }
+      ]
+    },
+    {
+      "type": "type_answer",
+      "question": "Type 'store' in Romanian",
+      "answer": "magazin",
+      "acceptAlternatives": ["Magazin"]
+    },
+    {
+      "type": "multiple_choice",
+      "question": "What does 'grădiniță' mean?",
+      "options": ["kindergarten", "park", "yard", "bathroom"],
+      "correctAnswer": 0
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "curte",
+      "instruction": "Tap Play, then choose the matching place.",
+      "options": [
+        { "emoji": "🌳", "text": "yard" },
+        { "emoji": "🛋️", "text": "living room" },
+        { "emoji": "🚗", "text": "garage" },
+        { "emoji": "📚", "text": "library" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    }
+  ]
+}

@@ -1054,6 +1054,60 @@ textarea.form-input {
   transform: scale(1.02);
 }
 
+.listen-prompt-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.listen-play-btn {
+  border: none;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: #fff;
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 1.15rem;
+  padding: 0.9rem 1.4rem;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+
+.listen-play-btn:active {
+  transform: scale(0.97);
+}
+
+.listen-instruction {
+  margin-top: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.listen-prompt-text {
+  margin-top: 0.65rem;
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.pre-k-options .image-option {
+  min-height: 180px;
+  justify-content: center;
+}
+
+.pre-k-options .img-emoji {
+  font-size: 4.8rem;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.pre-k-options.no-labels .image-label {
+  display: none;
+}
+
 /* ─── Match Exercise ────────────────────────────────────── */
 .match-container {
   display: grid;
@@ -1653,6 +1707,14 @@ textarea.form-input {
 
   .image-option img {
     height: 100px;
+  }
+
+  .pre-k-options .image-option {
+    min-height: 150px;
+  }
+
+  .pre-k-options .img-emoji {
+    font-size: 4rem;
   }
 
   .vocab-emoji {

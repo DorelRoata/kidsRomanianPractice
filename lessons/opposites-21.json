@@ -1,0 +1,90 @@
+{
+  "id": "opposites-21",
+  "title": "Opuse — Opposites",
+  "description": "Practice common opposite pairs in Romanian.",
+  "category": "Core Vocabulary",
+  "level": 1,
+  "order": 14,
+  "icon": "↕️",
+  "vocabulary": [
+    { "romanian": "mare", "english": "big", "pronunciation": "MAH-reh" },
+    { "romanian": "mic", "english": "small", "pronunciation": "meek" },
+    { "romanian": "sus", "english": "up", "pronunciation": "soos" },
+    { "romanian": "jos", "english": "down", "pronunciation": "zhos" },
+    { "romanian": "cald", "english": "hot", "pronunciation": "kahld" },
+    { "romanian": "rece", "english": "cold", "pronunciation": "REH-cheh" },
+    { "romanian": "repede", "english": "fast", "pronunciation": "REH-peh-deh" },
+    { "romanian": "încet", "english": "slow", "pronunciation": "een-CHET" },
+    { "romanian": "plin", "english": "full", "pronunciation": "pleen" },
+    { "romanian": "gol", "english": "empty", "pronunciation": "gohl" }
+  ],
+  "exercises": [
+    {
+      "type": "multiple_choice",
+      "question": "What is the opposite of 'mare'?",
+      "options": ["sus", "mic", "cald", "plin"],
+      "correctAnswer": 1
+    },
+    {
+      "type": "multiple_choice",
+      "question": "What is the opposite of 'sus'?",
+      "options": ["mare", "mic", "jos", "rece"],
+      "correctAnswer": 2
+    },
+    {
+      "type": "multiple_choice_romanian",
+      "question": "How do you say 'cold' in Romanian?",
+      "options": ["cald", "repede", "rece", "încet"],
+      "correctAnswer": 2
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "repede",
+      "instruction": "Tap Play, then pick the matching idea.",
+      "options": [
+        { "emoji": "🏃", "text": "fast" },
+        { "emoji": "🐢", "text": "slow" },
+        { "emoji": "⬆️", "text": "up" },
+        { "emoji": "⬇️", "text": "down" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "gol",
+      "instruction": "Tap Play, then pick the matching idea.",
+      "options": [
+        { "emoji": "🫙", "text": "empty" },
+        { "emoji": "🍲", "text": "full" },
+        { "emoji": "🔥", "text": "hot" },
+        { "emoji": "❄️", "text": "cold" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "match",
+      "instruction": "Match opposites",
+      "pairs": [
+        { "romanian": "mare", "english": "big" },
+        { "romanian": "mic", "english": "small" },
+        { "romanian": "cald", "english": "hot" },
+        { "romanian": "rece", "english": "cold" },
+        { "romanian": "încet", "english": "slow" }
+      ]
+    },
+    {
+      "type": "type_answer",
+      "question": "Type 'slow' in Romanian",
+      "answer": "încet",
+      "acceptAlternatives": ["incet", "Incet"]
+    },
+    {
+      "type": "multiple_choice",
+      "question": "What is the opposite of 'plin'?",
+      "options": ["gol", "mare", "sus", "repede"],
+      "correctAnswer": 0
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "id": "pre-k-animals-12",
+  "title": "Pre-K — Ascultă și Alege (Animals)",
+  "description": "For pre-readers: hear the Romanian animal name and pick the matching animal.",
+  "category": "Pre-K Audio",
+  "level": 0,
+  "order": 0.2,
+  "icon": "🐾",
+  "vocabulary": [],
+  "exercises": [
+    {
+      "type": "listen_and_select",
+      "prompt": "câine",
+      "instruction": "Tap Play, then choose the right animal.",
+      "options": [
+        { "emoji": "🐶", "text": "dog" },
+        { "emoji": "🐱", "text": "cat" },
+        { "emoji": "🐰", "text": "rabbit" },
+        { "emoji": "🐻", "text": "bear" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "pisică",
+      "instruction": "Tap Play, then choose the right animal.",
+      "options": [
+        { "emoji": "🐮", "text": "cow" },
+        { "emoji": "🐱", "text": "cat" },
+        { "emoji": "🐟", "text": "fish" },
+        { "emoji": "🐴", "text": "horse" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "iepure",
+      "instruction": "Tap Play, then choose the right animal.",
+      "options": [
+        { "emoji": "🐸", "text": "frog" },
+        { "emoji": "🐰", "text": "rabbit" },
+        { "emoji": "🦁", "text": "lion" },
+        { "emoji": "🐵", "text": "monkey" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "pasăre",
+      "instruction": "Tap Play, then choose the right animal.",
+      "options": [
+        { "emoji": "🐦", "text": "bird" },
+        { "emoji": "🐬", "text": "dolphin" },
+        { "emoji": "🐢", "text": "turtle" },
+        { "emoji": "🐷", "text": "pig" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "pește",
+      "instruction": "Tap Play, then choose the right animal.",
+      "options": [
+        { "emoji": "🐳", "text": "whale" },
+        { "emoji": "🐟", "text": "fish" },
+        { "emoji": "🦊", "text": "fox" },
+        { "emoji": "🦓", "text": "zebra" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "vacă",
+      "instruction": "Tap Play, then choose the right animal.",
+      "options": [
+        { "emoji": "🐮", "text": "cow" },
+        { "emoji": "🐔", "text": "chicken" },
+        { "emoji": "🦉", "text": "owl" },
+        { "emoji": "🐙", "text": "octopus" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "cal",
+      "instruction": "Tap Play, then choose the right animal.",
+      "options": [
+        { "emoji": "🦌", "text": "deer" },
+        { "emoji": "🐴", "text": "horse" },
+        { "emoji": "🐧", "text": "penguin" },
+        { "emoji": "🐿️", "text": "squirrel" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "urs",
+      "instruction": "Tap Play, then choose the right animal.",
+      "options": [
+        { "emoji": "🐼", "text": "panda" },
+        { "emoji": "🐻", "text": "bear" },
+        { "emoji": "🦒", "text": "giraffe" },
+        { "emoji": "🦘", "text": "kangaroo" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    }
+  ]
+}

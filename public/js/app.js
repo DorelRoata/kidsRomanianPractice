@@ -9,15 +9,22 @@ const state = {
   currentLesson: null,
   currentPhase: 'vocab', // 'vocab' | 'exercise'
   vocabIndex: 0,
-  exerciseIndex: 0,
-  answers: [],
+  exerciseIndex: 0, // pointer into exerciseQueue
+  exerciseQueue: [],
+  retryCounts: {},
+  masteredExercises: {},
+  answers: [], // attempt history
   score: 0,
+  maxAdaptiveRetries: 2,
+  autoProgressTimer: null,
   lessonStartTime: null,
   selectedAvatar: '🧒',
   charts: {},
 };
 
 const AVATARS = ['🧒', '👦', '👧', '🧒🏻', '👦🏻', '👧🏻', '🧒🏽', '👦🏽', '👧🏽', '🧒🏿', '👦🏿', '👧🏿', '🦸', '🧙', '🦊', '🐱', '🐶', '🦁', '🐼', '🦄', '🐸', '🐵'];
+let cachedRomanianVoice = null;
+const GUEST_USER = { id: null, username: 'guest', displayName: 'Guest', role: 'guest', avatar: '🧒' };
 
 // ─── API Helper ───────────────────────────────────────────
 async function api(method, url, body = null) {
@@ -27,6 +34,50 @@ async function api(method, url, body = null) {
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Request failed');
   return data;
+}
+
+// ─── Speech Helper (Pre-K listen lessons) ────────────────
+function pickRomanianVoice() {
+  if (!('speechSynthesis' in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices || voices.length === 0) return null;
+  return voices.find(v => /^ro(-|_)/i.test(v.lang)) || null;
+}
+
+function speakRomanian(text, { rate = 0.82, pitch = 1 } = {}) {
+  if (!text || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
+    return false;
+  }
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'ro-RO';
+  utterance.rate = rate;
+  utterance.pitch = pitch;
+  cachedRomanianVoice = cachedRomanianVoice || pickRomanianVoice();
+  if (cachedRomanianVoice) utterance.voice = cachedRomanianVoice;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utterance);
+  return true;
+}
+
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => {
+    cachedRomanianVoice = pickRomanianVoice();
+  };
+}
+
+function isGuestUser() {
+  return state.user && state.user.role === 'guest';
+}
+
+function canPersistProgress() {
+  return !!(state.user && state.user.id && !isGuestUser());
+}
+
+function clearAutoProgressTimer() {
+  if (state.autoProgressTimer) {
+    clearTimeout(state.autoProgressTimer);
+    state.autoProgressTimer = null;
+  }
 }
 
 // ─── Router ───────────────────────────────────────────────
@@ -101,12 +152,17 @@ function renderLogin(container) {
           </div>
           <button type="submit" class="btn btn-primary btn-lg btn-block" id="login-btn">🔑 Sign In</button>
         </form>
+        <button class="btn btn-outline btn-lg btn-block" id="guest-continue">👶 Continue as Guest</button>
         <p class="auth-switch">Don't have an account? <a id="go-register">Create one</a></p>
       </div>
     </div>
   `;
 
   document.getElementById('go-register').addEventListener('click', () => navigate('/register'));
+  document.getElementById('guest-continue').addEventListener('click', () => {
+    state.user = { ...GUEST_USER };
+    navigate('/');
+  });
   document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const errEl = document.getElementById('auth-error');
@@ -202,27 +258,42 @@ function renderRegister(container) {
 // ═══════════════════════════════════════════════════════════
 
 async function renderDashboard(container) {
-  // Load lessons & stats
   try {
-    const [lessonData, statsData] = await Promise.all([
-      api('GET', '/api/lessons'),
-      api('GET', `/api/progress/stats/${state.user.id}`),
-    ]);
-    state.lessons = lessonData.lessons;
+    const lessonData = await api('GET', '/api/lessons');
+    state.lessons = lessonData.lessons || [];
 
-    const stats = statsData;
-    const totalMinutes = Math.round((stats.totalTimeSec || 0) / 60);
+    let stats = {
+      completedLessons: 0,
+      totalLessons: state.lessons.length,
+      averageScore: 0,
+      totalTimeSec: 0,
+      recentResults: [],
+      bestScores: []
+    };
     const bestScoresMap = {};
-    (stats.bestScores || []).forEach(b => { bestScoresMap[b.lessonId] = b; });
+
+    if (!isGuestUser()) {
+      const statsData = await api('GET', `/api/progress/stats/${state.user.id}`);
+      stats = { ...stats, ...statsData };
+      (stats.bestScores || []).forEach(b => { bestScoresMap[b.lessonId] = b; });
+    }
+
+    const totalMinutes = Math.round((stats.totalTimeSec || 0) / 60);
+    const guestNotice = isGuestUser()
+      ? `<div class="card mb-2"><strong>Guest mode:</strong> lessons work normally, but progress and stats are not saved.</div>`
+      : '';
 
     container.innerHTML = `
       ${renderNavbar()}
       <div class="dashboard">
         <div class="hero">
           <h1>Bună, ${state.user.displayName}! 👋</h1>
-          <p>Ready to learn some Romanian today?</p>
+          <p>${isGuestUser() ? 'Pick any lesson and start right away.' : 'Ready to learn some Romanian today?'}</p>
         </div>
 
+        ${guestNotice}
+
+        ${!isGuestUser() ? `
         <div class="stats-row">
           <div class="stat-card">
             <div class="stat-icon">📚</div>
@@ -245,6 +316,7 @@ async function renderDashboard(container) {
             <div class="stat-label">Attempts</div>
           </div>
         </div>
+        ` : ''}
 
         <div class="section-header">
           <h2 class="section-title">📖 Lessons</h2>
@@ -282,7 +354,6 @@ async function renderDashboard(container) {
       </div>
     `;
 
-    // Lesson card clicks
     document.querySelectorAll('.lesson-card').forEach(card => {
       card.addEventListener('click', () => {
         navigate(`/lesson/${card.dataset.lesson}`);
@@ -300,6 +371,11 @@ async function renderDashboard(container) {
 // ═══════════════════════════════════════════════════════════
 
 function renderNavbar() {
+  const hasDashboard = ['parent', 'admin'].includes(state.user.role);
+  const authButton = isGuestUser()
+    ? '<button class="btn btn-ghost" id="nav-signin" title="Sign in">🔐 Sign In</button>'
+    : '<button class="btn btn-ghost" id="nav-logout" title="Sign out">🚪</button>';
+
   return `
     <nav class="navbar">
       <a class="navbar-brand" id="nav-home">
@@ -307,10 +383,10 @@ function renderNavbar() {
         <span>Învață Română</span>
       </a>
       <div class="navbar-user">
-        ${state.user.role === 'parent' ? '<button class="btn btn-ghost" id="nav-parent">📊 Dashboard</button>' : ''}
+        ${hasDashboard ? '<button class="btn btn-ghost" id="nav-parent">📊 Dashboard</button>' : ''}
         <div class="navbar-avatar">${state.user.avatar || '🧒'}</div>
         <span class="navbar-name">${state.user.displayName}</span>
-        <button class="btn btn-ghost" id="nav-logout" title="Sign out">🚪</button>
+        ${authButton}
       </div>
     </nav>
   `;
@@ -319,7 +395,15 @@ function renderNavbar() {
 function setupNavbar() {
   document.getElementById('nav-home')?.addEventListener('click', () => navigate('/'));
   document.getElementById('nav-logout')?.addEventListener('click', async () => {
-    await api('POST', '/api/auth/logout');
+    clearAutoProgressTimer();
+    try {
+      await api('POST', '/api/auth/logout');
+    } catch { }
+    state.user = null;
+    navigate('/');
+  });
+  document.getElementById('nav-signin')?.addEventListener('click', () => {
+    clearAutoProgressTimer();
     state.user = null;
     navigate('/');
   });
@@ -332,25 +416,73 @@ function setupNavbar() {
 
 async function startLesson(container, lessonId) {
   try {
+    if (!state.lessons || state.lessons.length === 0) {
+      const { lessons } = await api('GET', '/api/lessons');
+      state.lessons = lessons || [];
+    }
+
     const { lesson } = await api('GET', `/api/lessons/${lessonId}`);
     state.currentLesson = lesson;
     state.currentPhase = 'vocab';
     state.vocabIndex = 0;
     state.exerciseIndex = 0;
+    state.exerciseQueue = Array.from({ length: (lesson.exercises || []).length }, (_, i) => i);
+    state.retryCounts = {};
+    state.masteredExercises = {};
     state.answers = [];
     state.score = 0;
     state.lessonStartTime = Date.now();
+    clearAutoProgressTimer();
 
     // Check for saved progress
-    try {
-      const { progress } = await api('GET', `/api/progress/lesson/${lessonId}`);
-      if (progress && progress.currentExercise > 0) {
-        state.currentPhase = 'exercise';
-        state.exerciseIndex = progress.currentExercise;
-        state.answers = progress.answers || [];
-        state.score = state.answers.filter(a => a === true).length;
+    if (canPersistProgress()) {
+      try {
+        const { progress } = await api('GET', `/api/progress/lesson/${lessonId}`);
+        if (progress && Number.isInteger(progress.currentExercise) && progress.currentExercise >= 0) {
+          state.currentPhase = 'exercise';
+          state.exerciseIndex = progress.currentExercise;
+          if (Array.isArray(progress.answers)) {
+            state.answers = progress.answers;
+            state.masteredExercises = {};
+            const exerciseCount = (lesson.exercises || []).length;
+            state.answers.forEach((ok, idx) => {
+              if (ok === true && idx < exerciseCount) state.masteredExercises[String(idx)] = true;
+            });
+            state.score = Object.values(state.masteredExercises).filter(Boolean).length;
+          } else if (progress.answers && typeof progress.answers === 'object') {
+            const payload = progress.answers;
+            state.answers = Array.isArray(payload.answerHistory) ? payload.answerHistory : [];
+            if (Array.isArray(payload.exerciseQueue) && payload.exerciseQueue.length > 0) {
+              const maxIdx = (lesson.exercises || []).length - 1;
+              state.exerciseQueue = payload.exerciseQueue
+                .map(Number)
+                .filter(v => Number.isInteger(v) && v >= 0 && v <= maxIdx);
+              if (state.exerciseQueue.length === 0) {
+                state.exerciseQueue = Array.from({ length: (lesson.exercises || []).length }, (_, i) => i);
+              }
+            }
+            state.retryCounts = payload.retryCounts && typeof payload.retryCounts === 'object' ? payload.retryCounts : {};
+            state.masteredExercises = payload.masteredExercises && typeof payload.masteredExercises === 'object'
+              ? payload.masteredExercises
+              : {};
+            state.score = Number.isFinite(payload.score)
+              ? payload.score
+              : Object.values(state.masteredExercises).filter(Boolean).length;
+          }
+          if (state.exerciseIndex >= state.exerciseQueue.length) {
+            state.exerciseIndex = Math.max(0, state.exerciseQueue.length - 1);
+          }
+        }
+      } catch { }
+    }
+
+    if (state.currentPhase === 'exercise' && state.exerciseQueue.length === 0) {
+      const totalExercises = (lesson.exercises || []).length;
+      state.exerciseQueue = Array.from({ length: totalExercises }, (_, i) => i);
+      if (state.exerciseIndex >= state.exerciseQueue.length) {
+        state.exerciseIndex = Math.max(0, state.exerciseQueue.length - 1);
       }
-    } catch { }
+    }
 
     renderLesson(container);
   } catch (err) {
@@ -360,12 +492,16 @@ async function startLesson(container, lessonId) {
 
 function renderLesson(container) {
   const lesson = state.currentLesson;
-  const totalSteps = (lesson.vocabulary ? lesson.vocabulary.length : 0) + (lesson.exercises ? lesson.exercises.length : 0);
+  const vocabCount = lesson.vocabulary ? lesson.vocabulary.length : 0;
+  const exerciseStepCount = state.currentPhase === 'exercise'
+    ? (state.exerciseQueue.length || (lesson.exercises ? lesson.exercises.length : 0))
+    : (lesson.exercises ? lesson.exercises.length : 0);
+  const totalSteps = vocabCount + exerciseStepCount;
   let currentStep;
   if (state.currentPhase === 'vocab') {
     currentStep = state.vocabIndex;
   } else {
-    currentStep = (lesson.vocabulary ? lesson.vocabulary.length : 0) + state.exerciseIndex;
+    currentStep = vocabCount + state.exerciseIndex;
   }
   const progress = totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0;
 
@@ -396,11 +532,17 @@ function renderLesson(container) {
 
   document.getElementById('lesson-back').addEventListener('click', () => {
     // Save progress before leaving
-    if (state.currentPhase === 'exercise' && state.exerciseIndex > 0) {
+    if (canPersistProgress() && state.currentPhase === 'exercise' && state.exerciseIndex >= 0) {
       api('POST', '/api/progress/save', {
         lessonId: lesson.id,
         currentExercise: state.exerciseIndex,
-        answers: state.answers,
+        answers: {
+          answerHistory: state.answers,
+          exerciseQueue: state.exerciseQueue,
+          retryCounts: state.retryCounts,
+          masteredExercises: state.masteredExercises,
+          score: state.score
+        },
       });
     }
     navigate('/');
@@ -485,20 +627,59 @@ function setupVocabInteraction() {
       // Move to exercises
       state.currentPhase = 'exercise';
       state.exerciseIndex = 0;
+      if (!state.exerciseQueue || state.exerciseQueue.length === 0) {
+        const totalExercises = (state.currentLesson.exercises || []).length;
+        state.exerciseQueue = Array.from({ length: totalExercises }, (_, i) => i);
+      }
       renderLesson(document.getElementById('app'));
     }
   });
 }
 
 // ─── Exercises ─────────────────────────────────────────────
+function getCurrentExerciseId() {
+  if (!state.exerciseQueue || state.exerciseQueue.length === 0) return -1;
+  return state.exerciseQueue[state.exerciseIndex];
+}
+
+function getCurrentExercise() {
+  const exercises = state.currentLesson.exercises || [];
+  const exId = getCurrentExerciseId();
+  if (exId < 0 || exId >= exercises.length) return null;
+  return exercises[exId];
+}
+
+function queueAdaptiveRetry(exerciseId) {
+  const key = String(exerciseId);
+  const attempts = Number(state.retryCounts[key] || 0);
+  if (attempts >= state.maxAdaptiveRetries) return;
+  state.retryCounts[key] = attempts + 1;
+  state.exerciseQueue.push(exerciseId);
+}
+
+function recordAttempt(exerciseId, isCorrect) {
+  const key = String(exerciseId);
+  const wasMastered = !!state.masteredExercises[key];
+  state.answers.push(!!isCorrect);
+
+  if (isCorrect) {
+    if (!wasMastered) {
+      state.masteredExercises[key] = true;
+      state.score++;
+    }
+    return;
+  }
+
+  if (!wasMastered) queueAdaptiveRetry(exerciseId);
+}
+
 function renderExercise() {
-  const lesson = state.currentLesson;
-  const exercises = lesson.exercises || [];
-  if (state.exerciseIndex >= exercises.length) {
+  if (state.exerciseIndex >= state.exerciseQueue.length) {
     return ''; // Will be handled by completion
   }
 
-  const ex = exercises[state.exerciseIndex];
+  const ex = getCurrentExercise();
+  if (!ex) return '<p>Exercise not found.</p>';
 
   switch (ex.type) {
     case 'multiple_choice':
@@ -508,6 +689,8 @@ function renderExercise() {
       return renderMatch(ex);
     case 'select_image':
       return renderSelectImage(ex);
+    case 'listen_and_select':
+      return renderListenAndSelect(ex);
     case 'type_answer':
     case 'translate':
       return renderTypeAnswer(ex);
@@ -579,6 +762,30 @@ function renderSelectImage(ex) {
   `;
 }
 
+function renderListenAndSelect(ex) {
+  const promptText = ex.prompt || '';
+  const hideLabels = ex.hideLabels !== false;
+  return `
+    <div class="exercise-question">👂 Listen and choose the right one</div>
+    <div class="listen-prompt-card">
+      <button class="listen-play-btn" id="listen-play-btn" type="button">🔊 Play Word</button>
+      <div class="listen-instruction">${ex.instruction || 'Tap Play, then pick the matching picture or action.'}</div>
+      ${ex.showPromptText ? `<div class="listen-prompt-text">${promptText}</div>` : ''}
+    </div>
+    <div class="image-options pre-k-options${hideLabels ? ' no-labels' : ''}">
+      ${ex.options.map((opt, i) => `
+        <div class="image-option" data-index="${i}" id="img-opt-${i}" aria-label="${opt.text || `option ${i + 1}`}">
+          ${opt.image ? `<img src="${opt.image}" alt="${opt.text || `Option ${i + 1}`}">` : `<div class="img-emoji">${opt.emoji || '❓'}</div>`}
+          <div class="image-label">${opt.text || ''}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="exercise-continue hidden" id="ex-continue">
+      <button class="btn btn-primary btn-lg" id="continue-btn">Continue →</button>
+    </div>
+  `;
+}
+
 function renderTypeAnswer(ex) {
   const question = ex.type === 'translate'
     ? `📝 ${ex.instruction || 'Translate:'}<br><strong style="font-size:1.5rem;color:var(--primary)">${ex.sentence}</strong>`
@@ -598,14 +805,16 @@ function renderTypeAnswer(ex) {
 }
 
 function setupExerciseInteraction() {
-  const lesson = state.currentLesson;
-  const exercises = lesson.exercises || [];
-  if (state.exerciseIndex >= exercises.length) {
+  if (state.exerciseIndex >= state.exerciseQueue.length) {
     completeLesson();
     return;
   }
 
-  const ex = exercises[state.exerciseIndex];
+  const ex = getCurrentExercise();
+  if (!ex) {
+    completeLesson();
+    return;
+  }
 
   switch (ex.type) {
     case 'multiple_choice':
@@ -618,6 +827,9 @@ function setupExerciseInteraction() {
     case 'select_image':
       setupSelectImage(ex);
       break;
+    case 'listen_and_select':
+      setupListenAndSelect(ex);
+      break;
     case 'type_answer':
     case 'translate':
       setupTypeAnswer(ex);
@@ -627,6 +839,7 @@ function setupExerciseInteraction() {
 
 function setupMultipleChoice(ex) {
   const options = document.querySelectorAll('.mc-option');
+  const exerciseId = getCurrentExerciseId();
   let answered = false;
 
   options.forEach(opt => {
@@ -642,14 +855,12 @@ function setupMultipleChoice(ex) {
 
       if (correct) {
         opt.classList.add('correct');
-        state.score++;
-        state.answers.push(true);
       } else {
         opt.classList.add('incorrect');
-        state.answers.push(false);
         // Show correct answer
         options[ex.correctAnswer].classList.add('show-correct');
       }
+      recordAttempt(exerciseId, correct);
 
       // Show continue button
       setTimeout(() => {
@@ -661,6 +872,7 @@ function setupMultipleChoice(ex) {
 }
 
 function setupMatch(ex) {
+  const exerciseId = getCurrentExerciseId();
   let selectedLeft = null;
   let selectedRight = null;
   let matchedCount = 0;
@@ -703,8 +915,8 @@ function setupMatch(ex) {
 
           if (matchedCount === totalPairs) {
             // All matched — count as correct if few errors
-            state.answers.push(matchErrors < totalPairs);
-            if (matchErrors < totalPairs) state.score++;
+            const correct = matchErrors < totalPairs;
+            recordAttempt(exerciseId, correct);
             setTimeout(() => {
               document.getElementById('ex-continue').classList.remove('hidden');
               setupContinueButton();
@@ -731,6 +943,7 @@ function setupMatch(ex) {
 
 function setupSelectImage(ex) {
   const options = document.querySelectorAll('.image-option');
+  const exerciseId = getCurrentExerciseId();
   let answered = false;
 
   options.forEach(opt => {
@@ -746,16 +959,14 @@ function setupSelectImage(ex) {
 
       if (correct) {
         opt.classList.add('correct');
-        state.score++;
-        state.answers.push(true);
         launchConfetti(); // Little burst for correct image pick
       } else {
         opt.classList.add('incorrect');
-        state.answers.push(false);
         // Highlight correct one
         const correctOpt = document.getElementById(`img-opt-${ex.correctAnswer}`);
         if (correctOpt) correctOpt.classList.add('show-correct');
       }
+      recordAttempt(exerciseId, correct);
 
       setTimeout(() => {
         document.getElementById('ex-continue').classList.remove('hidden');
@@ -765,10 +976,33 @@ function setupSelectImage(ex) {
   });
 }
 
+function setupListenAndSelect(ex) {
+  setupSelectImage(ex);
+  const promptText = ex.prompt || '';
+  const playBtn = document.getElementById('listen-play-btn');
+
+  const playPrompt = () => {
+    const played = speakRomanian(promptText, {
+      rate: typeof ex.speechRate === 'number' ? ex.speechRate : 0.82,
+      pitch: typeof ex.speechPitch === 'number' ? ex.speechPitch : 1
+    });
+    if (!played) {
+      showToast('Audio is not available in this browser.', 'error');
+    }
+  };
+
+  playBtn?.addEventListener('click', playPrompt);
+
+  if (ex.autoPlay) {
+    setTimeout(playPrompt, 250);
+  }
+}
+
 function setupTypeAnswer(ex) {
   const input = document.getElementById('type-input');
   const submitBtn = document.getElementById('type-submit');
   const feedback = document.getElementById('type-feedback');
+  const exerciseId = getCurrentExerciseId();
   let answered = false;
 
   function checkAnswer() {
@@ -790,14 +1024,12 @@ function setupTypeAnswer(ex) {
       input.classList.add('correct');
       feedback.className = 'type-answer-feedback correct';
       feedback.textContent = '✅ Correct! Great job!';
-      state.score++;
-      state.answers.push(true);
     } else {
       input.classList.add('incorrect');
       feedback.className = 'type-answer-feedback incorrect';
       feedback.innerHTML = `❌ The correct answer is: <strong>${correctAnswer}</strong>`;
-      state.answers.push(false);
     }
+    recordAttempt(exerciseId, isCorrect);
 
     setTimeout(() => {
       document.getElementById('ex-continue').classList.remove('hidden');
@@ -817,17 +1049,24 @@ function setupTypeAnswer(ex) {
 function setupContinueButton() {
   document.getElementById('continue-btn')?.addEventListener('click', () => {
     state.exerciseIndex++;
-    const exercises = state.currentLesson.exercises || [];
 
-    if (state.exerciseIndex >= exercises.length) {
+    if (state.exerciseIndex >= state.exerciseQueue.length) {
       completeLesson();
     } else {
       // Save progress
-      api('POST', '/api/progress/save', {
-        lessonId: state.currentLesson.id,
-        currentExercise: state.exerciseIndex,
-        answers: state.answers,
-      });
+      if (canPersistProgress()) {
+        api('POST', '/api/progress/save', {
+          lessonId: state.currentLesson.id,
+          currentExercise: state.exerciseIndex,
+          answers: {
+            answerHistory: state.answers,
+            exerciseQueue: state.exerciseQueue,
+            retryCounts: state.retryCounts,
+            masteredExercises: state.masteredExercises,
+            score: state.score
+          },
+        }).catch(() => { });
+      }
       renderLesson(document.getElementById('app'));
     }
   });
@@ -847,9 +1086,12 @@ function updateLessonContent() {
 
   // Update progress bar
   const lesson = state.currentLesson;
-  const totalSteps = (lesson.vocabulary ? lesson.vocabulary.length : 0) + (lesson.exercises ? lesson.exercises.length : 0);
-  let currentStep = state.currentPhase === 'vocab' ? state.vocabIndex :
-    (lesson.vocabulary ? lesson.vocabulary.length : 0) + state.exerciseIndex;
+  const vocabCount = lesson.vocabulary ? lesson.vocabulary.length : 0;
+  const exerciseStepCount = state.currentPhase === 'exercise'
+    ? (state.exerciseQueue.length || (lesson.exercises ? lesson.exercises.length : 0))
+    : (lesson.exercises ? lesson.exercises.length : 0);
+  const totalSteps = vocabCount + exerciseStepCount;
+  let currentStep = state.currentPhase === 'vocab' ? state.vocabIndex : vocabCount + state.exerciseIndex;
   const progress = totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0;
   const fill = document.querySelector('.lesson-progress-fill');
   if (fill) fill.style.width = `${progress}%`;
@@ -859,23 +1101,35 @@ function updateLessonContent() {
   if (counter) counter.textContent = `${currentStep + 1} / ${totalSteps}`;
 }
 
+function getNextLessonId(currentLessonId) {
+  if (!state.lessons || state.lessons.length === 0) return null;
+  const sorted = [...state.lessons].sort((a, b) => (a.order || 999) - (b.order || 999));
+  const idx = sorted.findIndex(l => l.id === currentLessonId);
+  if (idx < 0 || idx >= sorted.length - 1) return null;
+  return sorted[idx + 1].id;
+}
+
 // ─── Lesson Completion ─────────────────────────────────────
 async function completeLesson() {
   const lesson = state.currentLesson;
   const total = lesson.exercises ? lesson.exercises.length : 0;
   const percentage = total > 0 ? Math.round((state.score / total) * 100) : 100;
   const timeSpent = Math.round((Date.now() - state.lessonStartTime) / 1000);
+  const nextLessonId = getNextLessonId(lesson.id);
+  clearAutoProgressTimer();
 
   // Send results to server
-  try {
-    await api('POST', '/api/progress/complete', {
-      lessonId: lesson.id,
-      score: state.score,
-      totalQuestions: total,
-      timeSpentSec: timeSpent,
-    });
-  } catch (err) {
-    console.error('Failed to save results:', err);
+  if (canPersistProgress()) {
+    try {
+      await api('POST', '/api/progress/complete', {
+        lessonId: lesson.id,
+        score: state.score,
+        totalQuestions: total,
+        timeSpentSec: timeSpent,
+      });
+    } catch (err) {
+      console.error('Failed to save results:', err);
+    }
   }
 
   // Determine result tier
@@ -926,9 +1180,12 @@ async function completeLesson() {
             <div class="results-stat-label">Time</div>
           </div>
         </div>
+        ${isGuestUser() ? `<div class="vocab-hint">Guest mode: progress is not saved.</div>` : ''}
+        ${(nextLessonId && percentage >= 80) ? `<div class="vocab-hint">Auto progression in 4 seconds...</div>` : ''}
 
         <div class="results-actions">
           <button class="btn btn-primary btn-lg btn-block" id="results-retry">🔄 Try Again</button>
+          ${nextLessonId ? `<button class="btn btn-success btn-lg btn-block" id="results-next">➡️ Next Lesson</button>` : ''}
           <button class="btn btn-outline btn-lg btn-block" id="results-home">🏠 Back to Lessons</button>
         </div>
       </div>
@@ -936,11 +1193,23 @@ async function completeLesson() {
   `;
 
   document.getElementById('results-retry').addEventListener('click', () => {
+    clearAutoProgressTimer();
     navigate(`/lesson/${lesson.id}`);
   });
+  document.getElementById('results-next')?.addEventListener('click', () => {
+    clearAutoProgressTimer();
+    navigate(`/lesson/${nextLessonId}`);
+  });
   document.getElementById('results-home').addEventListener('click', () => {
+    clearAutoProgressTimer();
     navigate('/');
   });
+
+  if (nextLessonId && percentage >= 80) {
+    state.autoProgressTimer = setTimeout(() => {
+      navigate(`/lesson/${nextLessonId}`);
+    }, 4000);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -948,7 +1217,7 @@ async function completeLesson() {
 // ═══════════════════════════════════════════════════════════
 
 async function renderParentDashboard(container) {
-  if (state.user.role !== 'parent') {
+  if (!['parent', 'admin'].includes(state.user.role)) {
     navigate('/');
     return;
   }
@@ -963,19 +1232,21 @@ async function renderParentDashboard(container) {
     const users = usersData.users;
     const results = resultsData.results;
     const lessons = lessonsData.lessons;
+    const isAdmin = state.user.role === 'admin';
 
     container.innerHTML = `
       ${renderNavbar()}
       <div class="parent-dash">
         <div class="hero">
-          <h1>📊 Parent Dashboard</h1>
-          <p>Track your children's progress and manage lessons</p>
+          <h1>${isAdmin ? '🛡️ Admin Dashboard' : '📊 Parent Dashboard'}</h1>
+          <p>${isAdmin ? 'Manage users/lessons and monitor site activity' : 'Track your children\'s progress and manage lessons'}</p>
         </div>
 
         <div class="parent-tabs">
           <button class="parent-tab active" data-tab="progress">📈 Progress</button>
           <button class="parent-tab" data-tab="users">👥 Users</button>
           <button class="parent-tab" data-tab="lessons-manage">📚 Manage Lessons</button>
+          ${isAdmin ? '<button class="parent-tab" data-tab="analytics">🌐 Site Analytics</button>' : ''}
         </div>
 
         <div id="tab-content"></div>
@@ -991,20 +1262,21 @@ async function renderParentDashboard(container) {
         document.querySelectorAll('.parent-tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
         activeTab = tab.dataset.tab;
-        renderTab(activeTab);
+        void renderTab(activeTab);
       });
     });
 
-    function renderTab(tab) {
+    async function renderTab(tab) {
       const content = document.getElementById('tab-content');
       switch (tab) {
         case 'progress': renderProgressTab(content, users, results, lessons); break;
         case 'users': renderUsersTab(content, users); break;
         case 'lessons-manage': renderLessonsTab(content, lessons); break;
+        case 'analytics': await renderAdminAnalyticsTab(content); break;
       }
     }
 
-    renderTab(activeTab);
+    await renderTab(activeTab);
   } catch (err) {
     container.innerHTML = `<div class="flex-center" style="min-height:100vh"><p>Error: ${err.message}</p></div>`;
   }
@@ -1196,12 +1468,109 @@ function drawBestScoresChart(bestScores, lessons) {
   });
 }
 
+// ─── Admin Analytics Tab ───────────────────────────────────
+async function renderAdminAnalyticsTab(container) {
+  if (state.user.role !== 'admin') {
+    container.innerHTML = '<p>Admins only.</p>';
+    return;
+  }
+
+  try {
+    const data = await api('GET', '/api/admin/analytics');
+    const totals = data.totals || {};
+
+    container.innerHTML = `
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon">👁️</div>
+          <div class="stat-value">${totals.totalVisits || 0}</div>
+          <div class="stat-label">Total Visits</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📅</div>
+          <div class="stat-value">${totals.visitsToday || 0}</div>
+          <div class="stat-label">Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🧭</div>
+          <div class="stat-value">${totals.uniqueVisitors7d || 0}</div>
+          <div class="stat-label">Unique IPs (7d)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🧩</div>
+          <div class="stat-value">${totals.apiCalls7d || 0}</div>
+          <div class="stat-label">API Calls (7d)</div>
+        </div>
+      </div>
+
+      <div class="card mb-2">
+        <h3 class="section-title mb-2">Top Paths (14 days)</h3>
+        <div style="overflow-x:auto">
+          <table class="results-table">
+            <thead><tr><th>Path</th><th>Visits</th></tr></thead>
+            <tbody>
+              ${(data.topPaths14d || []).map(r => `<tr><td>${r.path}</td><td>${r.visits}</td></tr>`).join('') || '<tr><td colspan="2">No data yet</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card mb-2">
+        <h3 class="section-title mb-2">Auth Activity (7 days)</h3>
+        <div style="overflow-x:auto">
+          <table class="results-table">
+            <thead><tr><th>Endpoint</th><th>Hits</th></tr></thead>
+            <tbody>
+              ${(data.authActivity7d || []).map(r => `<tr><td>${r.path}</td><td>${r.count}</td></tr>`).join('') || '<tr><td colspan="2">No data yet</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title mb-2">Recent Visits</h3>
+        <div style="overflow-x:auto">
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>Method</th>
+                <th>Path</th>
+                <th>Status</th>
+                <th>User</th>
+                <th>Role</th>
+                <th>IP</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(data.recent || []).slice(0, 40).map(r => `
+                <tr>
+                  <td>${new Date(r.visitedAt + 'Z').toLocaleString()}</td>
+                  <td>${r.method}</td>
+                  <td>${r.path}</td>
+                  <td>${r.statusCode}</td>
+                  <td>${r.displayName || 'Guest'}</td>
+                  <td>${r.role || 'guest'}</td>
+                  <td>${r.ip || ''}</td>
+                </tr>
+              `).join('') || '<tr><td colspan="7">No data yet</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  } catch (err) {
+    container.innerHTML = `<p>Error loading analytics: ${err.message}</p>`;
+  }
+}
+
 // ─── Users Tab ─────────────────────────────────────────────
 function renderUsersTab(container, users) {
+  const isAdmin = state.user.role === 'admin';
   container.innerHTML = `
     <div class="card mb-2">
-      <h3 class="section-title mb-2">➕ Add Student Account</h3>
-      <form id="add-user-form" style="display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:0.75rem; align-items:end">
+      <h3 class="section-title mb-2">➕ Add ${isAdmin ? 'User' : 'Student Account'}</h3>
+      <form id="add-user-form" style="display:grid; grid-template-columns:${isAdmin ? '1fr 1fr 1fr 1fr auto' : '1fr 1fr 1fr auto'}; gap:0.75rem; align-items:end">
         <div class="form-group" style="margin:0">
           <label class="form-label">Name</label>
           <input class="form-input" id="new-display" placeholder="e.g. Maria" required>
@@ -1214,6 +1583,16 @@ function renderUsersTab(container, users) {
           <label class="form-label">Password</label>
           <input class="form-input" id="new-pass" type="password" placeholder="password" required>
         </div>
+        ${isAdmin ? `
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Role</label>
+          <select class="form-input" id="new-role">
+            <option value="student">student</option>
+            <option value="parent">parent</option>
+            <option value="admin">admin</option>
+          </select>
+        </div>
+        ` : ''}
         <button type="submit" class="btn btn-success">Add</button>
       </form>
     </div>
@@ -1226,7 +1605,7 @@ function renderUsersTab(container, users) {
             <div class="user-card-name">${u.displayName}</div>
             <div class="user-card-role">${u.role} · @${u.username}</div>
           </div>
-          ${u.role !== 'parent' ? `<button class="btn btn-ghost" data-delete-user="${u.id}" title="Delete">🗑️</button>` : ''}
+          ${((isAdmin && u.id !== state.user.id) || (!isAdmin && u.role === 'student')) ? `<button class="btn btn-ghost" data-delete-user="${u.id}" title="Delete">🗑️</button>` : ''}
         </div>
       `).join('')}
     </div>
@@ -1239,10 +1618,10 @@ function renderUsersTab(container, users) {
         displayName: document.getElementById('new-display').value.trim(),
         username: document.getElementById('new-user').value.trim(),
         password: document.getElementById('new-pass').value,
-        role: 'student',
+        role: isAdmin ? document.getElementById('new-role').value : 'student',
         avatar: '🧒',
       });
-      showToast('Student added!', 'success');
+      showToast('User added!', 'success');
       // Refresh
       navigate('/parent');
     } catch (err) {

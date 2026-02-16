@@ -1,0 +1,140 @@
+{
+  "id": "pre-k-objects-10",
+  "title": "Pre-K — Ascultă și Alege (Objects)",
+  "description": "For pre-readers: tap Play, listen to the Romanian word, then pick the matching item.",
+  "category": "Pre-K Audio",
+  "level": 0,
+  "order": 0,
+  "icon": "🧸",
+  "vocabulary": [],
+  "exercises": [
+    {
+      "type": "listen_and_select",
+      "prompt": "minge",
+      "instruction": "Tap Play, then touch the right picture.",
+      "options": [
+        { "emoji": "⚽", "text": "ball" },
+        { "emoji": "🚗", "text": "car" },
+        { "emoji": "🍎", "text": "apple" },
+        { "emoji": "👟", "text": "shoe" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "autoPlay": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "măr",
+      "instruction": "Tap Play, then touch the right picture.",
+      "options": [
+        { "emoji": "📚", "text": "book" },
+        { "emoji": "🍎", "text": "apple" },
+        { "emoji": "☀️", "text": "sun" },
+        { "emoji": "🪥", "text": "toothbrush" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "autoPlay": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "carte",
+      "instruction": "Tap Play, then touch the right picture.",
+      "options": [
+        { "emoji": "🧸", "text": "teddy bear" },
+        { "emoji": "📚", "text": "book" },
+        { "emoji": "🍌", "text": "banana" },
+        { "emoji": "🧢", "text": "hat" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "autoPlay": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "pisică",
+      "instruction": "Tap Play, then touch the right picture.",
+      "options": [
+        { "emoji": "🐶", "text": "dog" },
+        { "emoji": "🐱", "text": "cat" },
+        { "emoji": "🦁", "text": "lion" },
+        { "emoji": "🐸", "text": "frog" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "autoPlay": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "lingură",
+      "instruction": "Tap Play, then touch the right picture.",
+      "options": [
+        { "emoji": "🥄", "text": "spoon" },
+        { "emoji": "🧦", "text": "sock" },
+        { "emoji": "🧩", "text": "puzzle" },
+        { "emoji": "🎈", "text": "balloon" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "autoPlay": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "pantof",
+      "instruction": "Tap Play, then touch the right picture.",
+      "options": [
+        { "emoji": "🍪", "text": "cookie" },
+        { "emoji": "👟", "text": "shoe" },
+        { "emoji": "🚲", "text": "bike" },
+        { "emoji": "🧃", "text": "juice" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "autoPlay": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "floare",
+      "instruction": "Tap Play, then touch the right picture.",
+      "options": [
+        { "emoji": "🪴", "text": "plant" },
+        { "emoji": "🌸", "text": "flower" },
+        { "emoji": "🚌", "text": "bus" },
+        { "emoji": "🧸", "text": "teddy bear" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "autoPlay": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "stea",
+      "instruction": "Tap Play, then touch the right picture.",
+      "options": [
+        { "emoji": "🌙", "text": "moon" },
+        { "emoji": "⭐", "text": "star" },
+        { "emoji": "☁️", "text": "cloud" },
+        { "emoji": "🌧️", "text": "rain" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "autoPlay": false,
+      "speechRate": 0.8
+    }
+  ]
+}

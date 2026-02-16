@@ -67,6 +67,32 @@
             "acceptAlternatives": [
                 "This is a word"
             ]
+        },
+        {
+            "type": "listen_and_select",
+            "prompt": "măr",
+            "instruction": "Tap play, then pick the matching picture",
+            "options": [
+                {
+                    "emoji": "🍎",
+                    "text": "apple"
+                },
+                {
+                    "emoji": "🚗",
+                    "text": "car"
+                },
+                {
+                    "emoji": "📚",
+                    "text": "book"
+                },
+                {
+                    "emoji": "⭐",
+                    "text": "star"
+                }
+            ],
+            "correctAnswer": 0,
+            "hideLabels": true,
+            "showPromptText": false
         }
     ]
 }

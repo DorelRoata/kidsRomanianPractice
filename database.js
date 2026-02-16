@@ -62,6 +62,28 @@ async function initDatabase() {
     )
   `);
 
+    db.run(`
+    CREATE TABLE IF NOT EXISTS site_visits (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      method      TEXT    NOT NULL,
+      path        TEXT    NOT NULL,
+      userId      INTEGER,
+      role        TEXT    DEFAULT 'guest',
+      ip          TEXT,
+      userAgent   TEXT,
+      referer     TEXT,
+      isApi       INTEGER DEFAULT 0,
+      statusCode  INTEGER DEFAULT 200,
+      durationMs  INTEGER DEFAULT 0,
+      visitedAt   TEXT    DEFAULT (datetime('now')),
+      FOREIGN KEY (userId) REFERENCES users(id)
+    )
+  `);
+
+    db.run('CREATE INDEX IF NOT EXISTS idx_site_visits_visitedAt ON site_visits(visitedAt)');
+    db.run('CREATE INDEX IF NOT EXISTS idx_site_visits_path ON site_visits(path)');
+    db.run('CREATE INDEX IF NOT EXISTS idx_site_visits_userId ON site_visits(userId)');
+
     // Auto-save every 30 seconds
     setInterval(save, 30000);
     return db;

@@ -1,0 +1,132 @@
+{
+  "id": "pre-k-classroom-16",
+  "title": "Pre-K — Ascultă și Alege (Classroom Commands)",
+  "description": "For pre-readers: hear simple Romanian classroom commands and pick the matching action/object.",
+  "category": "Pre-K Audio",
+  "level": 0,
+  "order": 0.6,
+  "icon": "🏫",
+  "vocabulary": [],
+  "exercises": [
+    {
+      "type": "listen_and_select",
+      "prompt": "stai jos",
+      "instruction": "Tap Play, then choose the right action.",
+      "options": [
+        { "emoji": "🪑", "text": "sit down" },
+        { "emoji": "🏃", "text": "run" },
+        { "emoji": "💤", "text": "sleep" },
+        { "emoji": "🍎", "text": "apple" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "ridică mâna",
+      "instruction": "Tap Play, then choose the right action.",
+      "options": [
+        { "emoji": "🙋", "text": "raise hand" },
+        { "emoji": "🧎", "text": "kneel" },
+        { "emoji": "🤸", "text": "jump" },
+        { "emoji": "🎒", "text": "backpack" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "ascultă",
+      "instruction": "Tap Play, then choose the right action.",
+      "options": [
+        { "emoji": "👂", "text": "listen" },
+        { "emoji": "🖍️", "text": "draw" },
+        { "emoji": "📚", "text": "books" },
+        { "emoji": "🎲", "text": "game" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "deschide cartea",
+      "instruction": "Tap Play, then choose the right action/object.",
+      "options": [
+        { "emoji": "📖", "text": "open the book" },
+        { "emoji": "🚪", "text": "open the door" },
+        { "emoji": "🧸", "text": "toy" },
+        { "emoji": "🍌", "text": "banana" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "scrie",
+      "instruction": "Tap Play, then choose the right action.",
+      "options": [
+        { "emoji": "✍️", "text": "write" },
+        { "emoji": "🎵", "text": "sing" },
+        { "emoji": "🧱", "text": "blocks" },
+        { "emoji": "⚽", "text": "ball" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "colorează",
+      "instruction": "Tap Play, then choose the right action.",
+      "options": [
+        { "emoji": "🖍️", "text": "color" },
+        { "emoji": "🪥", "text": "brush teeth" },
+        { "emoji": "🧼", "text": "wash" },
+        { "emoji": "🚗", "text": "car" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "arată ușa",
+      "instruction": "Tap Play, then choose the right object.",
+      "options": [
+        { "emoji": "🚪", "text": "door" },
+        { "emoji": "🪟", "text": "window" },
+        { "emoji": "🛏️", "text": "bed" },
+        { "emoji": "🧸", "text": "toy" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "arată fereastra",
+      "instruction": "Tap Play, then choose the right object.",
+      "options": [
+        { "emoji": "🪟", "text": "window" },
+        { "emoji": "🚪", "text": "door" },
+        { "emoji": "🍽️", "text": "tableware" },
+        { "emoji": "🧃", "text": "juice" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    }
+  ]
+}

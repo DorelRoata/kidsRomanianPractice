@@ -1,0 +1,97 @@
+{
+  "id": "food-snacks-19",
+  "title": "Mâncare — Food & Snacks",
+  "description": "Learn everyday Romanian words for food and drinks.",
+  "category": "Daily Life",
+  "level": 1,
+  "order": 12,
+  "icon": "🍎",
+  "vocabulary": [
+    { "romanian": "apă", "english": "water", "pronunciation": "AH-puh" },
+    { "romanian": "lapte", "english": "milk", "pronunciation": "LAHP-teh" },
+    { "romanian": "suc", "english": "juice", "pronunciation": "sook" },
+    { "romanian": "pâine", "english": "bread", "pronunciation": "PUH-ee-neh" },
+    { "romanian": "măr", "english": "apple", "pronunciation": "muhr" },
+    { "romanian": "banană", "english": "banana", "pronunciation": "bah-NAH-nuh" },
+    { "romanian": "brânză", "english": "cheese", "pronunciation": "BRUHN-zuh" },
+    { "romanian": "supă", "english": "soup", "pronunciation": "SOO-puh" },
+    { "romanian": "prăjitură", "english": "cake", "pronunciation": "pruh-zhee-TOO-ruh" },
+    { "romanian": "ou", "english": "egg", "pronunciation": "oh-oo" }
+  ],
+  "exercises": [
+    {
+      "type": "multiple_choice",
+      "question": "What does 'apă' mean?",
+      "options": ["juice", "water", "milk", "soup"],
+      "correctAnswer": 1
+    },
+    {
+      "type": "multiple_choice_romanian",
+      "question": "How do you say 'bread' in Romanian?",
+      "options": ["măr", "pâine", "lapte", "ou"],
+      "correctAnswer": 1
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "banană",
+      "instruction": "Tap Play, then choose the matching food.",
+      "options": [
+        { "emoji": "🍌", "text": "banana" },
+        { "emoji": "🍎", "text": "apple" },
+        { "emoji": "🥖", "text": "bread" },
+        { "emoji": "🥚", "text": "egg" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "lapte",
+      "instruction": "Tap Play, then choose the matching drink.",
+      "options": [
+        { "emoji": "🥛", "text": "milk" },
+        { "emoji": "🧃", "text": "juice" },
+        { "emoji": "☕", "text": "coffee" },
+        { "emoji": "🍵", "text": "tea" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "match",
+      "instruction": "Match food words",
+      "pairs": [
+        { "romanian": "apă", "english": "water" },
+        { "romanian": "pâine", "english": "bread" },
+        { "romanian": "măr", "english": "apple" },
+        { "romanian": "ou", "english": "egg" },
+        { "romanian": "supă", "english": "soup" }
+      ]
+    },
+    {
+      "type": "type_answer",
+      "question": "Type 'juice' in Romanian",
+      "answer": "suc",
+      "acceptAlternatives": ["Suc"]
+    },
+    {
+      "type": "multiple_choice",
+      "question": "What does 'brânză' mean?",
+      "options": ["butter", "cheese", "yogurt", "soup"],
+      "correctAnswer": 1
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "prăjitură",
+      "instruction": "Tap Play, then choose the matching dessert.",
+      "options": [
+        { "emoji": "🍰", "text": "cake" },
+        { "emoji": "🍎", "text": "apple" },
+        { "emoji": "🥚", "text": "egg" },
+        { "emoji": "🥣", "text": "soup" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    }
+  ]
+}

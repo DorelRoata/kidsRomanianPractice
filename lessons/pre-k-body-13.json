@@ -1,0 +1,132 @@
+{
+  "id": "pre-k-body-13",
+  "title": "Pre-K — Ascultă și Alege (Body Parts)",
+  "description": "For pre-readers: hear the Romanian body part and tap the matching option.",
+  "category": "Pre-K Audio",
+  "level": 0,
+  "order": 0.3,
+  "icon": "🧍",
+  "vocabulary": [],
+  "exercises": [
+    {
+      "type": "listen_and_select",
+      "prompt": "mână",
+      "instruction": "Tap Play, then choose the right body part.",
+      "options": [
+        { "emoji": "✋", "text": "hand" },
+        { "emoji": "👃", "text": "nose" },
+        { "emoji": "👀", "text": "eyes" },
+        { "emoji": "👂", "text": "ear" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "picior",
+      "instruction": "Tap Play, then choose the right body part.",
+      "options": [
+        { "emoji": "👄", "text": "mouth" },
+        { "emoji": "🦶", "text": "foot" },
+        { "emoji": "👋", "text": "wave" },
+        { "emoji": "🧠", "text": "brain" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "ochi",
+      "instruction": "Tap Play, then choose the right body part.",
+      "options": [
+        { "emoji": "👂", "text": "ear" },
+        { "emoji": "👀", "text": "eyes" },
+        { "emoji": "🖐️", "text": "hand" },
+        { "emoji": "🦷", "text": "teeth" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "nas",
+      "instruction": "Tap Play, then choose the right body part.",
+      "options": [
+        { "emoji": "👄", "text": "mouth" },
+        { "emoji": "🦵", "text": "leg" },
+        { "emoji": "👃", "text": "nose" },
+        { "emoji": "🫳", "text": "palm" }
+      ],
+      "correctAnswer": 2,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "gură",
+      "instruction": "Tap Play, then choose the right body part.",
+      "options": [
+        { "emoji": "👄", "text": "mouth" },
+        { "emoji": "👂", "text": "ear" },
+        { "emoji": "👁️", "text": "eye" },
+        { "emoji": "🖐️", "text": "hand" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "ureche",
+      "instruction": "Tap Play, then choose the right body part.",
+      "options": [
+        { "emoji": "🦷", "text": "tooth" },
+        { "emoji": "👂", "text": "ear" },
+        { "emoji": "👃", "text": "nose" },
+        { "emoji": "👄", "text": "mouth" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "cap",
+      "instruction": "Tap Play, then choose the right body part.",
+      "options": [
+        { "emoji": "🙂", "text": "head" },
+        { "emoji": "🦶", "text": "foot" },
+        { "emoji": "👂", "text": "ear" },
+        { "emoji": "✋", "text": "hand" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "dinți",
+      "instruction": "Tap Play, then choose the right body part.",
+      "options": [
+        { "emoji": "🫀", "text": "heart" },
+        { "emoji": "🦷", "text": "teeth" },
+        { "emoji": "🦴", "text": "bone" },
+        { "emoji": "👁️", "text": "eye" }
+      ],
+      "correctAnswer": 1,
+      "hideLabels": true,
+      "showPromptText": false,
+      "speechRate": 0.8
+    }
+  ]
+}
