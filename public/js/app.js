@@ -37,6 +37,8 @@ async function api(method, url, body = null) {
 }
 
 // ─── Speech Helper (Pre-K listen lessons) ────────────────
+let currentAudio = null;
+
 function pickRomanianVoice() {
   if (!('speechSynthesis' in window)) return null;
   const voices = window.speechSynthesis.getVoices();
@@ -44,7 +46,16 @@ function pickRomanianVoice() {
   return voices.find(v => /^ro(-|_)/i.test(v.lang)) || null;
 }
 
-function speakRomanian(text, { rate = 0.82, pitch = 1 } = {}) {
+function sanitizeAudioFilename(text) {
+  if (!text) return '';
+  return text.toString().toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove accents
+    .replace(/[^a-z0-9]/g, '_')
+    .replace(/_+/g, '_')
+    .substring(0, 50);
+}
+
+function speakTTS(text, { rate = 0.82, pitch = 1 } = {}) {
   if (!text || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
     return false;
   }
@@ -57,6 +68,46 @@ function speakRomanian(text, { rate = 0.82, pitch = 1 } = {}) {
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
   return true;
+}
+
+function speakRomanian(text, opts = {}) {
+  // Stop any playing audio
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+  }
+  window.speechSynthesis.cancel();
+
+  if (!text) return false;
+
+  // Try to play MP3 file if we are inside a lesson
+  if (state.currentLesson && state.currentLesson.id) {
+    const filename = sanitizeAudioFilename(text) + '.mp3';
+    const url = `/audio/${state.currentLesson.id}/${filename}`;
+
+    const audio = new Audio(url);
+    audio.onerror = () => {
+      // Fallback to TTS if file blocked/missing
+      console.warn(`Audio missing for "${text}", falling back to TTS`);
+      speakTTS(text, opts);
+    };
+    audio.onplay = () => {
+      currentAudio = audio;
+    };
+
+    // Play with error catching
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {
+        // Auto-play was prevented or file error
+        speakTTS(text, opts);
+      });
+    }
+    return true;
+  }
+
+  // Default fallback (no lesson context)
+  return speakTTS(text, opts);
 }
 
 function escapeHTML(str) {
