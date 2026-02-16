@@ -10,20 +10,20 @@ let db = null;
 
 // ─── Initialise ────────────────────────────────────────────
 async function initDatabase() {
-    const SQL = await initSqlJs();
+  const SQL = await initSqlJs();
 
-    // Load existing DB or create new one
-    try {
-        const buf = fs.readFileSync(DB_PATH);
-        db = new SQL.Database(buf);
-        console.log('📂 Loaded existing database');
-    } catch {
-        db = new SQL.Database();
-        console.log('🆕 Created new database');
-    }
+  // Load existing DB or create new one
+  try {
+    const buf = fs.readFileSync(DB_PATH);
+    db = new SQL.Database(buf);
+    console.log('📂 Loaded existing database');
+  } catch {
+    db = new SQL.Database();
+    console.log('🆕 Created new database');
+  }
 
-    // Create tables
-    db.run(`
+  // Create tables
+  db.run(`
     CREATE TABLE IF NOT EXISTS users (
       id          INTEGER PRIMARY KEY AUTOINCREMENT,
       username    TEXT    UNIQUE NOT NULL,
@@ -35,7 +35,7 @@ async function initDatabase() {
     )
   `);
 
-    db.run(`
+  db.run(`
     CREATE TABLE IF NOT EXISTS lesson_results (
       id              INTEGER PRIMARY KEY AUTOINCREMENT,
       userId          INTEGER NOT NULL,
@@ -49,7 +49,7 @@ async function initDatabase() {
     )
   `);
 
-    db.run(`
+  db.run(`
     CREATE TABLE IF NOT EXISTS lesson_progress (
       id              INTEGER PRIMARY KEY AUTOINCREMENT,
       userId          INTEGER NOT NULL,
@@ -62,7 +62,7 @@ async function initDatabase() {
     )
   `);
 
-    db.run(`
+  db.run(`
     CREATE TABLE IF NOT EXISTS site_visits (
       id          INTEGER PRIMARY KEY AUTOINCREMENT,
       method      TEXT    NOT NULL,
@@ -80,65 +80,70 @@ async function initDatabase() {
     )
   `);
 
-    db.run('CREATE INDEX IF NOT EXISTS idx_site_visits_visitedAt ON site_visits(visitedAt)');
-    db.run('CREATE INDEX IF NOT EXISTS idx_site_visits_path ON site_visits(path)');
-    db.run('CREATE INDEX IF NOT EXISTS idx_site_visits_userId ON site_visits(userId)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_site_visits_visitedAt ON site_visits(visitedAt)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_site_visits_path ON site_visits(path)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_site_visits_userId ON site_visits(userId)');
 
-    // Auto-save every 30 seconds
-    setInterval(save, 30000);
-    return db;
+  // ─── Migrations ───────────────────────────────────────────
+  // Add parentId column (links kids to parent who created them)
+  try { db.run('ALTER TABLE users ADD COLUMN parentId INTEGER REFERENCES users(id)'); } catch { /* already exists */ }
+  try { db.run('CREATE INDEX IF NOT EXISTS idx_users_parentId ON users(parentId)'); } catch { /* already exists */ }
+
+  // Auto-save every 30 seconds
+  setInterval(save, 30000);
+  return db;
 }
 
 // ─── Save to disk ──────────────────────────────────────────
 function save() {
-    if (!db) return;
-    try {
-        fs.mkdirSync(DB_DIR, { recursive: true });
-        const data = db.export();
-        fs.writeFileSync(DB_PATH, Buffer.from(data));
-    } catch (err) {
-        console.error('❌ Failed to save database:', err.message);
-    }
+  if (!db) return;
+  try {
+    fs.mkdirSync(DB_DIR, { recursive: true });
+    const data = db.export();
+    fs.writeFileSync(DB_PATH, Buffer.from(data));
+  } catch (err) {
+    console.error('❌ Failed to save database:', err.message);
+  }
 }
 
 // ─── Helpers ───────────────────────────────────────────────
 function getDb() {
-    if (!db) throw new Error('Database not initialised');
-    return db;
+  if (!db) throw new Error('Database not initialised');
+  return db;
 }
 
 /** Run a query that modifies data. Returns { changes } */
 function run(sql, params = []) {
-    const d = getDb();
-    d.run(sql, params);
-    const [row] = d.exec('SELECT changes() as c');
-    return { changes: row ? row.values[0][0] : 0 };
+  const d = getDb();
+  d.run(sql, params);
+  const [row] = d.exec('SELECT changes() as c');
+  return { changes: row ? row.values[0][0] : 0 };
 }
 
 /** Get all rows as objects */
 function all(sql, params = []) {
-    const d = getDb();
-    const stmt = d.prepare(sql);
-    if (params.length) stmt.bind(params);
+  const d = getDb();
+  const stmt = d.prepare(sql);
+  if (params.length) stmt.bind(params);
 
-    const rows = [];
-    while (stmt.step()) {
-        rows.push(stmt.getAsObject());
-    }
-    stmt.free();
-    return rows;
+  const rows = [];
+  while (stmt.step()) {
+    rows.push(stmt.getAsObject());
+  }
+  stmt.free();
+  return rows;
 }
 
 /** Get first row as object or null */
 function get(sql, params = []) {
-    const rows = all(sql, params);
-    return rows.length ? rows[0] : null;
+  const rows = all(sql, params);
+  return rows.length ? rows[0] : null;
 }
 
 /** Get the last inserted row id */
 function lastInsertId() {
-    const row = get('SELECT last_insert_rowid() as id');
-    return row ? row.id : null;
+  const row = get('SELECT last_insert_rowid() as id');
+  return row ? row.id : null;
 }
 
 module.exports = { initDatabase, save, run, all, get, lastInsertId };

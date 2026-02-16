@@ -128,25 +128,38 @@ app.post('/api/auth/register', async (req, res) => {
             return res.status(400).json({ error: 'Username, display name, and password are required' });
         }
 
-        // Only admins can assign parent/admin roles; everyone else creates student accounts.
+        // Only admins can assign parent/admin roles; parents can only create students.
         const requestedRole = String(role || 'student').toLowerCase();
-        const safeRole = (req.session?.role === 'admin' && ['student', 'parent', 'admin'].includes(requestedRole))
-            ? requestedRole
-            : 'student';
+        let safeRole = 'student';
+        if (req.session?.role === 'admin' && ['student', 'parent', 'admin'].includes(requestedRole)) {
+            safeRole = requestedRole;
+        } else if (req.session?.role === 'parent' && requestedRole === 'student') {
+            safeRole = 'student';
+        }
 
         // Check if username exists
         const existing = db.get('SELECT id FROM users WHERE username = ?', [username.toLowerCase()]);
         if (existing) return res.status(409).json({ error: 'Username already taken' });
 
+        // Determine parentId: if a parent creates a student, link them
+        let parentId = null;
+        if (safeRole === 'student' && req.session?.userId) {
+            const creator = db.get('SELECT id, role FROM users WHERE id = ?', [req.session.userId]);
+            if (creator && (creator.role === 'parent' || creator.role === 'admin')) {
+                parentId = creator.role === 'parent' ? creator.id : null;
+                // Admin-created students have no parent unless explicitly set
+            }
+        }
+
         const hash = await bcrypt.hash(password, 10);
         db.run(
-            'INSERT INTO users (username, displayName, password, role, avatar) VALUES (?, ?, ?, ?, ?)',
-            [username.toLowerCase(), displayName, hash, safeRole, avatar]
+            'INSERT INTO users (username, displayName, password, role, avatar, parentId) VALUES (?, ?, ?, ?, ?, ?)',
+            [username.toLowerCase(), displayName, hash, safeRole, avatar, parentId]
         );
         const id = db.lastInsertId();
         db.save();
 
-        res.json({ success: true, user: { id, username: username.toLowerCase(), displayName, role: safeRole, avatar } });
+        res.json({ success: true, user: { id, username: username.toLowerCase(), displayName, role: safeRole, avatar, parentId } });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -190,31 +203,85 @@ app.get('/api/auth/me', requireAuth, (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════
-//  USERS ROUTES (parent only)
+//  USERS ROUTES
 // ═══════════════════════════════════════════════════════════
 
+// List users — admins see everyone, parents see only themselves + their kids
 app.get('/api/users', requireParent, (req, res) => {
-    const users = db.all('SELECT id, username, displayName, role, avatar, createdAt FROM users ORDER BY createdAt');
+    if (req.session.role === 'admin') {
+        const users = db.all('SELECT id, username, displayName, role, avatar, parentId, createdAt FROM users ORDER BY createdAt');
+        return res.json({ users });
+    }
+    // Parent: see self + students they created
+    const users = db.all(
+        'SELECT id, username, displayName, role, avatar, parentId, createdAt FROM users WHERE id = ? OR parentId = ? ORDER BY createdAt',
+        [req.session.userId, req.session.userId]
+    );
     res.json({ users });
 });
 
+// Delete user
 app.delete('/api/users/:id', requireParent, (req, res) => {
     const userId = parseInt(req.params.id);
     if (Number.isNaN(userId)) return res.status(400).json({ error: 'Invalid user ID' });
     if (userId === req.session.userId) return res.status(400).json({ error: 'Cannot delete yourself' });
-    const target = db.get('SELECT id, role FROM users WHERE id = ?', [userId]);
+
+    const target = db.get('SELECT id, role, parentId FROM users WHERE id = ?', [userId]);
     if (!target) return res.status(404).json({ error: 'User not found' });
-    if (target.role === 'admin' && req.session.role !== 'admin') {
-        return res.status(403).json({ error: 'Only admins can delete admin accounts' });
+
+    if (req.session.role === 'parent') {
+        // Parents can only delete their own kids
+        if (target.parentId !== req.session.userId) {
+            return res.status(403).json({ error: 'You can only manage your own children' });
+        }
+    } else if (req.session.role === 'admin') {
+        // Admins can delete anyone except themselves (already checked above)
     }
-    if (target.role === 'parent' && req.session.role !== 'admin') {
-        return res.status(403).json({ error: 'Only admins can delete parent accounts' });
+
+    // Also delete any kids of the deleted user (if deleting a parent)
+    if (target.role === 'parent') {
+        const kids = db.all('SELECT id FROM users WHERE parentId = ?', [userId]);
+        for (const kid of kids) {
+            db.run('DELETE FROM lesson_results WHERE userId = ?', [kid.id]);
+            db.run('DELETE FROM lesson_progress WHERE userId = ?', [kid.id]);
+            db.run('DELETE FROM users WHERE id = ?', [kid.id]);
+        }
     }
+
     db.run('DELETE FROM lesson_results WHERE userId = ?', [userId]);
     db.run('DELETE FROM lesson_progress WHERE userId = ?', [userId]);
     db.run('DELETE FROM users WHERE id = ?', [userId]);
     db.save();
     res.json({ success: true });
+});
+
+// Reset password — admins can reset anyone, parents can reset their own kids
+app.post('/api/users/:id/reset-password', requireParent, async (req, res) => {
+    try {
+        const userId = parseInt(req.params.id);
+        const { newPassword } = req.body;
+        if (Number.isNaN(userId)) return res.status(400).json({ error: 'Invalid user ID' });
+        if (!newPassword || newPassword.length < 3) return res.status(400).json({ error: 'Password must be at least 3 characters' });
+
+        const target = db.get('SELECT id, role, parentId FROM users WHERE id = ?', [userId]);
+        if (!target) return res.status(404).json({ error: 'User not found' });
+
+        if (req.session.role === 'parent') {
+            // Parents can only reset passwords for their own kids
+            if (target.parentId !== req.session.userId) {
+                return res.status(403).json({ error: 'You can only reset passwords for your own children' });
+            }
+        }
+        // Admins can reset anyone's password
+
+        const hash = await bcrypt.hash(newPassword, 10);
+        db.run('UPDATE users SET password = ? WHERE id = ?', [hash, userId]);
+        db.save();
+
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // ═══════════════════════════════════════════════════════════

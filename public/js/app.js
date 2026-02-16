@@ -59,6 +59,13 @@ function speakRomanian(text, { rate = 0.82, pitch = 1 } = {}) {
   return true;
 }
 
+function escapeHTML(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 if ('speechSynthesis' in window) {
   window.speechSynthesis.onvoiceschanged = () => {
     cachedRomanianVoice = pickRomanianVoice();
@@ -82,7 +89,12 @@ function clearAutoProgressTimer() {
 
 // ─── Router ───────────────────────────────────────────────
 function navigate(hash) {
-  window.location.hash = hash;
+  if (window.location.hash === '#' + hash) {
+    // Hash is already at the target — force a re-render
+    router();
+  } else {
+    window.location.hash = hash;
+  }
 }
 
 function getRoute() {
@@ -329,10 +341,10 @@ async function renderDashboard(container) {
       return `
               <div class="lesson-card${isCompleted ? ' completed' : ''}" data-lesson="${l.id}" id="lesson-${l.id}">
                 <div class="lesson-card-icon">${l.icon || '📚'}</div>
-                <div class="lesson-card-title">${l.title}</div>
-                <div class="lesson-card-desc">${l.description}</div>
+                <div class="lesson-card-title">${escapeHTML(l.title)}</div>
+                <div class="lesson-card-desc">${escapeHTML(l.description)}</div>
                 <div class="lesson-card-meta">
-                  <span class="lesson-card-badge badge-category">${l.category}</span>
+                  <span class="lesson-card-badge badge-category">${escapeHTML(l.category)}</span>
                   <span class="lesson-card-badge badge-level">Level ${l.level}</span>
                   <span>${l.vocabularyCount} words · ${l.exerciseCount} exercises</span>
                 </div>
@@ -578,19 +590,19 @@ function renderVocabCard() {
     <div class="vocab-card" id="vocab-card">
       <div class="vocab-front">
         ${imageHtml}
-        <div class="vocab-word">${v.romanian}</div>
-        ${v.pronunciation ? `<div class="vocab-pronunciation">[ ${v.pronunciation} ]</div>` : ''}
+        <div class="vocab-word">${escapeHTML(v.romanian)}</div>
+        ${v.pronunciation ? `<div class="vocab-pronunciation">[ ${escapeHTML(v.pronunciation)} ]</div>` : ''}
         <div class="vocab-hint">Tap to reveal meaning</div>
       </div>
       <div class="vocab-back">
         ${imageHtml}
-        <div class="vocab-word">${v.romanian}</div>
-        ${v.pronunciation ? `<div class="vocab-pronunciation">[ ${v.pronunciation} ]</div>` : ''}
-        <div class="vocab-translation">= ${v.english}</div>
+        <div class="vocab-word">${escapeHTML(v.romanian)}</div>
+        ${v.pronunciation ? `<div class="vocab-pronunciation">[ ${escapeHTML(v.pronunciation)} ]</div>` : ''}
+        <div class="vocab-translation">= ${escapeHTML(v.english)}</div>
         ${hasExample ? `
           <div class="vocab-example">
-            <div class="vocab-example-ro">"${v.example.romanian}"</div>
-            <div class="vocab-example-en">${v.example.english}</div>
+            <div class="vocab-example-ro">"${escapeHTML(v.example.romanian)}"</div>
+            <div class="vocab-example-en">${escapeHTML(v.example.english)}</div>
           </div>
         ` : ''}
       </div>
@@ -701,14 +713,14 @@ function renderExercise() {
 
 function renderMultipleChoice(ex) {
   const qLabel = ex.type === 'multiple_choice_romanian'
-    ? `🇷🇴 ${ex.question}`
-    : `🇬🇧 ${ex.question}`;
+    ? `🇷🇴 ${escapeHTML(ex.question)}`
+    : `🇬🇧 ${escapeHTML(ex.question)}`;
 
   return `
     <div class="exercise-question">${qLabel}</div>
     <div class="mc-options">
       ${ex.options.map((opt, i) => `
-        <button class="mc-option" data-index="${i}" id="mc-opt-${i}">${opt}</button>
+        <button class="mc-option" data-index="${i}" id="mc-opt-${i}">${escapeHTML(opt)}</button>
       `).join('')}
     </div>
     <div class="exercise-continue hidden" id="ex-continue">
@@ -724,7 +736,7 @@ function renderMatch(ex) {
   const rightItems = [...pairs].sort(() => Math.random() - 0.5);
 
   return `
-    <div class="exercise-question">${ex.instruction || 'Match the pairs!'}</div>
+    <div class="exercise-question">${escapeHTML(ex.instruction || 'Match the pairs!')}</div>
     <div class="match-container">
       <div>
         <div class="match-column-label">🇷🇴 Romanian</div>
@@ -747,12 +759,12 @@ function renderMatch(ex) {
 
 function renderSelectImage(ex) {
   return `
-    <div class="exercise-question">🖼️ ${ex.question}</div>
+    <div class="exercise-question">🖼️ ${escapeHTML(ex.question)}</div>
     <div class="image-options">
       ${ex.options.map((opt, i) => `
         <div class="image-option" data-index="${i}" id="img-opt-${i}">
-          ${opt.image ? `<img src="${opt.image}" alt="${opt.text}">` : `<div class="img-emoji">${opt.emoji || '❓'}</div>`}
-          <div class="image-label">${opt.text}</div>
+          ${opt.image ? `<img src="${opt.image}" alt="${escapeHTML(opt.text)}">` : `<div class="img-emoji">${opt.emoji || '❓'}</div>`}
+          <div class="image-label">${escapeHTML(opt.text)}</div>
         </div>
       `).join('')}
     </div>
@@ -769,14 +781,14 @@ function renderListenAndSelect(ex) {
     <div class="exercise-question">👂 Listen and choose the right one</div>
     <div class="listen-prompt-card">
       <button class="listen-play-btn" id="listen-play-btn" type="button">🔊 Play Word</button>
-      <div class="listen-instruction">${ex.instruction || 'Tap Play, then pick the matching picture or action.'}</div>
-      ${ex.showPromptText ? `<div class="listen-prompt-text">${promptText}</div>` : ''}
+      <div class="listen-instruction">${escapeHTML(ex.instruction || 'Tap Play, then pick the matching picture or action.')}</div>
+      ${ex.showPromptText ? `<div class="listen-prompt-text">${escapeHTML(promptText)}</div>` : ''}
     </div>
     <div class="image-options pre-k-options${hideLabels ? ' no-labels' : ''}">
       ${ex.options.map((opt, i) => `
-        <div class="image-option" data-index="${i}" id="img-opt-${i}" aria-label="${opt.text || `option ${i + 1}`}">
-          ${opt.image ? `<img src="${opt.image}" alt="${opt.text || `Option ${i + 1}`}">` : `<div class="img-emoji">${opt.emoji || '❓'}</div>`}
-          <div class="image-label">${opt.text || ''}</div>
+        <div class="image-option" data-index="${i}" id="img-opt-${i}" aria-label="${escapeHTML(opt.text || `option ${i + 1}`)}">
+          ${opt.image ? `<img src="${opt.image}" alt="${escapeHTML(opt.text || `Option ${i + 1}`)}">` : `<div class="img-emoji">${opt.emoji || '❓'}</div>`}
+          <div class="image-label">${escapeHTML(opt.text || '')}</div>
         </div>
       `).join('')}
     </div>
@@ -788,8 +800,8 @@ function renderListenAndSelect(ex) {
 
 function renderTypeAnswer(ex) {
   const question = ex.type === 'translate'
-    ? `📝 ${ex.instruction || 'Translate:'}<br><strong style="font-size:1.5rem;color:var(--primary)">${ex.sentence}</strong>`
-    : `✍️ ${ex.question}`;
+    ? `📝 ${escapeHTML(ex.instruction || 'Translate:')}<br><strong style="font-size:1.5rem;color:var(--primary)">${escapeHTML(ex.sentence)}</strong>`
+    : `✍️ ${escapeHTML(ex.question)}`;
 
   return `
     <div class="exercise-question">${question}</div>
@@ -1567,9 +1579,49 @@ async function renderAdminAnalyticsTab(container) {
 // ─── Users Tab ─────────────────────────────────────────────
 function renderUsersTab(container, users) {
   const isAdmin = state.user.role === 'admin';
+  const myId = state.user.id;
+
+  // Separate users into groups for display
+  const myKids = users.filter(u => u.parentId === myId);
+  const otherUsers = isAdmin ? users.filter(u => u.parentId !== myId || u.id === myId) : [];
+
+  // Can this user manage (delete/reset) the target?
+  function canManage(u) {
+    if (u.id === myId) return false; // can't manage yourself
+    if (isAdmin) return true; // admins can manage anyone
+    return u.parentId === myId; // parents can manage their own kids
+  }
+
+  function canResetPassword(u) {
+    if (u.id === myId) return false;
+    if (isAdmin) return true;
+    return u.parentId === myId;
+  }
+
+  function renderUserCard(u) {
+    const manageable = canManage(u);
+    const resetable = canResetPassword(u);
+    const ownerLabel = isAdmin && u.parentId
+      ? (() => { const p = users.find(x => x.id === u.parentId); return p ? ` · parent: ${escapeHTML(p.displayName)}` : ''; })()
+      : '';
+    return `
+      <div class="user-card" style="cursor:default">
+        <div class="user-card-avatar">${u.avatar}</div>
+        <div class="user-card-info">
+          <div class="user-card-name">${escapeHTML(u.displayName)}</div>
+          <div class="user-card-role">${u.role} · @${escapeHTML(u.username)}${ownerLabel}</div>
+        </div>
+        <div style="display:flex;gap:0.25rem">
+          ${resetable ? `<button class="btn btn-ghost" data-reset-user="${u.id}" data-reset-name="${escapeHTML(u.displayName)}" title="Reset Password">🔑</button>` : ''}
+          ${manageable ? `<button class="btn btn-ghost" data-delete-user="${u.id}" title="Delete">🗑️</button>` : ''}
+        </div>
+      </div>
+    `;
+  }
+
   container.innerHTML = `
     <div class="card mb-2">
-      <h3 class="section-title mb-2">➕ Add ${isAdmin ? 'User' : 'Student Account'}</h3>
+      <h3 class="section-title mb-2">➕ Add ${isAdmin ? 'User' : 'Child Account'}</h3>
       <form id="add-user-form" style="display:grid; grid-template-columns:${isAdmin ? '1fr 1fr 1fr 1fr auto' : '1fr 1fr 1fr auto'}; gap:0.75rem; align-items:end">
         <div class="form-group" style="margin:0">
           <label class="form-label">Name</label>
@@ -1597,20 +1649,20 @@ function renderUsersTab(container, users) {
       </form>
     </div>
 
-    <div class="user-cards">
-      ${users.map(u => `
-        <div class="user-card" style="cursor:default">
-          <div class="user-card-avatar">${u.avatar}</div>
-          <div class="user-card-info">
-            <div class="user-card-name">${u.displayName}</div>
-            <div class="user-card-role">${u.role} · @${u.username}</div>
-          </div>
-          ${((isAdmin && u.id !== state.user.id) || (!isAdmin && u.role === 'student')) ? `<button class="btn btn-ghost" data-delete-user="${u.id}" title="Delete">🗑️</button>` : ''}
-        </div>
-      `).join('')}
-    </div>
+    ${!isAdmin ? `
+      <h3 class="section-title mb-2" style="margin-top:1.5rem">👨‍👩‍👧‍👦 My Children</h3>
+      <div class="user-cards">
+        ${myKids.length > 0 ? myKids.map(u => renderUserCard(u)).join('') : '<p style="color:var(--text-secondary);padding:1rem">No children added yet. Use the form above to create an account for your child.</p>'}
+      </div>
+    ` : `
+      <h3 class="section-title mb-2" style="margin-top:1.5rem">👥 All Users</h3>
+      <div class="user-cards">
+        ${users.map(u => renderUserCard(u)).join('')}
+      </div>
+    `}
   `;
 
+  // ── Add user form ──
   document.getElementById('add-user-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     try {
@@ -1622,13 +1674,13 @@ function renderUsersTab(container, users) {
         avatar: '🧒',
       });
       showToast('User added!', 'success');
-      // Refresh
       navigate('/parent');
     } catch (err) {
       showToast(err.message, 'error');
     }
   });
 
+  // ── Delete user ──
   document.querySelectorAll('[data-delete-user]').forEach(btn => {
     btn.addEventListener('click', async () => {
       if (!confirm('Delete this user and all their progress?')) return;
@@ -1636,6 +1688,25 @@ function renderUsersTab(container, users) {
         await api('DELETE', `/api/users/${btn.dataset.deleteUser}`);
         showToast('User deleted', 'success');
         navigate('/parent');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+  });
+
+  // ── Reset password ──
+  document.querySelectorAll('[data-reset-user]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const userName = btn.dataset.resetName;
+      const newPassword = prompt(`Enter new password for ${userName}:`);
+      if (!newPassword) return;
+      if (newPassword.length < 3) {
+        showToast('Password must be at least 3 characters', 'error');
+        return;
+      }
+      try {
+        await api('POST', `/api/users/${btn.dataset.resetUser}/reset-password`, { newPassword });
+        showToast(`Password reset for ${userName}!`, 'success');
       } catch (err) {
         showToast(err.message, 'error');
       }

@@ -1,0 +1,180 @@
+{
+    "id": "pre-k-vehicles-22",
+    "title": "Vehicule — Vehicles",
+    "description": "Learn toys that move! Car, plane, boat and more.",
+    "category": "Pre-K",
+    "level": 1,
+    "order": 22,
+    "icon": "🚗",
+    "vocabulary": [
+        {
+            "romanian": "Mașină",
+            "english": "Car",
+            "pronunciation": "mah-SHEE-nah",
+            "emoji": "🚗"
+        },
+        {
+            "romanian": "Avion",
+            "english": "Plane",
+            "pronunciation": "ah-VYON",
+            "emoji": "✈️"
+        },
+        {
+            "romanian": "Barcă",
+            "english": "Boat",
+            "pronunciation": "BAR-kah",
+            "emoji": "⛵"
+        },
+        {
+            "romanian": "Tren",
+            "english": "Train",
+            "pronunciation": "TREN",
+            "emoji": "🚂"
+        },
+        {
+            "romanian": "Bicicletă",
+            "english": "Bicycle",
+            "pronunciation": "bee-chee-KLEH-tah",
+            "emoji": "🚲"
+        },
+        {
+            "romanian": "Autobuz",
+            "english": "Bus",
+            "pronunciation": "ow-toh-BOOZ",
+            "emoji": "🚌"
+        }
+    ],
+    "exercises": [
+        {
+            "type": "listen_and_select",
+            "prompt": "Mașină",
+            "instruction": "Tap play, then pick the matching picture",
+            "options": [
+                {
+                    "emoji": "🚗",
+                    "text": "Mașină"
+                },
+                {
+                    "emoji": "✈️",
+                    "text": "Avion"
+                },
+                {
+                    "emoji": "⛵",
+                    "text": "Barcă"
+                },
+                {
+                    "emoji": "🚂",
+                    "text": "Tren"
+                }
+            ],
+            "correctAnswer": 0,
+            "hideLabels": true,
+            "showPromptText": false,
+            "autoPlay": true
+        },
+        {
+            "type": "listen_and_select",
+            "prompt": "Avion",
+            "instruction": "Tap play, then pick the matching picture",
+            "options": [
+                {
+                    "emoji": "🚌",
+                    "text": "Autobuz"
+                },
+                {
+                    "emoji": "✈️",
+                    "text": "Avion"
+                },
+                {
+                    "emoji": "🚲",
+                    "text": "Bicicletă"
+                },
+                {
+                    "emoji": "⛵",
+                    "text": "Barcă"
+                }
+            ],
+            "correctAnswer": 1,
+            "hideLabels": true,
+            "showPromptText": false,
+            "autoPlay": true
+        },
+        {
+            "type": "listen_and_select",
+            "prompt": "Barcă",
+            "instruction": "Tap play, then pick the matching picture",
+            "options": [
+                {
+                    "emoji": "🚂",
+                    "text": "Tren"
+                },
+                {
+                    "emoji": "🚗",
+                    "text": "Mașină"
+                },
+                {
+                    "emoji": "⛵",
+                    "text": "Barcă"
+                },
+                {
+                    "emoji": "🚲",
+                    "text": "Bicicletă"
+                }
+            ],
+            "correctAnswer": 2,
+            "hideLabels": true,
+            "showPromptText": false,
+            "autoPlay": true
+        },
+        {
+            "type": "listen_and_select",
+            "prompt": "Autobuz",
+            "instruction": "Tap play, then pick the matching picture",
+            "options": [
+                {
+                    "emoji": "🚌",
+                    "text": "Autobuz"
+                },
+                {
+                    "emoji": "🚂",
+                    "text": "Tren"
+                },
+                {
+                    "emoji": "✈️",
+                    "text": "Avion"
+                },
+                {
+                    "emoji": "🚗",
+                    "text": "Mașină"
+                }
+            ],
+            "correctAnswer": 0,
+            "hideLabels": true,
+            "showPromptText": false,
+            "autoPlay": true
+        },
+        {
+            "type": "select_image",
+            "question": "Which one is the **Bicicletă**?",
+            "options": [
+                {
+                    "emoji": "🚂",
+                    "text": "Tren"
+                },
+                {
+                    "emoji": "🚲",
+                    "text": "Bicicletă"
+                },
+                {
+                    "emoji": "⛵",
+                    "text": "Barcă"
+                },
+                {
+                    "emoji": "🚗",
+                    "text": "Mașină"
+                }
+            ],
+            "correctAnswer": 1
+        }
+    ]
+}
