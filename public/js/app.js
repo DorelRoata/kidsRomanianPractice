@@ -5,9 +5,10 @@
 // ─── State ────────────────────────────────────────────────
 const state = {
   user: null,
+  currentTier: 'prek', // 'bebe' (1-3) | 'prek' (3-5) | 'junior' (6-8)
   lessons: [],
   currentLesson: null,
-  currentPhase: 'vocab', // 'vocab' | 'exercise'
+  currentPhase: 'vocab', // 'vocab' | 'exercise' | 'explore'
   vocabIndex: 0,
   exerciseIndex: 0, // pointer into exerciseQueue
   exerciseQueue: [],
@@ -18,13 +19,49 @@ const state = {
   maxAdaptiveRetries: 2,
   autoProgressTimer: null,
   lessonStartTime: null,
-  selectedAvatar: '🧒',
+  selectedAvatar: '🐑',
+  selectedTier: 'prek',
   charts: {},
+  stickers: [], // array of unlocked sticker IDs
+  bebeTapsCount: 0,
 };
 
-const AVATARS = ['🧒', '👦', '👧', '🧒🏻', '👦🏻', '👧🏻', '🧒🏽', '👦🏽', '👧🏽', '🧒🏿', '👦🏿', '👧🏿', '🦸', '🧙', '🦊', '🐱', '🐶', '🦁', '🐼', '🦄', '🐸', '🐵'];
+// ─── Stickers Album Data (Romanian & Moldovan Collection) ──
+const STICKERS_DATA = [
+  { id: 'mielul', word: 'Mielul', english: 'Little Lamb', emoji: '🐑', dialect: 'Mascota Noastră' },
+  { id: 'harbuz', word: 'Harbuz', english: 'Watermelon (Pepene verde)', emoji: '🍉', dialect: 'Moldovenesc' },
+  { id: 'placinta', word: 'Plăcintă', english: 'Traditional Pie', emoji: '🥧', dialect: 'Tradițional' },
+  { id: 'papusoi', word: 'Păpușoi', english: 'Corn (Porumb)', emoji: '🌽', dialect: 'Moldovenesc' },
+  { id: 'bostan', word: 'Bostan', english: 'Pumpkin (Dovleac)', emoji: '🎃', dialect: 'Moldovenesc' },
+  { id: 'barabula', word: 'Barabulă', english: 'Potato (Cartof)', emoji: '🥔', dialect: 'Moldovenesc' },
+  { id: 'hutusca', word: 'Huțușcă', english: 'Swing (Leagăn)', emoji: '🛝', dialect: 'Moldovenesc' },
+  { id: 'omat', word: 'Omăt', english: 'Snow (Zăpadă)', emoji: '❄️', dialect: 'Moldovenesc' },
+  { id: 'perje', word: 'Perje', english: 'Plums (Prune)', emoji: '🍇', dialect: 'Moldovenesc' },
+  { id: 'pisicuta', word: 'Pisicuța', english: 'Kitten', emoji: '🐱', dialect: 'Animale' },
+  { id: 'catelus', word: 'Cățelușul', english: 'Puppy', emoji: '🐶', dialect: 'Animale' },
+  { id: 'ursulet', word: 'Ursulețul', english: 'Bear', emoji: '🐻', dialect: 'Animale' },
+  { id: 'soare', word: 'Soare', english: 'Sun', emoji: '☀️', dialect: 'Natură' },
+  { id: 'mar', word: 'Măr', english: 'Apple', emoji: '🍎', dialect: 'Fructe' },
+  { id: 'paine', word: 'Pâine', english: 'Bread', emoji: '🍞', dialect: 'Mâncare' },
+  { id: 'curcubeu', word: 'Curcubeu', english: 'Rainbow', emoji: '🌈', dialect: 'Natură' },
+];
+
+const KID_AVATARS = [
+  { name: 'Mielul', emoji: '🐑' },
+  { name: 'Andrei', emoji: '🧒' },
+  { name: 'Elena', emoji: '👧' },
+  { name: 'Bebe', emoji: '👶' },
+  { name: 'Vulpița', emoji: '🦊' },
+  { name: 'Pisicuța', emoji: '🐱' },
+  { name: 'Cățelușul', emoji: '🐶' },
+  { name: 'Leuțul', emoji: '🦁' },
+  { name: 'Pandi', emoji: '🐼' },
+  { name: 'Uni', emoji: '🦄' }
+];
+
+const AVATARS = ['🐑', '🧒', '👦', '👧', '👶', '🦸', '🧙', '🦊', '🐱', '🐶', '🦁', '🐼', '🦄', '🐸', '🐵'];
 let cachedRomanianVoice = null;
-const GUEST_USER = { id: null, username: 'guest', displayName: 'Guest', role: 'guest', avatar: '🧒' };
+const GUEST_USER = { id: null, username: 'guest', displayName: 'Mielul', role: 'guest', avatar: '🐑' };
 
 // ─── API Helper ───────────────────────────────────────────
 async function api(method, url, body = null) {
@@ -36,7 +73,87 @@ async function api(method, url, body = null) {
   return data;
 }
 
-// ─── Speech Helper (Pre-K listen lessons) ────────────────
+// ─── Sound Effects (Web Audio API Synthesizer) ────────────
+let audioCtx = null;
+function getAudioContext() {
+  if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+function playSound(type) {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    if (type === 'correct') {
+      // Pleasant bright ascending chime: C5 -> E5 -> G5
+      const notes = [523.25, 659.25, 783.99];
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+        gain.gain.setValueAtTime(0.2, now + idx * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.22);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + idx * 0.08);
+        osc.stop(now + idx * 0.08 + 0.22);
+      });
+    } else if (type === 'incorrect') {
+      // Gentle soft two-tone boop
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(260, now);
+      osc.frequency.exponentialRampToValueAtTime(180, now + 0.2);
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.22);
+    } else if (type === 'match') {
+      // Quick cheerful bubble pop
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.15);
+    } else if (type === 'fanfare') {
+      // Celebratory arpeggio
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.11);
+        gain.gain.setValueAtTime(0.25, now + idx * 0.11);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.11 + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + idx * 0.11);
+        osc.stop(now + idx * 0.11 + 0.35);
+      });
+    }
+  } catch (e) {
+    // AudioContext blocked or unsupported
+  }
+}
+
+// ─── Speech Helper (With Turtle Slow Replay 🐢) ───────────
 let currentAudio = null;
 
 function pickRomanianVoice() {
@@ -55,7 +172,7 @@ function sanitizeAudioFilename(text) {
     .substring(0, 50);
 }
 
-function speakTTS(text, { rate = 0.82, pitch = 1 } = {}) {
+function speakTTS(text, { rate = 0.85, pitch = 1 } = {}) {
   if (!text || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
     return false;
   }
@@ -71,43 +188,58 @@ function speakTTS(text, { rate = 0.82, pitch = 1 } = {}) {
 }
 
 function speakRomanian(text, opts = {}) {
-  // Stop any playing audio
+  const rate = typeof opts.rate === 'number' ? opts.rate : 0.85;
+  const pitch = typeof opts.pitch === 'number' ? opts.pitch : 1.0;
+
+  // Stop any currently playing audio
   if (currentAudio) {
-    currentAudio.pause();
+    try { currentAudio.pause(); } catch {}
     currentAudio = null;
   }
-  window.speechSynthesis.cancel();
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
 
   if (!text) return false;
 
-  // Try to play MP3 file if we are inside a lesson
-  if (state.currentLesson && state.currentLesson.id) {
-    const filename = sanitizeAudioFilename(text) + '.mp3';
-    const url = `/audio/${state.currentLesson.id}/${filename}`;
-
+  const tryPlayUrl = (url, onFail) => {
     const audio = new Audio(url);
-    audio.onerror = () => {
-      // Fallback to TTS if file blocked/missing
-      console.warn(`Audio missing for "${text}", falling back to TTS`);
-      speakTTS(text, opts);
+    try { audio.playbackRate = rate; } catch {}
+    let handled = false;
+    const handleError = () => {
+      if (handled) return;
+      handled = true;
+      if (onFail) onFail();
     };
+
+    audio.onerror = handleError;
     audio.onplay = () => {
       currentAudio = audio;
     };
 
-    // Play with error catching
     const playPromise = audio.play();
     if (playPromise !== undefined) {
-      playPromise.catch(error => {
-        // Auto-play was prevented or file error
-        speakTTS(text, opts);
-      });
+      playPromise.catch(handleError);
     }
     return true;
+  };
+
+  const playServerTTSFallback = () => {
+    const ttsUrl = `/api/tts?text=${encodeURIComponent(text)}`;
+    tryPlayUrl(ttsUrl, () => {
+      speakTTS(text, { rate, pitch });
+    });
+  };
+
+  // Try lesson-specific audio file first if inside a lesson
+  if (state.currentLesson && state.currentLesson.id) {
+    const filename = sanitizeAudioFilename(text) + '.mp3';
+    const lessonUrl = `/audio/${state.currentLesson.id}/${filename}`;
+    return tryPlayUrl(lessonUrl, playServerTTSFallback);
   }
 
-  // Default fallback (no lesson context)
-  return speakTTS(text, opts);
+  // Outside lesson or custom sentence
+  return playServerTTSFallback();
 }
 
 function escapeHTML(str) {
@@ -124,7 +256,7 @@ if ('speechSynthesis' in window) {
 }
 
 function isGuestUser() {
-  return state.user && state.user.role === 'guest';
+  return !state.user || state.user.role === 'guest';
 }
 
 function canPersistProgress() {
@@ -135,6 +267,163 @@ function clearAutoProgressTimer() {
   if (state.autoProgressTimer) {
     clearTimeout(state.autoProgressTimer);
     state.autoProgressTimer = null;
+  }
+}
+
+// ─── Age Tier Switching & Styling ─────────────────────────
+function setTier(tier) {
+  const safeTier = ['bebe', 'prek', 'junior'].includes(tier) ? tier : 'prek';
+  state.currentTier = safeTier;
+  document.body.dataset.tier = safeTier;
+
+  // Persist for guest or logged in student
+  if (isGuestUser()) {
+    try {
+      const guest = JSON.parse(localStorage.getItem('romanianKidsGuestProfile') || '{}');
+      guest.tier = safeTier;
+      localStorage.setItem('romanianKidsGuestProfile', JSON.stringify(guest));
+    } catch {}
+  } else if (state.user && state.user.id) {
+    api('POST', '/api/student/profile', { tier: safeTier }).catch(() => {});
+  }
+}
+
+// ─── Sticker Album Helpers ────────────────────────────────
+function getGuestStickers() {
+  try {
+    const raw = localStorage.getItem('romanianKidsGuestStickers');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {}
+  return ['mielul']; // Little Lamb unlocked by default!
+}
+
+function saveGuestStickers(stickers) {
+  try {
+    localStorage.setItem('romanianKidsGuestStickers', JSON.stringify(stickers));
+  } catch {}
+}
+
+async function loadUnlockedStickers() {
+  if (isGuestUser() || !state.user || !state.user.id) {
+    state.stickers = getGuestStickers();
+    return state.stickers;
+  }
+  try {
+    const data = await api('GET', '/api/stickers');
+    const ids = (data.stickers || []).map(s => s.stickerId);
+    if (!ids.includes('mielul')) ids.unshift('mielul');
+    state.stickers = ids;
+    saveGuestStickers(ids);
+  } catch {
+    state.stickers = getGuestStickers();
+  }
+  return state.stickers;
+}
+
+async function unlockStickerReward(lessonId = null) {
+  const current = state.stickers && state.stickers.length > 0 ? [...state.stickers] : ['mielul'];
+  const locked = STICKERS_DATA.filter(s => !current.includes(s.id));
+  if (locked.length === 0) return null;
+  const picked = locked[Math.floor(Math.random() * locked.length)];
+
+  current.push(picked.id);
+  state.stickers = current;
+  saveGuestStickers(current);
+
+  if (!isGuestUser() && state.user && state.user.id) {
+    try {
+      await api('POST', '/api/stickers/unlock', {
+        stickerId: picked.id,
+        lessonId: lessonId || (state.currentLesson ? state.currentLesson.id : null),
+        tier: state.currentTier
+      });
+    } catch {}
+  }
+  return picked;
+}
+
+function openStickerAlbumModal() {
+  const existing = document.getElementById('sticker-modal-overlay');
+  if (existing) existing.remove();
+
+  const unlockedIds = state.stickers || ['mielul'];
+  const totalStickers = STICKERS_DATA.length;
+  const count = unlockedIds.length;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'sticker-modal-overlay';
+  overlay.className = 'sticker-modal-overlay';
+
+  overlay.innerHTML = `
+    <div class="sticker-modal" id="sticker-modal-content">
+      <button class="sticker-modal-close" id="sticker-modal-close" type="button" title="Închide">✕</button>
+      <div class="sticker-modal-header">
+        <h2 class="sticker-modal-title">🌟 Albumul Meu de Abțibilduri 🇲🇩 🇷🇴</h2>
+        <p class="sticker-modal-subtitle">Apasă pe un abțibild deblocat pentru a auzi cuvântul!</p>
+        <div class="sticker-progress-pill">${count} din ${totalStickers} abțibilduri deblocate</div>
+      </div>
+      <div class="sticker-album-grid">
+        ${STICKERS_DATA.map(st => {
+          const isUnlocked = unlockedIds.includes(st.id);
+          return `
+            <div class="sticker-badge ${isUnlocked ? 'unlocked' : 'locked'}" data-sticker-id="${st.id}" data-sticker-word="${escapeHTML(st.word)}">
+              ${!isUnlocked ? '<span class="sticker-lock-icon">🔒</span>' : ''}
+              <div class="sticker-emoji">${st.emoji}</div>
+              <div class="sticker-badge-name">${isUnlocked ? escapeHTML(st.word) : '???'}</div>
+              <div class="sticker-badge-tag">${escapeHTML(st.dialect)}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  document.getElementById('sticker-modal-close')?.addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.remove();
+  });
+
+  overlay.querySelectorAll('.sticker-badge.unlocked').forEach(badge => {
+    badge.addEventListener('click', () => {
+      const word = badge.dataset.stickerWord;
+      badge.style.transform = 'scale(1.25) rotate(6deg)';
+      playSound('match');
+      if (word) speakRomanian(word);
+      setTimeout(() => {
+        badge.style.transform = '';
+      }, 400);
+    });
+  });
+}
+
+// ─── Mascot Mielul Cheering & Greetings ───────────────────
+const MASCOT_QUOTES = [
+  'Bună! Eu sunt Mielul 🐑! Hai să învățăm românește!',
+  'Mbeee! Ce frumos e să învățăm împreună! 🐑✨',
+  'Ești grozav! Apasă pe o lecție și începem! 🐑🎉',
+  'Graiul moldovenesc și limba română sunt o bucurie! 🐑🇲🇩',
+];
+
+function clickMascot() {
+  const quote = MASCOT_QUOTES[Math.floor(Math.random() * MASCOT_QUOTES.length)];
+  showToast(quote, 'success');
+  playSound('match');
+  speakRomanian(quote.replace(/[🐑✨🎉🇲🇩]/g, '').trim());
+}
+
+function showMascotBubble(text) {
+  const el = document.getElementById('mascot-reaction-bubble');
+  if (el) {
+    el.innerHTML = `
+      <span class="mascot-lamb">🐑</span>
+      <span class="mascot-bubble-text">${escapeHTML(text)}</span>
+    `;
+    el.style.display = 'inline-flex';
   }
 }
 
@@ -158,7 +447,7 @@ async function router() {
   const route = getRoute();
   const app = document.getElementById('app');
 
-  // Not logged in — show auth page
+  // Not logged in — show avatar welcome / auth page
   if (!state.user) {
     if (route === '/register') {
       renderRegister(app);
@@ -184,9 +473,36 @@ async function init() {
   try {
     const data = await api('GET', '/api/auth/me');
     state.user = data.user;
+    if (state.user) {
+      try {
+        const profData = await api('GET', '/api/student/profile');
+        if (profData?.profile?.tier) {
+          state.currentTier = profData.profile.tier;
+        }
+      } catch {}
+    }
   } catch {
-    state.user = null;
+    // Check localStorage guest profile
+    try {
+      const saved = localStorage.getItem('romanianKidsGuestProfile');
+      if (saved) {
+        const p = JSON.parse(saved);
+        if (p && p.displayName) {
+          state.user = {
+            id: null,
+            username: 'guest_' + p.displayName.toLowerCase(),
+            displayName: p.displayName,
+            role: 'guest',
+            avatar: p.avatar || '🐑'
+          };
+          state.currentTier = p.tier || 'prek';
+        }
+      }
+    } catch {}
   }
+
+  document.body.dataset.tier = state.currentTier || 'prek';
+  await loadUnlockedStickers();
   router();
 }
 
@@ -197,36 +513,142 @@ document.addEventListener('DOMContentLoaded', init);
 // ═══════════════════════════════════════════════════════════
 
 function renderLogin(container) {
+  let selectedTier = state.selectedTier || 'prek';
+
   container.innerHTML = `
-    <div class="auth-screen">
-      <div class="auth-card">
-        <div class="auth-flag">🇷🇴</div>
-        <h1 class="auth-title">Învață Română!</h1>
-        <p class="auth-subtitle">Sign in to start practicing</p>
-        <div id="auth-error" class="auth-error"></div>
-        <form id="login-form">
-          <div class="form-group">
-            <label class="form-label" for="login-user">Username</label>
-            <input class="form-input" type="text" id="login-user" placeholder="Enter your username" autocomplete="username" autocapitalize="off" required>
+    <div class="welcome-screen">
+      <div class="welcome-card">
+        <div class="welcome-header">
+          <div class="welcome-mascot-hero" id="welcome-mascot" title="Apasă pe Mielul!">🐑</div>
+          <h1 class="welcome-title">Cine se joacă astăzi?</h1>
+          <p class="welcome-subtitle">Alege grupa de vârstă și personajul tău preferat!</p>
+        </div>
+
+        <div class="welcome-tier-section">
+          <div class="welcome-section-label">1. Vârsta ta</div>
+          <div class="welcome-tier-grid" id="welcome-tier-grid">
+            <div class="welcome-tier-card ${selectedTier === 'bebe' ? 'selected' : ''}" data-tier="bebe">
+              <div class="welcome-tier-icon">🍼</div>
+              <div class="welcome-tier-name">Bebe</div>
+              <div class="welcome-tier-age">1–3 ani</div>
+              <div class="welcome-tier-desc">Explorează & Ascultă</div>
+            </div>
+            <div class="welcome-tier-card ${selectedTier === 'prek' ? 'selected' : ''}" data-tier="prek">
+              <div class="welcome-tier-icon">🌱</div>
+              <div class="welcome-tier-name">Pre-K</div>
+              <div class="welcome-tier-age">3–5 ani</div>
+              <div class="welcome-tier-desc">Ascultă & Alege</div>
+            </div>
+            <div class="welcome-tier-card ${selectedTier === 'junior' ? 'selected' : ''}" data-tier="junior">
+              <div class="welcome-tier-icon">⭐</div>
+              <div class="welcome-tier-name">Junior</div>
+              <div class="welcome-tier-age">6–8 ani</div>
+              <div class="welcome-tier-desc">Cuvinte & Jocuri</div>
+            </div>
           </div>
-          <div class="form-group">
-            <label class="form-label" for="login-pass">Password</label>
-            <input class="form-input" type="password" id="login-pass" placeholder="Enter your password" autocomplete="current-password" required>
+        </div>
+
+        <div class="welcome-avatar-section">
+          <div class="welcome-section-label">2. Alege personajul tău</div>
+          <div class="avatar-tile-grid" id="avatar-tile-grid">
+            ${KID_AVATARS.map(a => `
+              <div class="avatar-tile" data-avatar="${a.emoji}" data-name="${escapeHTML(a.name)}">
+                <div class="avatar-tile-emoji">${a.emoji}</div>
+                <div class="avatar-tile-name">${escapeHTML(a.name)}</div>
+              </div>
+            `).join('')}
           </div>
-          <button type="submit" class="btn btn-primary btn-lg btn-block" id="login-btn">🔑 Sign In</button>
-        </form>
-        <button class="btn btn-outline btn-lg btn-block" id="guest-continue">👶 Continue as Guest</button>
-        <p class="auth-switch">Don't have an account? <a id="go-register">Create one</a></p>
+        </div>
+
+        <div class="parent-toggle-row">
+          <button class="parent-toggle-btn" id="toggle-parent-login" type="button">🔐 Părinți / Login cu cont</button>
+        </div>
+
+        <!-- Hidden Parent Login Box -->
+        <div id="parent-login-box" style="display:none; margin-top:1.5rem; text-align:left; border-top:1px solid #e2e8f0; padding-top:1.5rem;">
+          <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:0.75rem; color:#2d3748">🔐 Conectare Părinte / Admin</h3>
+          <div id="auth-error" class="auth-error"></div>
+          <form id="login-form">
+            <div class="form-group">
+              <label class="form-label" for="login-user">Utilizator</label>
+              <input class="form-input" type="text" id="login-user" placeholder="username" autocomplete="username" autocapitalize="off" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="login-pass">Parolă</label>
+              <input class="form-input" type="password" id="login-pass" placeholder="password" autocomplete="current-password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block" id="login-btn">🔑 Intră în cont</button>
+          </form>
+          <p class="auth-switch" style="margin-top:1rem">Nu ai cont? <a id="go-register">Creează unul</a></p>
+        </div>
       </div>
     </div>
   `;
 
-  document.getElementById('go-register').addEventListener('click', () => navigate('/register'));
-  document.getElementById('guest-continue').addEventListener('click', () => {
-    state.user = { ...GUEST_USER };
-    navigate('/');
+  // Mascot tap
+  document.getElementById('welcome-mascot')?.addEventListener('click', () => {
+    clickMascot();
   });
-  document.getElementById('login-form').addEventListener('submit', async (e) => {
+
+  // Tier picker click
+  document.querySelectorAll('.welcome-tier-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.welcome-tier-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedTier = card.dataset.tier;
+      state.selectedTier = selectedTier;
+      setTier(selectedTier);
+      playSound('match');
+    });
+  });
+
+  // Kid Avatar click -> instant guest login!
+  document.querySelectorAll('.avatar-tile').forEach(tile => {
+    tile.addEventListener('click', () => {
+      const name = tile.dataset.name;
+      const emoji = tile.dataset.avatar;
+
+      state.user = {
+        id: null,
+        username: 'guest_' + name.toLowerCase(),
+        displayName: name,
+        role: 'guest',
+        avatar: emoji
+      };
+      setTier(selectedTier);
+
+      // Save to localStorage
+      try {
+        localStorage.setItem('romanianKidsGuestProfile', JSON.stringify({
+          displayName: name,
+          avatar: emoji,
+          tier: selectedTier
+        }));
+      } catch {}
+
+      playSound('fanfare');
+      speakRomanian(`Bună, ${name}!`);
+      navigate('/');
+    });
+  });
+
+  // Parent login toggle
+  const toggleBtn = document.getElementById('toggle-parent-login');
+  const parentBox = document.getElementById('parent-login-box');
+  toggleBtn?.addEventListener('click', () => {
+    if (parentBox.style.display === 'none') {
+      parentBox.style.display = 'block';
+      toggleBtn.textContent = '▲ Ascunde formularul de login';
+      parentBox.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      parentBox.style.display = 'none';
+      toggleBtn.textContent = '🔐 Părinți / Login cu cont';
+    }
+  });
+
+  document.getElementById('go-register')?.addEventListener('click', () => navigate('/register'));
+
+  document.getElementById('login-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const errEl = document.getElementById('auth-error');
     errEl.classList.remove('visible');
@@ -236,6 +658,14 @@ function renderLogin(container) {
         password: document.getElementById('login-pass').value,
       });
       state.user = data.user;
+      if (data.user) {
+        try {
+          const profData = await api('GET', '/api/student/profile');
+          if (profData?.profile?.tier) {
+            setTier(profData.profile.tier);
+          }
+        } catch {}
+      }
       navigate('/');
     } catch (err) {
       errEl.textContent = err.message;
@@ -343,81 +773,192 @@ async function renderDashboard(container) {
 
     const totalMinutes = Math.round((stats.totalTimeSec || 0) / 60);
     const guestNotice = isGuestUser()
-      ? `<div class="card mb-2"><strong>Guest mode:</strong> lessons work normally, but progress and stats are not saved.</div>`
+      ? `<div class="card mb-2" style="background:#fffbeb; border:2px solid #fde68a; border-radius:18px; padding:0.85rem 1.25rem;">
+          <span style="font-size:1.2rem">🐑</span> <strong>Mod Explorator (Guest):</strong> Te joci fără parolă! Progresul și abțibildurile se salvează pe acest dispozitiv.
+        </div>`
       : '';
+
+    // Mascot greeting quote based on tier
+    let mascotGreeting = '';
+    if (state.currentTier === 'bebe') {
+      mascotGreeting = `Bună, ${state.user.displayName}! Eu sunt Mielul 🐑. Alege o lume de mai jos și apasă pe imagini!`;
+    } else if (state.currentTier === 'prek') {
+      mascotGreeting = `Bună, ${state.user.displayName}! Ascultă cuvintele și găsește pozele potrivite! 🐑🌱`;
+    } else {
+      mascotGreeting = `Bună, ${state.user.displayName}! Construiește propoziții, potrivește cuvinte și adună steluțe! 🐑⭐`;
+    }
+
+    // Filter lessons matching the current tier
+    const tierFilteredLessons = state.lessons.filter(l => {
+      if (!l.tiers || !Array.isArray(l.tiers)) return true;
+      return l.tiers.includes(state.currentTier);
+    });
+
+    const BEBE_WORLDS = [
+      { id: 'animals-04', title: 'Animale', icon: '🐾', desc: 'Pisică, Câine, Cal, Vacă...' },
+      { id: 'food-06', title: 'Mâncare', icon: '🍎', desc: 'Măr, Pâine, Lapte, Apă...' },
+      { id: 'family-05', title: 'Familia', icon: '👨‍👩‍👧', desc: 'Mama, Tata, Bunica, Bunicul...' },
+      { id: 'pre-k-toys-14', title: 'Jucării', icon: '🧸', desc: 'Minge, Ursuleț, Trenuleț...' },
+      { id: 'pre-k-vehicles-22', title: 'Vehicule', icon: '🚗', desc: 'Mașină, Autobuz, Avion...' },
+      { id: 'moldovan-words-23', title: 'Graiul Nostru', icon: '🇲🇩', desc: 'Harbuz, Zămos, Plăcintă...' },
+      { id: 'colors-02', title: 'Culori', icon: '🌈', desc: 'Roșu, Albastru, Galben, Verde...' },
+      { id: 'pre-k-body-13', title: 'Corpul Meu', icon: '👃', desc: 'Nas, Ochi, Gură, Mână...' }
+    ];
 
     container.innerHTML = `
       ${renderNavbar()}
       <div class="dashboard">
-        <div class="hero">
-          <h1>Bună, ${state.user.displayName}! 👋</h1>
-          <p>${isGuestUser() ? 'Pick any lesson and start right away.' : 'Ready to learn some Romanian today?'}</p>
+        <!-- Mascot speech bubble banner -->
+        <div class="mascot-bubble" id="mascot-reaction-bubble" style="cursor:pointer;" title="Apasă pe Mielul!">
+          <span class="mascot-lamb">🐑</span>
+          <span class="mascot-bubble-text">${escapeHTML(mascotGreeting)}</span>
         </div>
 
         ${guestNotice}
 
-        ${!isGuestUser() ? `
+        ${(!isGuestUser() && state.currentTier === 'junior') ? `
         <div class="stats-row">
           <div class="stat-card">
             <div class="stat-icon">📚</div>
             <div class="stat-value">${stats.completedLessons}/${stats.totalLessons}</div>
-            <div class="stat-label">Lessons Done</div>
+            <div class="stat-label">Lecții terminate</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">⭐</div>
             <div class="stat-value">${stats.averageScore}%</div>
-            <div class="stat-label">Avg. Score</div>
+            <div class="stat-label">Scor mediu</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">⏱️</div>
-            <div class="stat-value">${totalMinutes}</div>
-            <div class="stat-label">Minutes</div>
+            <div class="stat-value">${totalMinutes}m</div>
+            <div class="stat-label">Timp învățare</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon">🔥</div>
-            <div class="stat-value">${stats.recentResults ? stats.recentResults.length : 0}</div>
-            <div class="stat-label">Attempts</div>
+            <div class="stat-icon">🌟</div>
+            <div class="stat-value">${(state.stickers || []).length}/${STICKERS_DATA.length}</div>
+            <div class="stat-label">Abțibilduri</div>
           </div>
         </div>
         ` : ''}
 
-        <div class="section-header">
-          <h2 class="section-title">📖 Lessons</h2>
-        </div>
-        <div class="lessons-grid">
-          ${state.lessons.map(l => {
-      const best = bestScoresMap[l.id];
-      const pct = best ? best.bestScore : 0;
-      const isCompleted = pct >= 80;
-      return `
-              <div class="lesson-card${isCompleted ? ' completed' : ''}" data-lesson="${l.id}" id="lesson-${l.id}">
-                <div class="lesson-card-icon">${l.icon || '📚'}</div>
-                <div class="lesson-card-title">${escapeHTML(l.title)}</div>
-                <div class="lesson-card-desc">${escapeHTML(l.description)}</div>
-                <div class="lesson-card-meta">
-                  <span class="lesson-card-badge badge-category">${escapeHTML(l.category)}</span>
-                  <span class="lesson-card-badge badge-level">Level ${l.level}</span>
-                  <span>${l.vocabularyCount} words · ${l.exerciseCount} exercises</span>
-                </div>
-                ${pct > 0 && !isCompleted ? `
-                  <div class="lesson-progress-ring">
-                    <svg width="40" height="40" viewBox="0 0 40 40">
-                      <circle class="ring-bg" cx="20" cy="20" r="16"/>
-                      <circle class="ring-fill" cx="20" cy="20" r="16"
-                        stroke-dasharray="${2 * Math.PI * 16}"
-                        stroke-dashoffset="${2 * Math.PI * 16 * (1 - pct / 100)}"/>
-                    </svg>
-                    <span class="lesson-progress-text">${pct}%</span>
-                  </div>
-                ` : ''}
+        ${state.currentTier === 'bebe' ? `
+          <!-- 🍼 BEBE WORLDS EXPLORE VIEW -->
+          <div class="section-header" style="text-align:center; margin-bottom:1.5rem">
+            <h2 class="section-title" style="font-size:2rem">🍼 Lumile lui Bebe</h2>
+            <p style="color:var(--text-secondary); font-size:1.1rem; font-weight:700">Apasă pe orice lume pentru a explora fără greșeli!</p>
+          </div>
+
+          <div class="bebe-worlds-grid">
+            ${BEBE_WORLDS.map(w => `
+              <div class="bebe-world-card" data-lesson="${w.id}">
+                <div class="bebe-world-icon">${w.icon}</div>
+                <div class="bebe-world-title">${w.title}</div>
+                <div class="bebe-world-desc">${w.desc}</div>
               </div>
-            `;
-    }).join('')}
+            `).join('')}
+          </div>
+        ` : `
+          <!-- 🌱 PRE-K AND ⭐ JUNIOR LESSONS VIEW -->
+          <div class="section-header">
+            <h2 class="section-title">
+              ${state.currentTier === 'prek' ? '🌱 Lecții Pre-K (Ascultă & Alege)' : '⭐ Lecții Junior (Cuvinte & Imagini)'}
+            </h2>
+          </div>
+          <div class="category-filters" id="category-filters">
+            <button class="category-pill active" data-category="all">Toate (${tierFilteredLessons.length})</button>
+            <button class="category-pill" data-category="Graiul Moldovenesc">🇲🇩 Graiul Moldovenesc</button>
+            <button class="category-pill" data-category="Pre-K">👶 Pre-K Audio</button>
+            <button class="category-pill" data-category="Basics">🌟 Basics</button>
+            <button class="category-pill" data-category="Daily Life">🍎 Daily Life</button>
+          </div>
+
+          <div class="lessons-grid">
+            ${tierFilteredLessons.map(l => {
+              const best = bestScoresMap[l.id];
+              const pct = best ? best.bestScore : 0;
+              const isCompleted = pct >= 80;
+              const isMoldovan = l.category === 'Graiul Moldovenesc';
+
+              // Calculate star rating for Junior
+              let starIcons = '';
+              if (state.currentTier === 'junior') {
+                if (pct >= 95) starIcons = '⭐⭐⭐';
+                else if (pct >= 80) starIcons = '⭐⭐';
+                else if (pct >= 60) starIcons = '⭐';
+              }
+
+              return `
+                <div class="lesson-card${isCompleted ? ' completed' : ''}" data-lesson="${l.id}" data-category="${escapeHTML(l.category)}" id="lesson-${l.id}">
+                  <div class="lesson-card-icon">${l.icon || '📚'}</div>
+                  <div class="lesson-card-title">${escapeHTML(l.title)}</div>
+                  <div class="lesson-card-desc">${escapeHTML(l.description)}</div>
+                  <div class="lesson-card-meta">
+                    <span class="lesson-card-badge badge-category${isMoldovan ? ' badge-moldova' : ''}">${escapeHTML(l.category)}</span>
+                    ${starIcons ? `<span class="lesson-card-badge" style="background:#fef3c7; color:#b45309; font-weight:800;">${starIcons}</span>` : `<span class="lesson-card-badge badge-level">Level ${l.level}</span>`}
+                    <span>${l.vocabularyCount} cuvinte · ${l.exerciseCount} exerciții</span>
+                  </div>
+                  ${pct > 0 && !isCompleted ? `
+                    <div class="lesson-progress-ring">
+                      <svg width="40" height="40" viewBox="0 0 40 40">
+                        <circle class="ring-bg" cx="20" cy="20" r="16"/>
+                        <circle class="ring-fill" cx="20" cy="20" r="16"
+                          stroke-dasharray="${2 * Math.PI * 16}"
+                          stroke-dashoffset="${2 * Math.PI * 16 * (1 - pct / 100)}"/>
+                      </svg>
+                      <span class="lesson-progress-text">${pct}%</span>
+                    </div>
+                  ` : ''}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `}
+
+        <!-- Sticker shelf banner preview -->
+        <div class="card mt-3" style="background:linear-gradient(135deg, #fff9db 0%, #fff0f6 100%); border:3px solid #ffc078; border-radius:24px; padding:1.5rem; text-align:center;">
+          <h3 style="font-size:1.35rem; font-weight:900; color:#d9480f; margin-bottom:0.35rem;">
+            🌟 Albumul Tău de Abțibilduri: ${(state.stickers || []).length} din ${STICKERS_DATA.length} deblocate!
+          </h3>
+          <p style="color:#7a5c00; font-weight:700; margin-bottom:1rem;">
+            Finalizează lecții pentru a primi abțibilduri cu Mielul 🐑, Harbuz 🍉, Plăcintă 🥧, Păpușoi 🌽 și multe altele!
+          </p>
+          <button class="btn btn-primary" id="open-stickers-shelf" type="button" style="background:#f76707; border-color:#d9480f;">
+            📖 Deschide Albumul de Abțibilduri
+          </button>
         </div>
       </div>
     `;
 
-    document.querySelectorAll('.lesson-card').forEach(card => {
+    // Interactive speech bubble
+    document.getElementById('mascot-reaction-bubble')?.addEventListener('click', () => {
+      clickMascot();
+    });
+
+    document.getElementById('open-stickers-shelf')?.addEventListener('click', () => {
+      openStickerAlbumModal();
+    });
+
+    // Category pills filter
+    document.querySelectorAll('.category-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        const cat = pill.dataset.category;
+        document.querySelectorAll('.lesson-card').forEach(card => {
+          const cardCat = card.dataset.category || '';
+          if (cat === 'all') {
+            card.style.display = '';
+          } else if (cat === 'Pre-K') {
+            card.style.display = cardCat.toLowerCase().includes('pre-k') ? '' : 'none';
+          } else {
+            card.style.display = cardCat.toLowerCase().includes(cat.toLowerCase()) ? '' : 'none';
+          }
+        });
+      });
+    });
+
+    // Lesson card & Bebe world card clicks
+    document.querySelectorAll('.lesson-card, .bebe-world-card').forEach(card => {
       card.addEventListener('click', () => {
         navigate(`/lesson/${card.dataset.lesson}`);
       });
@@ -434,21 +975,47 @@ async function renderDashboard(container) {
 // ═══════════════════════════════════════════════════════════
 
 function renderNavbar() {
-  const hasDashboard = ['parent', 'admin'].includes(state.user.role);
+  const hasDashboard = state.user && ['parent', 'admin'].includes(state.user.role);
+  const stickerCount = (state.stickers || []).length;
   const authButton = isGuestUser()
-    ? '<button class="btn btn-ghost" id="nav-signin" title="Sign in">🔐 Sign In</button>'
-    : '<button class="btn btn-ghost" id="nav-logout" title="Sign out">🚪</button>';
+    ? '<button class="btn btn-ghost" id="nav-signin" title="Schimbă personajul sau intră în cont">🔄 Schimbă</button>'
+    : '<button class="btn btn-ghost" id="nav-logout" title="Ieșire din cont">🚪</button>';
 
   return `
     <nav class="navbar">
       <a class="navbar-brand" id="nav-home">
-        <span class="flag">🇷🇴</span>
+        <span class="flag">🇷🇴 🇲🇩</span>
         <span>Învață Română</span>
       </a>
+
+      <!-- Tier switcher pill -->
+      <div class="navbar-tier-switcher">
+        <button class="tier-switch-btn ${state.currentTier === 'bebe' ? 'active' : ''}" data-tier-btn="bebe" title="Bebe (1–3 ani)">
+          🍼 <span>Bebe</span>
+        </button>
+        <button class="tier-switch-btn ${state.currentTier === 'prek' ? 'active' : ''}" data-tier-btn="prek" title="Pre-K (3–5 ani)">
+          🌱 <span>Pre-K</span>
+        </button>
+        <button class="tier-switch-btn ${state.currentTier === 'junior' ? 'active' : ''}" data-tier-btn="junior" title="Junior (6–8 ani)">
+          ⭐ <span>Junior</span>
+        </button>
+      </div>
+
       <div class="navbar-user">
-        ${hasDashboard ? '<button class="btn btn-ghost" id="nav-parent">📊 Dashboard</button>' : ''}
-        <div class="navbar-avatar">${state.user.avatar || '🧒'}</div>
-        <span class="navbar-name">${state.user.displayName}</span>
+        <!-- Friendly mascot button -->
+        <button class="navbar-mascot" id="nav-mascot" type="button" title="Mielul 🐑 — Apasă pentru o vorbă bună!">
+          <span class="mascot-icon">🐑</span>
+          <span class="mascot-badge-text">Mielul</span>
+        </button>
+
+        <!-- Sticker Album modal trigger -->
+        <button class="navbar-stickers-btn" id="nav-stickers" type="button" title="Vezi albumul de abțibilduri">
+          🌟 <span class="stickers-count">${stickerCount}/${STICKERS_DATA.length}</span>
+        </button>
+
+        ${hasDashboard ? '<button class="btn btn-ghost" id="nav-parent">📊 Părinți</button>' : ''}
+        <div class="navbar-avatar" title="${state.user ? state.user.displayName : 'Guest'}">${state.user ? (state.user.avatar || '🐑') : '🐑'}</div>
+        <span class="navbar-name">${state.user ? state.user.displayName : 'Explorator'}</span>
         ${authButton}
       </div>
     </nav>
@@ -457,6 +1024,33 @@ function renderNavbar() {
 
 function setupNavbar() {
   document.getElementById('nav-home')?.addEventListener('click', () => navigate('/'));
+
+  // Tier Switcher Buttons
+  document.querySelectorAll('[data-tier-btn]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetTier = btn.dataset.tierBtn;
+      setTier(targetTier);
+      playSound('match');
+      showToast(`Grupa schimbată: ${targetTier === 'bebe' ? '🍼 Bebe (1–3 ani)' : targetTier === 'prek' ? '🌱 Pre-K (3–5 ani)' : '⭐ Junior (6–8 ani)'}`);
+      const app = document.getElementById('app');
+      if (getRoute().startsWith('/lesson/')) {
+        renderLesson(app);
+      } else {
+        renderDashboard(app);
+      }
+    });
+  });
+
+  // Mascot button click
+  document.getElementById('nav-mascot')?.addEventListener('click', () => {
+    clickMascot();
+  });
+
+  // Sticker Album modal click
+  document.getElementById('nav-stickers')?.addEventListener('click', () => {
+    openStickerAlbumModal();
+  });
+
   document.getElementById('nav-logout')?.addEventListener('click', async () => {
     clearAutoProgressTimer();
     try {
@@ -465,11 +1059,14 @@ function setupNavbar() {
     state.user = null;
     navigate('/');
   });
+
   document.getElementById('nav-signin')?.addEventListener('click', () => {
     clearAutoProgressTimer();
     state.user = null;
+    try { localStorage.removeItem('romanianKidsGuestProfile'); } catch {}
     navigate('/');
   });
+
   document.getElementById('nav-parent')?.addEventListener('click', () => navigate('/parent'));
 }
 
@@ -621,92 +1218,179 @@ function renderLesson(container) {
 // ─── Vocabulary Phase ──────────────────────────────────────
 function renderVocabCard() {
   const lesson = state.currentLesson;
-  const vocab = lesson.vocabulary;
-  if (!vocab || vocab.length === 0) {
+  const vocab = lesson.vocabulary || [];
+  if (vocab.length === 0) {
     state.currentPhase = 'exercise';
     return renderExercise();
   }
 
   const v = vocab[state.vocabIndex];
-  const hasExample = v.example && v.example.romanian;
+  const isFirst = state.vocabIndex === 0;
+  const isLast = state.vocabIndex === vocab.length - 1;
 
-  // Decide what to show as the "Image" (File path or Emoji fallback)
   const imageHtml = v.image
-    ? `<img src="${v.image}" class="vocab-image" alt="${v.english}">`
-    : `<div class="vocab-emoji">${v.emoji || state.currentLesson.icon || '📚'}</div>`;
+    ? `<img src="${v.image}" class="slide-animal-img" alt="${escapeHTML(v.romanian)}">`
+    : `<div class="slide-animal-emoji">${v.emoji || lesson.icon || '🐾'}</div>`;
 
   return `
-    <div class="vocab-phase-title">📖 Learn New Words</div>
-    <div class="vocab-phase-subtitle">Tap the card to see the translation</div>
-    <div class="vocab-card" id="vocab-card">
-      <div class="vocab-front">
-        ${imageHtml}
-        <div class="vocab-word">${escapeHTML(v.romanian)}</div>
-        ${v.pronunciation ? `<div class="vocab-pronunciation">[ ${escapeHTML(v.pronunciation)} ]</div>` : ''}
-        <div class="vocab-hint">Tap to reveal meaning</div>
+    <div class="slide-carousel-stage" id="slide-carousel-stage">
+      <!-- Main Touchable Slide Card for 3yo -->
+      <div class="slide-card-main" id="slide-card-touch" role="button" tabindex="0" title="Atinge pentru a auzi!">
+        <div class="slide-animal-display" id="slide-animal-bounce">
+          ${imageHtml}
+        </div>
+        <div class="slide-word-badge">
+          <div class="slide-word-romanian">${escapeHTML(v.romanian)}</div>
+          <div class="slide-word-english">${escapeHTML(v.english || '')}</div>
+        </div>
+        <div class="slide-audio-pills">
+          <button class="slide-audio-pill normal" id="slide-audio-play" type="button">🔊 Ascultă</button>
+          <button class="slide-audio-pill turtle" id="slide-audio-turtle" type="button">🐢 Încet</button>
+        </div>
       </div>
-      <div class="vocab-back">
-        ${imageHtml}
-        <div class="vocab-word">${escapeHTML(v.romanian)}</div>
-        ${v.pronunciation ? `<div class="vocab-pronunciation">[ ${escapeHTML(v.pronunciation)} ]</div>` : ''}
-        <div class="vocab-translation">= ${escapeHTML(v.english)}</div>
-        ${hasExample ? `
-          <div class="vocab-example">
-            <div class="vocab-example-ro">"${escapeHTML(v.example.romanian)}"</div>
-            <div class="vocab-example-en">${escapeHTML(v.example.english)}</div>
-          </div>
-        ` : ''}
+
+      <!-- Slide Navigation Bar: Big arrows + touch dots -->
+      <div class="slide-navigation-bar">
+        <button class="slide-nav-btn prev" id="slide-btn-prev" type="button" ${isFirst ? 'disabled style="opacity:0.2; pointer-events:none;"' : ''} title="Înapoi">
+          ◀
+        </button>
+
+        <div class="slide-dots-indicator" id="slide-dots-container">
+          ${vocab.map((_, i) => `
+            <button class="slide-dot${i === state.vocabIndex ? ' active' : ''}" data-idx="${i}" type="button" title="Slide ${i + 1}"></button>
+          `).join('')}
+        </div>
+
+        <button class="slide-nav-btn next ${isLast ? 'finish-btn' : ''}" id="slide-btn-next" type="button" title="${isLast ? 'Hai la Joacă!' : 'Următorul'}">
+          ${isLast ? '🎯 Joacă!' : '▶'}
+        </button>
       </div>
-    </div>
-    <div class="vocab-counter">${state.vocabIndex + 1} of ${vocab.length} words</div>
-    <div class="vocab-nav">
-      ${state.vocabIndex > 0 ? `<button class="btn btn-outline" id="vocab-prev">← Previous</button>` : '<span></span>'}
-      <button class="btn btn-primary" id="vocab-next">
-        ${state.vocabIndex < vocab.length - 1 ? 'Next Word →' : 'Start Exercises! 🎯'}
-      </button>
     </div>
   `;
 }
 
 function setupVocabInteraction() {
-  const card = document.getElementById('vocab-card');
-  if (!card) return;
+  const vocab = state.currentLesson?.vocabulary || [];
+  const v = vocab[state.vocabIndex];
+  if (!v) return;
 
-  card.addEventListener('click', () => {
-    card.classList.toggle('flipped');
+  const playCleanWord = (rate = 0.85) => {
+    if (v.romanian) {
+      speakRomanian(v.romanian, { rate });
+    }
+  };
+
+  // 1. Touch anywhere on the animal/card -> immediate bounce + clean pronunciation + pop sound!
+  const touchCard = document.getElementById('slide-card-touch');
+  const bounceEl = document.getElementById('slide-animal-bounce');
+  if (touchCard) {
+    touchCard.addEventListener('click', () => {
+      if (bounceEl) {
+        bounceEl.classList.remove('animal-tap-bounce');
+        void bounceEl.offsetWidth; // retrigger CSS animation
+        bounceEl.classList.add('animal-tap-bounce');
+      }
+      playSound('match');
+      playCleanWord(0.85);
+    });
+  }
+
+  // 2. Audio button & turtle button
+  document.getElementById('slide-audio-play')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    playSound('match');
+    playCleanWord(0.85);
+  });
+  document.getElementById('slide-audio-turtle')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    playSound('match');
+    playCleanWord(0.6);
   });
 
-  document.getElementById('vocab-prev')?.addEventListener('click', () => {
-    state.vocabIndex--;
-    updateLessonContent();
-  });
+  // 3. Auto-play clean word when slide opens (no extra prefixes)
+  setTimeout(() => {
+    playCleanWord(0.85);
+  }, 220);
 
-  document.getElementById('vocab-next')?.addEventListener('click', () => {
-    const vocab = state.currentLesson.vocabulary;
-    if (state.vocabIndex < vocab.length - 1) {
+  // 4. Next & Prev buttons
+  const goPrev = () => {
+    if (state.vocabIndex > 0) {
+      state.vocabIndex--;
+      playSound('match');
+      updateLessonContent();
+    }
+  };
+
+  const goNext = () => {
+    const totalVocab = state.currentLesson?.vocabulary || [];
+    if (state.vocabIndex < totalVocab.length - 1) {
       state.vocabIndex++;
+      playSound('match');
       updateLessonContent();
     } else {
-      // Move to exercises
+      // Finished all slides -> proceed to exercises/games
+      playSound('fanfare');
       state.currentPhase = 'exercise';
       state.exerciseIndex = 0;
       if (!state.exerciseQueue || state.exerciseQueue.length === 0) {
-        const totalExercises = (state.currentLesson.exercises || []).length;
-        state.exerciseQueue = Array.from({ length: totalExercises }, (_, i) => i);
+        const total = (state.currentLesson?.exercises || []).length;
+        state.exerciseQueue = Array.from({ length: total }, (_, i) => i);
       }
       renderLesson(document.getElementById('app'));
     }
+  };
+
+  document.getElementById('slide-btn-prev')?.addEventListener('click', goPrev);
+  document.getElementById('slide-btn-next')?.addEventListener('click', goNext);
+
+  // 5. Direct dot tap
+  document.querySelectorAll('.slide-dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      const idx = parseInt(dot.dataset.idx);
+      if (!isNaN(idx) && idx !== state.vocabIndex) {
+        state.vocabIndex = idx;
+        playSound('match');
+        updateLessonContent();
+      }
+    });
   });
+
+  // 6. Touch swipe support for iPad & touchscreens
+  const stage = document.getElementById('slide-carousel-stage');
+  if (stage) {
+    let startX = 0;
+    let startY = 0;
+    stage.addEventListener('touchstart', (e) => {
+      if (e.touches.length > 0) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    stage.addEventListener('touchend', (e) => {
+      if (e.changedTouches.length > 0) {
+        const deltaX = e.changedTouches[0].clientX - startX;
+        const deltaY = e.changedTouches[0].clientY - startY;
+        if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
+          if (deltaX < 0) {
+            goNext(); // Swipe left -> Next
+          } else {
+            goPrev(); // Swipe right -> Prev
+          }
+        }
+      }
+    }, { passive: true });
+  }
 }
 
-// ─── Exercises ─────────────────────────────────────────────
+// ─── Exercises Helper & Dispatcher ────────────────────────
 function getCurrentExerciseId() {
   if (!state.exerciseQueue || state.exerciseQueue.length === 0) return -1;
   return state.exerciseQueue[state.exerciseIndex];
 }
 
 function getCurrentExercise() {
-  const exercises = state.currentLesson.exercises || [];
+  const exercises = state.currentLesson?.exercises || [];
   const exId = getCurrentExerciseId();
   if (exId < 0 || exId >= exercises.length) return null;
   return exercises[exId];
@@ -720,7 +1404,7 @@ function queueAdaptiveRetry(exerciseId) {
   state.exerciseQueue.push(exerciseId);
 }
 
-function recordAttempt(exerciseId, isCorrect) {
+function recordAttempt(exerciseId, isCorrect, itemWord = null) {
   const key = String(exerciseId);
   const wasMastered = !!state.masteredExercises[key];
   state.answers.push(!!isCorrect);
@@ -730,21 +1414,75 @@ function recordAttempt(exerciseId, isCorrect) {
       state.masteredExercises[key] = true;
       state.score++;
     }
-    return;
+  } else {
+    if (!wasMastered) queueAdaptiveRetry(exerciseId);
   }
 
-  if (!wasMastered) queueAdaptiveRetry(exerciseId);
+  // Log attempt event to server for future-proof learning analytics
+  if (state.currentLesson && state.currentLesson.id) {
+    api('POST', '/api/attempts', {
+      lessonId: state.currentLesson.id,
+      exerciseId: key,
+      itemWord: itemWord || null,
+      tier: state.currentTier,
+      isCorrect: !!isCorrect
+    }).catch(() => {});
+  }
+}
+
+function getOptionDetails(opt) {
+  if (typeof opt === 'string') {
+    const vocab = state.currentLesson?.vocabulary || [];
+    const match = vocab.find(v =>
+      (v.romanian && v.romanian.toLowerCase() === opt.toLowerCase()) ||
+      (v.english && v.english.toLowerCase() === opt.toLowerCase())
+    );
+    return {
+      text: opt,
+      emoji: match?.emoji || '🌸',
+      image: match?.image || null
+    };
+  }
+  return {
+    text: opt.text || opt.romanian || opt.english || '',
+    emoji: opt.emoji || '🌸',
+    image: opt.image || null
+  };
 }
 
 function renderExercise() {
   if (state.exerciseIndex >= state.exerciseQueue.length) {
-    return ''; // Will be handled by completion
+    return ''; // Completed
   }
 
   const ex = getCurrentExercise();
-  if (!ex) return '<p>Exercise not found.</p>';
+  if (!ex) return '<p>Exercițiul nu a fost găsit.</p>';
+
+  // 🍼 BEBE TIER DISPATCH: Zero failure states, 2 large choices
+  if (state.currentTier === 'bebe') {
+    return renderBebeExercise(ex);
+  }
+
+  // 🌱 PRE-K TIER DISPATCH: 2x2 grid, gentle retry, turtle audio
+  if (state.currentTier === 'prek' && (ex.type === 'listen_and_select' || ex.type === 'select_image')) {
+    return renderPreKExercise(ex);
+  }
+
+  // ⭐ JUNIOR TIER DISPATCH: Word bubbles sentence builder, Picture-word match, typing with diacritics
+  if (state.currentTier === 'junior') {
+    if (ex.type === 'word_bubbles' || (ex.type === 'translate' && ex.sentence)) {
+      return renderWordBubbles(ex);
+    }
+    if (ex.type === 'picture_word_match' || (ex.type === 'match' && ex.pairs)) {
+      return renderPictureWordMatch(ex);
+    }
+  }
 
   switch (ex.type) {
+    case 'word_bubbles':
+      return renderWordBubbles(ex);
+    case 'picture_word_match':
+      return renderPictureWordMatch(ex);
     case 'multiple_choice':
     case 'multiple_choice_romanian':
       return renderMultipleChoice(ex);
@@ -758,10 +1496,447 @@ function renderExercise() {
     case 'translate':
       return renderTypeAnswer(ex);
     default:
-      return `<p>Unknown exercise type: ${ex.type}</p>`;
+      return renderMultipleChoice(ex);
   }
 }
 
+// ─── 🍼 BEBE EXERCISE: Zero Failure States ────────────────
+function renderBebeExercise(ex) {
+  const vocab = state.currentLesson?.vocabulary || [];
+  let promptText = ex.prompt || (ex.options && ex.options[ex.correctAnswer] ? (ex.options[ex.correctAnswer].text || ex.options[ex.correctAnswer].romanian || ex.options[ex.correctAnswer]) : '');
+  let rawOptions = ex.options || [];
+
+  // If exercise has no options (e.g. was type/match), generate 2 choices from lesson vocab!
+  if (rawOptions.length < 2 && vocab.length >= 2) {
+    const targetWord = ex.answer || ex.sentence || (vocab[0] ? vocab[0].romanian : 'Cuvânt');
+    promptText = promptText || targetWord;
+    const targetVocab = vocab.find(v => v.romanian?.toLowerCase() === String(targetWord).toLowerCase()) || vocab[0];
+    const altVocab = vocab.find(v => v !== targetVocab) || vocab[1];
+    rawOptions = [
+      { text: targetVocab.romanian, emoji: targetVocab.emoji, image: targetVocab.image },
+      { text: altVocab.romanian, emoji: altVocab.emoji, image: altVocab.image }
+    ];
+    ex.correctAnswer = 0;
+  }
+
+  // Pick 2 options (correct answer + one alternate)
+  let bebeOptions = [];
+  if (rawOptions.length >= 2) {
+    const correctIdx = typeof ex.correctAnswer === 'number' && ex.correctAnswer < rawOptions.length ? ex.correctAnswer : 0;
+    const correctDetails = getOptionDetails(rawOptions[correctIdx]);
+    const correctOpt = { ...correctDetails, isTarget: true, origIdx: correctIdx };
+
+    const altIdx = correctIdx === 0 ? 1 : 0;
+    const altDetails = getOptionDetails(rawOptions[altIdx]);
+    const altOpt = { ...altDetails, isTarget: false, origIdx: altIdx };
+
+    bebeOptions = Math.random() > 0.5 ? [correctOpt, altOpt] : [altOpt, correctOpt];
+  } else {
+    bebeOptions = rawOptions.map((o, idx) => ({ ...getOptionDetails(o), isTarget: true, origIdx: idx }));
+  }
+
+  return `
+    <div class="bebe-prompt-stage">
+      <div class="bebe-prompt-bubble">
+        <button class="bebe-prompt-audio" id="listen-play-btn" type="button" title="Ascultă">🔊</button>
+        <span class="bebe-prompt-word">${escapeHTML(promptText)}</span>
+        <button class="bebe-prompt-turtle" id="listen-turtle-btn" type="button" title="Ascultă încet">🐢</button>
+      </div>
+    </div>
+
+    <div class="bebe-choice-grid">
+      ${bebeOptions.map((opt, i) => `
+        <div class="bebe-choice-card" data-is-target="${opt.isTarget ? '1' : '0'}" data-text="${escapeHTML(opt.text)}" id="bebe-opt-${i}">
+          ${opt.image ? `<img src="${opt.image}" style="max-height:120px;" alt="${escapeHTML(opt.text)}">` : `<div style="font-size:5.5rem;">${opt.emoji || '🌸'}</div>`}
+          <div style="font-size:1.6rem; font-weight:900; margin-top:0.5rem; color:#1e293b;">${escapeHTML(opt.text)}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function setupBebeExercise(ex) {
+  const vocab = state.currentLesson?.vocabulary || [];
+  let promptText = ex.prompt || (ex.options && ex.options[ex.correctAnswer] ? (ex.options[ex.correctAnswer].text || ex.options[ex.correctAnswer].romanian || ex.options[ex.correctAnswer]) : '');
+  if (!promptText && vocab.length > 0) {
+    promptText = vocab[0].romanian;
+  }
+  const exerciseId = getCurrentExerciseId();
+
+  const playPromptNormal = () => {
+    if (promptText) speakRomanian(promptText, { rate: 0.85 });
+  };
+  const playPromptSlow = () => {
+    if (promptText) speakRomanian(promptText, { rate: 0.6 });
+  };
+
+  document.getElementById('listen-play-btn')?.addEventListener('click', playPromptNormal);
+  document.getElementById('listen-turtle-btn')?.addEventListener('click', playPromptSlow);
+
+  // Auto-play prompt on start
+  setTimeout(playPromptNormal, 200);
+
+  let answered = false;
+  document.querySelectorAll('.bebe-choice-card').forEach(card => {
+    card.addEventListener('click', () => {
+      if (answered) return;
+      const isTarget = card.dataset.isTarget === '1';
+      const word = card.dataset.text;
+
+      if (isTarget) {
+        // Correct tap -> big celebration, zero penalty, clean animal name
+        answered = true;
+        card.classList.add('celebrate');
+        playSound('fanfare');
+        launchConfetti();
+        showMascotBubble(`${word} 🐑🎉`);
+        if (word) speakRomanian(word);
+        recordAttempt(exerciseId, true, word);
+
+        setTimeout(() => {
+          state.exerciseIndex++;
+          if (state.exerciseIndex >= state.exerciseQueue.length) {
+            completeLesson();
+          } else {
+            renderLesson(document.getElementById('app'));
+          }
+        }, 900);
+      } else {
+        // Other option tap -> gentle bounce & name it cleanly without prefixes, NO failure state!
+        card.classList.add('soft-react');
+        playSound('match');
+        showMascotBubble(`${word} 🐑✨`);
+        if (word) speakRomanian(word);
+        setTimeout(() => {
+          card.classList.remove('soft-react');
+        }, 600);
+      }
+    });
+  });
+}
+
+// ─── 🌱 PRE-K EXERCISE: 2x2 Grid with Gentle Retry ────────
+function renderPreKExercise(ex) {
+  const promptText = ex.prompt || ex.question || '';
+  const hideLabels = ex.hideLabels !== false && ex.type === 'listen_and_select';
+  const options = (ex.options || []).map(opt => getOptionDetails(opt));
+
+  return `
+    <div class="mascot-bubble" id="mascot-reaction-bubble" style="margin-bottom:1rem">
+      <span class="mascot-lamb">🐑</span>
+      <span class="mascot-bubble-text">Ascultă și alege imaginea corectă!</span>
+    </div>
+
+    <div class="listen-prompt-card">
+      <div class="audio-action-row">
+        <button class="listen-play-btn" id="listen-play-btn" type="button">🔊 Ascultă / Play</button>
+        <button class="btn btn-turtle" id="listen-turtle-btn" type="button">🐢 Încet (Slow)</button>
+      </div>
+      <div class="listen-instruction">${escapeHTML(ex.instruction || 'Apasă pe difuzor, apoi alege imaginea potrivită.')}</div>
+      ${ex.showPromptText ? `<div class="listen-prompt-text">${escapeHTML(promptText)}</div>` : ''}
+    </div>
+
+    <div class="pre-k-2x2-grid ${hideLabels ? 'no-labels' : ''}">
+      ${options.map((opt, i) => `
+        <div class="image-option" data-index="${i}" id="img-opt-${i}" aria-label="${escapeHTML(opt.text || `opțiunea ${i + 1}`)}">
+          ${opt.image ? `<img src="${opt.image}" alt="${escapeHTML(opt.text)}">` : `<div class="img-emoji">${opt.emoji}</div>`}
+          <div class="image-label">${escapeHTML(opt.text)}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function setupPreKExercise(ex) {
+  const promptText = ex.prompt || '';
+  const exerciseId = getCurrentExerciseId();
+
+  const playPromptNormal = () => {
+    if (promptText) speakRomanian(promptText, { rate: 0.82 });
+  };
+  const playPromptSlow = () => {
+    if (promptText) speakRomanian(promptText, { rate: 0.6 });
+  };
+
+  document.getElementById('listen-play-btn')?.addEventListener('click', playPromptNormal);
+  document.getElementById('listen-turtle-btn')?.addEventListener('click', playPromptSlow);
+
+  // Auto-play audio on question start
+  setTimeout(playPromptNormal, 250);
+
+  const options = document.querySelectorAll('.image-option');
+  let mastered = false;
+
+  options.forEach(opt => {
+    opt.addEventListener('click', () => {
+      if (mastered) return;
+      const idx = parseInt(opt.dataset.index);
+      const isCorrect = idx === ex.correctAnswer;
+
+      if (isCorrect) {
+        mastered = true;
+        opt.classList.add('correct');
+        playSound('correct');
+        launchConfetti();
+        showMascotBubble('Bravo! Ești grozav! 🐑🎉');
+        if (promptText) speakRomanian(promptText);
+        recordAttempt(exerciseId, true);
+
+        setTimeout(() => {
+          state.exerciseIndex++;
+          if (state.exerciseIndex >= state.exerciseQueue.length) {
+            completeLesson();
+          } else {
+            renderLesson(document.getElementById('app'));
+          }
+        }, 900);
+      } else {
+        // Gentle retry without harsh penalty
+        opt.classList.add('gentle-wiggle');
+        playSound('incorrect');
+        showMascotBubble('Aproape! Mai ascultă o dată și alege din nou! 🐑');
+        if (promptText) {
+          setTimeout(playPromptNormal, 350);
+        }
+        setTimeout(() => {
+          opt.classList.remove('gentle-wiggle');
+        }, 650);
+      }
+    });
+  });
+}
+
+// ─── ⭐ JUNIOR: Word Bubbles Sentence Builder ───────────────
+function renderWordBubbles(ex) {
+  const rawSentence = ex.sentence || ex.answer || (ex.example && ex.example.romanian) || '';
+  const cleanWords = rawSentence.replace(/[.,!?]/g, '').trim().split(/\s+/).filter(Boolean);
+  // Scramble word chips
+  const scrambled = [...cleanWords].sort(() => Math.random() - 0.5);
+
+  return `
+    <div class="exercise-question">🧩 Construiește propoziția în ordine:</div>
+    <div class="mascot-bubble" id="mascot-reaction-bubble" style="margin-bottom:1rem">
+      <span class="mascot-lamb">🐑</span>
+      <span class="mascot-bubble-text">Apasă pe bulele cu cuvinte în ordinea corectă!</span>
+    </div>
+
+    <div class="word-bubbles-box">
+      <!-- Target sentence tray -->
+      <div class="sentence-builder-tray" id="sentence-builder-tray">
+        <span class="sentence-builder-placeholder" id="tray-placeholder">Apasă pe cuvinte pentru a le așeza aici...</span>
+      </div>
+
+      <!-- Scrambled chips pool -->
+      <div class="word-chips-pool" id="word-chips-pool">
+        ${scrambled.map((w, i) => `
+          <button type="button" class="word-bubble-chip" data-word="${escapeHTML(w)}" data-index="${i}">
+            ${escapeHTML(w)} 🔊
+          </button>
+        `).join('')}
+      </div>
+
+      <div class="audio-action-row" style="margin-top:1.25rem;">
+        <button class="btn btn-turtle" id="bubbles-listen-slow" type="button">🐢 Ascultă încet propoziția</button>
+        <button class="btn btn-outline" id="bubbles-reset" type="button">🔄 Reset</button>
+      </div>
+    </div>
+
+    <div class="type-answer-submit text-center">
+      <button class="btn btn-primary btn-lg" id="bubbles-submit">Verifică Propoziția ✓</button>
+    </div>
+    <div class="type-answer-feedback hidden" id="bubbles-feedback"></div>
+    <div class="exercise-continue hidden" id="ex-continue">
+      <button class="btn btn-primary btn-lg" id="continue-btn">Continuă →</button>
+    </div>
+  `;
+}
+
+function setupWordBubbles(ex) {
+  const targetSentence = (ex.sentence || ex.answer || (ex.example && ex.example.romanian) || '')
+    .replace(/[.,!?]/g, '').trim().toLowerCase();
+  const tray = document.getElementById('sentence-builder-tray');
+  const pool = document.getElementById('word-chips-pool');
+  const placeholder = document.getElementById('tray-placeholder');
+  const submitBtn = document.getElementById('bubbles-submit');
+  const feedback = document.getElementById('bubbles-feedback');
+  const slowBtn = document.getElementById('bubbles-listen-slow');
+  const resetBtn = document.getElementById('bubbles-reset');
+  const exerciseId = getCurrentExerciseId();
+
+  let placedWords = [];
+
+  slowBtn?.addEventListener('click', () => {
+    if (ex.sentence || ex.answer) speakRomanian(ex.sentence || ex.answer, { rate: 0.6 });
+  });
+
+  const updateTrayView = () => {
+    tray.querySelectorAll('.word-bubble-chip.in-tray').forEach(c => c.remove());
+    if (placedWords.length === 0) {
+      if (placeholder) placeholder.style.display = 'block';
+      tray.classList.remove('has-items');
+    } else {
+      if (placeholder) placeholder.style.display = 'none';
+      tray.classList.add('has-items');
+
+      placedWords.forEach((item, pos) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'word-bubble-chip in-tray';
+        chip.textContent = `${item.word} ✕`;
+        chip.title = 'Apasă pentru a scoate cuvântul';
+        chip.addEventListener('click', () => {
+          // Return word back to pool
+          placedWords.splice(pos, 1);
+          item.origEl.classList.remove('placed');
+          playSound('match');
+          updateTrayView();
+        });
+        tray.appendChild(chip);
+      });
+    }
+  };
+
+  pool?.querySelectorAll('.word-bubble-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      if (chip.classList.contains('placed')) return;
+      const word = chip.dataset.word;
+      placedWords.push({ word, origEl: chip });
+      chip.classList.add('placed');
+      playSound('match');
+      if (word) speakRomanian(word);
+      updateTrayView();
+    });
+  });
+
+  resetBtn?.addEventListener('click', () => {
+    placedWords = [];
+    pool?.querySelectorAll('.word-bubble-chip').forEach(c => c.classList.remove('placed'));
+    updateTrayView();
+  });
+
+  submitBtn?.addEventListener('click', () => {
+    const userBuilt = placedWords.map(w => w.word).join(' ').trim().toLowerCase();
+    const isCorrect = userBuilt === targetSentence;
+
+    feedback.classList.remove('hidden');
+    if (isCorrect) {
+      feedback.className = 'type-answer-feedback correct';
+      feedback.textContent = '✅ Bravo! Ai construit propoziția corect!';
+      playSound('correct');
+      launchConfetti();
+      submitBtn.style.display = 'none';
+      recordAttempt(exerciseId, true);
+    } else {
+      feedback.className = 'type-answer-feedback incorrect';
+      feedback.innerHTML = `❌ Mai încearcă! Ascultă propoziția cu 🐢 și aranjează din nou.`;
+      playSound('incorrect');
+      recordAttempt(exerciseId, false);
+    }
+
+    setTimeout(() => {
+      document.getElementById('ex-continue').classList.remove('hidden');
+      setupContinueButton();
+    }, 500);
+  });
+}
+
+// ─── ⭐ JUNIOR: Picture-Word Match ─────────────────────────
+function renderPictureWordMatch(ex) {
+  const pairs = ex.pairs || [];
+  const leftPictures = [...pairs].sort(() => Math.random() - 0.5);
+  const rightWords = [...pairs].sort(() => Math.random() - 0.5);
+
+  return `
+    <div class="exercise-question">🖼️ Potrivește imaginea cu cuvântul românesc!</div>
+    <div class="picture-word-container">
+      <div id="pw-pictures-column" style="display:flex; flex-direction:column; gap:0.75rem;">
+        ${leftPictures.map((p, i) => `
+          <div class="picture-card-item" data-side="pic" data-pair="${pairs.indexOf(p)}" data-word="${escapeHTML(p.romanian)}">
+            <div class="picture-card-emoji">${p.emoji || '🐾'}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div id="pw-words-column" style="display:flex; flex-direction:column; gap:0.75rem;">
+        ${rightWords.map((p, i) => `
+          <div class="match-item" data-side="word" data-pair="${pairs.indexOf(p)}" data-word="${escapeHTML(p.romanian)}" style="min-height:70px; display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+            ${escapeHTML(p.romanian)} 🔊
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="exercise-continue hidden" id="ex-continue">
+      <button class="btn btn-primary btn-lg" id="continue-btn">Continuă →</button>
+    </div>
+  `;
+}
+
+function setupPictureWordMatch(ex) {
+  const exerciseId = getCurrentExerciseId();
+  let selectedPic = null;
+  let selectedWord = null;
+  let matchedCount = 0;
+  const total = (ex.pairs || []).length;
+
+  const items = document.querySelectorAll('.picture-card-item, .match-item');
+  items.forEach(el => {
+    el.addEventListener('click', () => {
+      if (el.classList.contains('matched')) return;
+
+      const side = el.dataset.side;
+      if (side === 'pic') {
+        if (selectedPic) selectedPic.classList.remove('selected');
+        selectedPic = el;
+        el.classList.add('selected');
+      } else {
+        if (selectedWord) selectedWord.classList.remove('selected');
+        selectedWord = el;
+        el.classList.add('selected');
+        const wordText = el.dataset.word;
+        if (wordText) speakRomanian(wordText);
+      }
+
+      if (selectedPic && selectedWord) {
+        const picPair = selectedPic.dataset.pair;
+        const wordPair = selectedWord.dataset.pair;
+
+        if (picPair === wordPair) {
+          playSound('match');
+          selectedPic.classList.remove('selected');
+          selectedWord.classList.remove('selected');
+          selectedPic.classList.add('matched');
+          selectedWord.classList.add('matched');
+          matchedCount++;
+
+          selectedPic = null;
+          selectedWord = null;
+
+          if (matchedCount === total) {
+            playSound('fanfare');
+            recordAttempt(exerciseId, true);
+            setTimeout(() => {
+              document.getElementById('ex-continue').classList.remove('hidden');
+              setupContinueButton();
+            }, 400);
+          }
+        } else {
+          playSound('incorrect');
+          selectedPic.classList.add('wrong');
+          selectedWord.classList.add('wrong');
+          const p = selectedPic;
+          const w = selectedWord;
+          setTimeout(() => {
+            p.classList.remove('wrong', 'selected');
+            w.classList.remove('wrong', 'selected');
+          }, 500);
+          selectedPic = null;
+          selectedWord = null;
+        }
+      }
+    });
+  });
+}
+
+// ─── Standard Multiple Choice ──────────────────────────────
 function renderMultipleChoice(ex) {
   const qLabel = ex.type === 'multiple_choice_romanian'
     ? `🇷🇴 ${escapeHTML(ex.question)}`
@@ -775,35 +1950,34 @@ function renderMultipleChoice(ex) {
       `).join('')}
     </div>
     <div class="exercise-continue hidden" id="ex-continue">
-      <button class="btn btn-primary btn-lg" id="continue-btn">Continue →</button>
+      <button class="btn btn-primary btn-lg" id="continue-btn">Continuă →</button>
     </div>
   `;
 }
 
 function renderMatch(ex) {
-  // Shuffle both columns independently
-  const pairs = ex.pairs;
+  const pairs = ex.pairs || [];
   const leftItems = [...pairs].sort(() => Math.random() - 0.5);
   const rightItems = [...pairs].sort(() => Math.random() - 0.5);
 
   return `
-    <div class="exercise-question">${escapeHTML(ex.instruction || 'Match the pairs!')}</div>
+    <div class="exercise-question">${escapeHTML(ex.instruction || 'Potrivește perechile!')}</div>
     <div class="match-container">
       <div>
-        <div class="match-column-label">🇷🇴 Romanian</div>
+        <div class="match-column-label">🇷🇴 Română</div>
         <div class="match-column" id="match-left">
-          ${leftItems.map((p, i) => `<div class="match-item" data-side="left" data-value="${p.romanian}" data-pair="${pairs.indexOf(p)}" id="match-left-${i}">${p.romanian}</div>`).join('')}
+          ${leftItems.map((p, i) => `<div class="match-item" data-side="left" data-value="${escapeHTML(p.romanian)}" data-pair="${pairs.indexOf(p)}" id="match-left-${i}">${escapeHTML(p.romanian)}</div>`).join('')}
         </div>
       </div>
       <div>
         <div class="match-column-label">🇬🇧 English</div>
         <div class="match-column" id="match-right">
-          ${rightItems.map((p, i) => `<div class="match-item" data-side="right" data-value="${p.english}" data-pair="${pairs.indexOf(p)}" id="match-right-${i}">${p.english}</div>`).join('')}
+          ${rightItems.map((p, i) => `<div class="match-item" data-side="right" data-value="${escapeHTML(p.english)}" data-pair="${pairs.indexOf(p)}" id="match-right-${i}">${escapeHTML(p.english)}</div>`).join('')}
         </div>
       </div>
     </div>
     <div class="exercise-continue hidden" id="ex-continue">
-      <button class="btn btn-primary btn-lg" id="continue-btn">Continue →</button>
+      <button class="btn btn-primary btn-lg" id="continue-btn">Continuă →</button>
     </div>
   `;
 }
@@ -820,7 +1994,7 @@ function renderSelectImage(ex) {
       `).join('')}
     </div>
     <div class="exercise-continue hidden" id="ex-continue">
-      <button class="btn btn-primary btn-lg" id="continue-btn">Continue →</button>
+      <button class="btn btn-primary btn-lg" id="continue-btn">Continuă →</button>
     </div>
   `;
 }
@@ -829,40 +2003,54 @@ function renderListenAndSelect(ex) {
   const promptText = ex.prompt || '';
   const hideLabels = ex.hideLabels !== false;
   return `
-    <div class="exercise-question">👂 Listen and choose the right one</div>
+    <div class="exercise-question">👂 Ascultă și alege imaginea corectă</div>
     <div class="listen-prompt-card">
-      <button class="listen-play-btn" id="listen-play-btn" type="button">🔊 Play Word</button>
-      <div class="listen-instruction">${escapeHTML(ex.instruction || 'Tap Play, then pick the matching picture or action.')}</div>
+      <div class="audio-action-row">
+        <button class="listen-play-btn" id="listen-play-btn" type="button">🔊 Ascultă / Play</button>
+        <button class="btn btn-turtle" id="listen-turtle-btn" type="button">🐢 Încet (Slow)</button>
+      </div>
+      <div class="listen-instruction">${escapeHTML(ex.instruction || 'Apasă pe difuzor, apoi alege opțiunea potrivită.')}</div>
       ${ex.showPromptText ? `<div class="listen-prompt-text">${escapeHTML(promptText)}</div>` : ''}
     </div>
     <div class="image-options pre-k-options${hideLabels ? ' no-labels' : ''}">
       ${ex.options.map((opt, i) => `
-        <div class="image-option" data-index="${i}" id="img-opt-${i}" aria-label="${escapeHTML(opt.text || `option ${i + 1}`)}">
-          ${opt.image ? `<img src="${opt.image}" alt="${escapeHTML(opt.text || `Option ${i + 1}`)}">` : `<div class="img-emoji">${opt.emoji || '❓'}</div>`}
+        <div class="image-option" data-index="${i}" id="img-opt-${i}" aria-label="${escapeHTML(opt.text || `opțiunea ${i + 1}`)}">
+          ${opt.image ? `<img src="${opt.image}" alt="${escapeHTML(opt.text || '')}">` : `<div class="img-emoji">${opt.emoji || '❓'}</div>`}
           <div class="image-label">${escapeHTML(opt.text || '')}</div>
         </div>
       `).join('')}
     </div>
     <div class="exercise-continue hidden" id="ex-continue">
-      <button class="btn btn-primary btn-lg" id="continue-btn">Continue →</button>
+      <button class="btn btn-primary btn-lg" id="continue-btn">Continuă →</button>
     </div>
   `;
 }
 
+// ─── Sticky Diacritics Bar Above Text Inputs ──────────────
 function renderTypeAnswer(ex) {
   const question = ex.type === 'translate'
-    ? `📝 ${escapeHTML(ex.instruction || 'Translate:')}<br><strong style="font-size:1.5rem;color:var(--primary)">${escapeHTML(ex.sentence)}</strong>`
+    ? `📝 ${escapeHTML(ex.instruction || 'Tradu:')}<br><strong style="font-size:1.5rem;color:var(--primary)">${escapeHTML(ex.sentence)}</strong>`
     : `✍️ ${escapeHTML(ex.question)}`;
 
   return `
     <div class="exercise-question">${question}</div>
-    <input type="text" class="type-answer-input" id="type-input" placeholder="Type your answer..." autocomplete="off" autocapitalize="off" spellcheck="false">
+
+    <!-- Sticky on-screen diacritics bar for Romanian keys [ă] [â] [î] [ș] [ț] -->
+    <div class="diacritics-bar" id="diacritics-bar">
+      <button type="button" class="diacritic-key" data-char="ă">ă</button>
+      <button type="button" class="diacritic-key" data-char="â">â</button>
+      <button type="button" class="diacritic-key" data-char="î">î</button>
+      <button type="button" class="diacritic-key" data-char="ș">ș</button>
+      <button type="button" class="diacritic-key" data-char="ț">ț</button>
+    </div>
+
+    <input type="text" class="type-answer-input" id="type-input" placeholder="Tastează răspunsul tău..." autocomplete="off" autocapitalize="off" spellcheck="false">
     <div class="type-answer-submit text-center">
-      <button class="btn btn-primary btn-lg" id="type-submit">Check Answer ✓</button>
+      <button class="btn btn-primary btn-lg" id="type-submit">Verifică Răspunsul ✓</button>
     </div>
     <div class="type-answer-feedback hidden" id="type-feedback"></div>
     <div class="exercise-continue hidden" id="ex-continue">
-      <button class="btn btn-primary btn-lg" id="continue-btn">Continue →</button>
+      <button class="btn btn-primary btn-lg" id="continue-btn">Continuă →</button>
     </div>
   `;
 }
@@ -879,7 +2067,34 @@ function setupExerciseInteraction() {
     return;
   }
 
+  if (state.currentTier === 'bebe') {
+    setupBebeExercise(ex);
+    return;
+  }
+
+  if (state.currentTier === 'prek' && (ex.type === 'listen_and_select' || ex.type === 'select_image')) {
+    setupPreKExercise(ex);
+    return;
+  }
+
+  if (state.currentTier === 'junior') {
+    if (ex.type === 'word_bubbles' || (ex.type === 'translate' && ex.sentence)) {
+      setupWordBubbles(ex);
+      return;
+    }
+    if (ex.type === 'picture_word_match' || (ex.type === 'match' && ex.pairs)) {
+      setupPictureWordMatch(ex);
+      return;
+    }
+  }
+
   switch (ex.type) {
+    case 'word_bubbles':
+      setupWordBubbles(ex);
+      break;
+    case 'picture_word_match':
+      setupPictureWordMatch(ex);
+      break;
     case 'multiple_choice':
     case 'multiple_choice_romanian':
       setupMultipleChoice(ex);
@@ -913,21 +2128,23 @@ function setupMultipleChoice(ex) {
       const idx = parseInt(opt.dataset.index);
       const correct = idx === ex.correctAnswer;
 
-      // Disable all options
       options.forEach(o => o.classList.add('disabled'));
 
       if (correct) {
         opt.classList.add('correct');
+        playSound('correct');
+        if (ex.type === 'multiple_choice_romanian' && opt.textContent) {
+          speakRomanian(opt.textContent);
+        }
       } else {
         opt.classList.add('incorrect');
-        // Show correct answer
-        options[ex.correctAnswer].classList.add('show-correct');
+        playSound('incorrect');
+        options[ex.correctAnswer]?.classList.add('show-correct');
       }
       recordAttempt(exerciseId, correct);
 
-      // Show continue button
       setTimeout(() => {
-        document.getElementById('ex-continue').classList.remove('hidden');
+        document.getElementById('ex-continue')?.classList.remove('hidden');
         setupContinueButton();
       }, 600);
     });
@@ -939,7 +2156,8 @@ function setupMatch(ex) {
   let selectedLeft = null;
   let selectedRight = null;
   let matchedCount = 0;
-  const totalPairs = ex.pairs.length;
+  const pairs = ex.pairs || [];
+  const totalPairs = pairs.length;
   let matchErrors = 0;
 
   document.querySelectorAll('.match-item').forEach(item => {
@@ -947,26 +2165,25 @@ function setupMatch(ex) {
       if (item.classList.contains('matched')) return;
 
       const side = item.dataset.side;
-
       if (side === 'left') {
-        // Deselect previous left selection
         if (selectedLeft) selectedLeft.classList.remove('selected');
         selectedLeft = item;
         item.classList.add('selected');
       } else {
-        // Deselect previous right selection
         if (selectedRight) selectedRight.classList.remove('selected');
         selectedRight = item;
         item.classList.add('selected');
       }
 
-      // Check if both sides selected
       if (selectedLeft && selectedRight) {
         const leftPair = parseInt(selectedLeft.dataset.pair);
         const rightPair = parseInt(selectedRight.dataset.pair);
 
         if (leftPair === rightPair) {
-          // Correct match!
+          playSound('match');
+          const romanianText = selectedLeft.dataset.value;
+          if (romanianText) speakRomanian(romanianText);
+
           selectedLeft.classList.remove('selected');
           selectedRight.classList.remove('selected');
           selectedLeft.classList.add('matched');
@@ -977,16 +2194,16 @@ function setupMatch(ex) {
           selectedRight = null;
 
           if (matchedCount === totalPairs) {
-            // All matched — count as correct if few errors
             const correct = matchErrors < totalPairs;
+            playSound('correct');
             recordAttempt(exerciseId, correct);
             setTimeout(() => {
-              document.getElementById('ex-continue').classList.remove('hidden');
+              document.getElementById('ex-continue')?.classList.remove('hidden');
               setupContinueButton();
             }, 400);
           }
         } else {
-          // Wrong match
+          playSound('incorrect');
           matchErrors++;
           selectedLeft.classList.add('wrong');
           selectedRight.classList.add('wrong');
@@ -1017,22 +2234,22 @@ function setupSelectImage(ex) {
       const idx = parseInt(opt.dataset.index);
       const correct = idx === ex.correctAnswer;
 
-      // Disable interactions
       options.forEach(o => o.style.pointerEvents = 'none');
 
       if (correct) {
         opt.classList.add('correct');
-        launchConfetti(); // Little burst for correct image pick
+        playSound('correct');
+        launchConfetti();
       } else {
         opt.classList.add('incorrect');
-        // Highlight correct one
+        playSound('incorrect');
         const correctOpt = document.getElementById(`img-opt-${ex.correctAnswer}`);
         if (correctOpt) correctOpt.classList.add('show-correct');
       }
       recordAttempt(exerciseId, correct);
 
       setTimeout(() => {
-        document.getElementById('ex-continue').classList.remove('hidden');
+        document.getElementById('ex-continue')?.classList.remove('hidden');
         setupContinueButton();
       }, 500);
     });
@@ -1043,21 +2260,18 @@ function setupListenAndSelect(ex) {
   setupSelectImage(ex);
   const promptText = ex.prompt || '';
   const playBtn = document.getElementById('listen-play-btn');
+  const turtleBtn = document.getElementById('listen-turtle-btn');
 
-  const playPrompt = () => {
-    const played = speakRomanian(promptText, {
-      rate: typeof ex.speechRate === 'number' ? ex.speechRate : 0.82,
-      pitch: typeof ex.speechPitch === 'number' ? ex.speechPitch : 1
-    });
-    if (!played) {
-      showToast('Audio is not available in this browser.', 'error');
-    }
-  };
+  playBtn?.addEventListener('click', () => {
+    speakRomanian(promptText, { rate: 0.82 });
+  });
 
-  playBtn?.addEventListener('click', playPrompt);
+  turtleBtn?.addEventListener('click', () => {
+    speakRomanian(promptText, { rate: 0.6 });
+  });
 
   if (ex.autoPlay) {
-    setTimeout(playPrompt, 250);
+    setTimeout(() => speakRomanian(promptText, { rate: 0.82 }), 250);
   }
 }
 
@@ -1068,45 +2282,70 @@ function setupTypeAnswer(ex) {
   const exerciseId = getCurrentExerciseId();
   let answered = false;
 
+  // On-screen sticky diacritics keys
+  document.querySelectorAll('.diacritic-key').forEach(key => {
+    key.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!input || input.disabled) return;
+      const char = key.dataset.char;
+      const start = input.selectionStart || input.value.length;
+      const end = input.selectionEnd || input.value.length;
+      input.value = input.value.substring(0, start) + char + input.value.substring(end);
+      input.selectionStart = input.selectionEnd = start + char.length;
+      input.focus();
+      playSound('match');
+    });
+  });
+
   function checkAnswer() {
     if (answered) return;
     answered = true;
+
+    const stripDiacritics = (str) => (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 
     const userAnswer = input.value.trim();
     const correctAnswer = ex.answer || ex.sentence;
     const alternatives = ex.acceptAlternatives || [];
     const allAccepted = [correctAnswer, ...alternatives].map(a => a.toLowerCase().trim());
 
-    const isCorrect = allAccepted.includes(userAnswer.toLowerCase().trim());
+    const isExactCorrect = allAccepted.some(a => a.toLowerCase().trim() === userAnswer.toLowerCase().trim());
+    const isAlmostCorrect = !isExactCorrect && allAccepted.some(a => stripDiacritics(a) === stripDiacritics(userAnswer));
+    const isCorrect = isExactCorrect || isAlmostCorrect;
 
     input.disabled = true;
     submitBtn.style.display = 'none';
     feedback.classList.remove('hidden');
 
-    if (isCorrect) {
+    if (isExactCorrect) {
       input.classList.add('correct');
+      playSound('correct');
       feedback.className = 'type-answer-feedback correct';
-      feedback.textContent = '✅ Correct! Great job!';
+      feedback.textContent = '✅ Corect! Excelent!';
+    } else if (isAlmostCorrect) {
+      input.classList.add('correct');
+      playSound('correct');
+      feedback.className = 'type-answer-feedback correct';
+      feedback.innerHTML = `✨ Foarte aproape! Ai uitat diacriticele (<strong>${escapeHTML(correctAnswer)}</strong>). Bravo!`;
     } else {
       input.classList.add('incorrect');
+      playSound('incorrect');
       feedback.className = 'type-answer-feedback incorrect';
-      feedback.innerHTML = `❌ The correct answer is: <strong>${correctAnswer}</strong>`;
+      feedback.innerHTML = `❌ Răspunsul corect este: <strong>${escapeHTML(correctAnswer)}</strong>`;
     }
-    recordAttempt(exerciseId, isCorrect);
+    recordAttempt(exerciseId, isCorrect, correctAnswer);
 
     setTimeout(() => {
-      document.getElementById('ex-continue').classList.remove('hidden');
+      document.getElementById('ex-continue')?.classList.remove('hidden');
       setupContinueButton();
     }, 400);
   }
 
-  submitBtn.addEventListener('click', checkAnswer);
-  input.addEventListener('keydown', (e) => {
+  submitBtn?.addEventListener('click', checkAnswer);
+  input?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') checkAnswer();
   });
 
-  // Focus input
-  setTimeout(() => input.focus(), 100);
+  setTimeout(() => input?.focus(), 100);
 }
 
 function setupContinueButton() {
@@ -1116,7 +2355,6 @@ function setupContinueButton() {
     if (state.exerciseIndex >= state.exerciseQueue.length) {
       completeLesson();
     } else {
-      // Save progress
       if (canPersistProgress()) {
         api('POST', '/api/progress/save', {
           lessonId: state.currentLesson.id,
@@ -1147,7 +2385,6 @@ function updateLessonContent() {
     setupExerciseInteraction();
   }
 
-  // Update progress bar
   const lesson = state.currentLesson;
   const vocabCount = lesson.vocabulary ? lesson.vocabulary.length : 0;
   const exerciseStepCount = state.currentPhase === 'exercise'
@@ -1159,7 +2396,6 @@ function updateLessonContent() {
   const fill = document.querySelector('.lesson-progress-fill');
   if (fill) fill.style.width = `${progress}%`;
 
-  // Update counter
   const counter = document.querySelector('.lesson-header-progress');
   if (counter) counter.textContent = `${currentStep + 1} / ${totalSteps}`;
 }
@@ -1172,7 +2408,7 @@ function getNextLessonId(currentLessonId) {
   return sorted[idx + 1].id;
 }
 
-// ─── Lesson Completion ─────────────────────────────────────
+// ─── Lesson Completion (Tier-specific celebrations & stickers)
 async function completeLesson() {
   const lesson = state.currentLesson;
   const total = lesson.exercises ? lesson.exercises.length : 0;
@@ -1181,7 +2417,7 @@ async function completeLesson() {
   const nextLessonId = getNextLessonId(lesson.id);
   clearAutoProgressTimer();
 
-  // Send results to server
+  // Send results to server if registered student
   if (canPersistProgress()) {
     try {
       await api('POST', '/api/progress/complete', {
@@ -1189,24 +2425,72 @@ async function completeLesson() {
         score: state.score,
         totalQuestions: total,
         timeSpentSec: timeSpent,
+        tier: state.currentTier,
       });
     } catch (err) {
       console.error('Failed to save results:', err);
     }
   }
 
-  // Determine result tier
-  let icon, title, subtitle, color;
-  if (percentage >= 90) {
-    icon = '🏆'; title = 'Excelent!'; subtitle = 'Outstanding work!'; color = '#FFD700';
+  // Award a sticker reward!
+  const newSticker = await unlockStickerReward(lesson.id);
+
+  // 🍼 BEBE TIER RESULT: Zero failure states, pure joyful celebration!
+  if (state.currentTier === 'bebe') {
+    playSound('fanfare');
     launchConfetti();
-  } else if (percentage >= 70) {
-    icon = '⭐'; title = 'Bine!'; subtitle = 'Good job!'; color = 'var(--accent-teal)';
+
+    const container = document.getElementById('app');
+    container.innerHTML = `
+      <div class="results-screen">
+        <div class="results-card" style="border:4px solid #bbf7d0;">
+          <div class="results-icon" style="animation:mascotBounce 1s infinite ease-in-out;">🐑🎉</div>
+          <div class="results-title" style="color:#16a34a; font-size:2.2rem;">Bravo, pui mic! 👏</div>
+          <div class="results-subtitle" style="font-size:1.2rem; font-weight:700;">Ai explorat minunat cu Mielul!</div>
+
+          ${newSticker ? `
+            <div class="card mt-2 mb-2" style="background:#fffbeb; border:3px solid #ffd166; border-radius:24px; padding:1.25rem;">
+              <div style="font-weight:900; color:#b45309; font-size:1.1rem; margin-bottom:0.25rem;">🎁 Ai primit un abțibild nou!</div>
+              <div style="font-size:4.5rem; animation:starPop 0.6s ease;">${newSticker.emoji}</div>
+              <div style="font-size:1.35rem; font-weight:900; color:#1e293b;">${escapeHTML(newSticker.word)}</div>
+            </div>
+          ` : ''}
+
+          <div class="results-actions" style="margin-top:1.5rem;">
+            <button class="btn btn-primary btn-lg btn-block" id="results-retry" style="font-size:1.2rem; padding:1.1rem;">🔄 Mai vrei o dată?</button>
+            <button class="btn btn-outline btn-lg btn-block" id="results-stickers">🌟 Vezi Albumul de Abțibilduri</button>
+            <button class="btn btn-ghost btn-lg btn-block" id="results-home">🏠 Înapoi la Lume</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('results-retry')?.addEventListener('click', () => navigate(`/lesson/${lesson.id}`));
+    document.getElementById('results-stickers')?.addEventListener('click', () => openStickerAlbumModal());
+    document.getElementById('results-home')?.addEventListener('click', () => navigate('/'));
+    return;
+  }
+
+  // 🌱 PRE-K & ⭐ JUNIOR RESULTS
+  let icon = '🏆', title = 'Excelent!', subtitle = 'Ești foarte isteț!', color = '#FFD700';
+  let starsEarned = 0;
+
+  if (percentage >= 95) {
+    starsEarned = 3;
+    icon = '🏆'; title = 'Excelent!'; subtitle = 'Mielul este mândru de tine!'; color = '#FFD700';
+    playSound('fanfare');
     launchConfetti();
-  } else if (percentage >= 50) {
-    icon = '👍'; title = 'OK!'; subtitle = 'Keep practicing!'; color = 'var(--accent-orange)';
+  } else if (percentage >= 80) {
+    starsEarned = 2;
+    icon = '⭐'; title = 'Foarte Bine!'; subtitle = 'Ai învățat grozav!'; color = 'var(--accent-teal)';
+    playSound('correct');
+    launchConfetti();
+  } else if (percentage >= 60) {
+    starsEarned = 1;
+    icon = '👍'; title = 'Bine!'; subtitle = 'Continuă tot așa!'; color = 'var(--accent-orange)';
   } else {
-    icon = '💪'; title = 'Try Again!'; subtitle = "Practice makes perfect!"; color = 'var(--accent-coral)';
+    starsEarned = 0;
+    icon = '💪'; title = 'Încearcă din nou!'; subtitle = 'Exercițiul te face maestru!'; color = 'var(--accent-coral)';
   }
 
   const circumference = 2 * Math.PI * 60;
@@ -1222,6 +2506,15 @@ async function completeLesson() {
         <div class="results-title">${title}</div>
         <div class="results-subtitle">${subtitle}</div>
 
+        <!-- Star Row for Junior -->
+        ${state.currentTier === 'junior' ? `
+          <div class="stars-row">
+            <span class="star-badge-item ${starsEarned >= 1 ? 'earned' : ''}">⭐</span>
+            <span class="star-badge-item ${starsEarned >= 2 ? 'earned' : ''}">⭐</span>
+            <span class="star-badge-item ${starsEarned >= 3 ? 'earned' : ''}">⭐</span>
+          </div>
+        ` : ''}
+
         <div class="score-circle">
           <svg width="150" height="150" viewBox="0 0 150 150">
             <circle class="circle-bg" cx="75" cy="75" r="60"/>
@@ -1236,26 +2529,34 @@ async function completeLesson() {
         <div class="results-stats">
           <div class="results-stat-item">
             <div class="results-stat-value">${state.score}/${total}</div>
-            <div class="results-stat-label">Correct</div>
+            <div class="results-stat-label">Corecte</div>
           </div>
           <div class="results-stat-item">
             <div class="results-stat-value">${minutes}:${seconds.toString().padStart(2, '0')}</div>
-            <div class="results-stat-label">Time</div>
+            <div class="results-stat-label">Timp</div>
           </div>
         </div>
-        ${isGuestUser() ? `<div class="vocab-hint">Guest mode: progress is not saved.</div>` : ''}
-        ${(nextLessonId && percentage >= 80) ? `<div class="vocab-hint">Auto progression in 4 seconds...</div>` : ''}
+
+        ${newSticker ? `
+          <div class="card mt-2 mb-2" style="background:#fffbeb; border:2px solid #ffd166; border-radius:20px; padding:1rem; cursor:pointer;" id="results-sticker-preview">
+            <div style="font-weight:800; color:#b45309; font-size:0.95rem;">🎁 Abțibild nou deblocat!</div>
+            <div style="font-size:3.5rem; margin:0.25rem 0;">${newSticker.emoji}</div>
+            <div style="font-weight:900; color:#1e293b;">${escapeHTML(newSticker.word)}</div>
+            <div style="font-size:0.8rem; color:#78350f;">Apasă pentru album</div>
+          </div>
+        ` : ''}
 
         <div class="results-actions">
-          <button class="btn btn-primary btn-lg btn-block" id="results-retry">🔄 Try Again</button>
-          ${nextLessonId ? `<button class="btn btn-success btn-lg btn-block" id="results-next">➡️ Next Lesson</button>` : ''}
-          <button class="btn btn-outline btn-lg btn-block" id="results-home">🏠 Back to Lessons</button>
+          <button class="btn btn-primary btn-lg btn-block" id="results-retry">🔄 Repetă Lecția</button>
+          ${nextLessonId ? `<button class="btn btn-success btn-lg btn-block" id="results-next">➡️ Următoarea Lecție</button>` : ''}
+          <button class="btn btn-outline btn-lg btn-block" id="results-stickers-btn">🌟 Album Abțibilduri</button>
+          <button class="btn btn-ghost btn-lg btn-block" id="results-home">🏠 Acasă</button>
         </div>
       </div>
     </div>
   `;
 
-  document.getElementById('results-retry').addEventListener('click', () => {
+  document.getElementById('results-retry')?.addEventListener('click', () => {
     clearAutoProgressTimer();
     navigate(`/lesson/${lesson.id}`);
   });
@@ -1263,7 +2564,13 @@ async function completeLesson() {
     clearAutoProgressTimer();
     navigate(`/lesson/${nextLessonId}`);
   });
-  document.getElementById('results-home').addEventListener('click', () => {
+  document.getElementById('results-stickers-btn')?.addEventListener('click', () => {
+    openStickerAlbumModal();
+  });
+  document.getElementById('results-sticker-preview')?.addEventListener('click', () => {
+    openStickerAlbumModal();
+  });
+  document.getElementById('results-home')?.addEventListener('click', () => {
     clearAutoProgressTimer();
     navigate('/');
   });
@@ -1271,7 +2578,7 @@ async function completeLesson() {
   if (nextLessonId && percentage >= 80) {
     state.autoProgressTimer = setTimeout(() => {
       navigate(`/lesson/${nextLessonId}`);
-    }, 4000);
+    }, 4500);
   }
 }
 

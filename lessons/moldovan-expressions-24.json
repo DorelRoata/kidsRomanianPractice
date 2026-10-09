@@ -1,0 +1,153 @@
+{
+  "id": "moldovan-expressions-24",
+  "title": "🇲🇩 Expresii & Salutări Moldovenești",
+  "description": "Cum vorbim acasă, în familie și între prieteni în Moldova",
+  "category": "Graiul Moldovenesc",
+  "level": 1,
+  "order": 16,
+  "icon": "🗣️",
+  "vocabulary": [
+    {
+      "romanian": "noroc",
+      "english": "hello / cheers / good luck",
+      "pronunciation": "noh-ROK",
+      "emoji": "👋",
+      "example": {
+        "romanian": "Noroc, dragi prieteni!",
+        "english": "Hello, dear friends!"
+      }
+    },
+    {
+      "romanian": "ce mai faci?",
+      "english": "how are you doing?",
+      "pronunciation": "che may FAHCH",
+      "emoji": "😊",
+      "example": {
+        "romanian": "Noroc! Ce mai faci azi?",
+        "english": "Hello! How are you doing today?"
+      }
+    },
+    {
+      "romanian": "totul e ghini",
+      "english": "everything is good",
+      "pronunciation": "TOH-tool eh GEE-nee",
+      "emoji": "👍",
+      "example": {
+        "romanian": "La noi totul e ghini și frumos.",
+        "english": "With us everything is good and nice."
+      }
+    },
+    {
+      "romanian": "hai la masă!",
+      "english": "come to eat / come to table!",
+      "pronunciation": "high lah MAH-suh",
+      "emoji": "🍽️",
+      "example": {
+        "romanian": "Spală mânuțele și hai la masă!",
+        "english": "Wash your hands and come eat!"
+      }
+    },
+    {
+      "romanian": "să trăiești!",
+      "english": "thank you / bless you / cheers!",
+      "pronunciation": "suh truh-YESHT",
+      "emoji": "🙏",
+      "example": {
+        "romanian": "Mulțumesc mult, să trăiești!",
+        "english": "Thank you very much, cheers!"
+      }
+    },
+    {
+      "romanian": "dragu tatei",
+      "english": "daddy's dear",
+      "pronunciation": "DRAH-goo TAH-tay",
+      "emoji": "❤️",
+      "example": {
+        "romanian": "Vino la tata, dragu tatei!",
+        "english": "Come to dad, daddy's dear!"
+      }
+    },
+    {
+      "romanian": "hai la joacă!",
+      "english": "let's play!",
+      "pronunciation": "high lah ZHO-uh-kuh",
+      "emoji": "⚽",
+      "example": {
+        "romanian": "Afară e soare, hai la joacă!",
+        "english": "It is sunny outside, let's play!"
+      }
+    },
+    {
+      "romanian": "noaptea bună",
+      "english": "good night",
+      "pronunciation": "NWAHP-tyah BOO-nuh",
+      "emoji": "🌙",
+      "example": {
+        "romanian": "Noaptea bună și somn ușor!",
+        "english": "Good night and sleep tight!"
+      }
+    }
+  ],
+  "exercises": [
+    {
+      "type": "multiple_choice",
+      "question": "What is the most popular friendly greeting in Moldova?",
+      "options": ["Noroc!", "Noapte bună", "Pa pa", "Scuze"],
+      "correctAnswer": 0
+    },
+    {
+      "type": "multiple_choice",
+      "question": "What does 'Hai la masă!' mean?",
+      "options": ["Come eat!", "Go to sleep!", "Put on your shoes!", "Read a book!"],
+      "correctAnswer": 0
+    },
+    {
+      "type": "match",
+      "instruction": "Match these friendly Moldovan phrases!",
+      "pairs": [
+        { "romanian": "noroc", "english": "hello / cheers" },
+        { "romanian": "hai la masă!", "english": "come to eat!" },
+        { "romanian": "hai la joacă!", "english": "let's play!" },
+        { "romanian": "noaptea bună", "english": "good night" }
+      ]
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "noroc",
+      "instruction": "Tap Play, then choose the matching action or greeting.",
+      "options": [
+        { "emoji": "👋", "text": "noroc" },
+        { "emoji": "🍽️", "text": "hai la masă!" },
+        { "emoji": "🌙", "text": "noaptea bună" },
+        { "emoji": "⚽", "text": "hai la joacă!" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "hai la masă!",
+      "instruction": "Tap Play, then choose the matching action.",
+      "options": [
+        { "emoji": "🍽️", "text": "hai la masă!" },
+        { "emoji": "⚽", "text": "hai la joacă!" },
+        { "emoji": "👋", "text": "noroc" },
+        { "emoji": "🌙", "text": "noaptea bună" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "type_answer",
+      "question": "Type 'noroc' (the Moldovan greeting)",
+      "answer": "noroc",
+      "acceptAlternatives": ["noroc", "Noroc", "Noroc!"]
+    },
+    {
+      "type": "multiple_choice",
+      "question": "What does 'Să trăiești!' mean?",
+      "options": ["Thank you / Cheers!", "I don't know", "Goodbye forever", "Quiet please"],
+      "correctAnswer": 0
+    }
+  ]
+}

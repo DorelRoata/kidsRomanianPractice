@@ -138,6 +138,11 @@ Log in as a parent/admin → Dashboard → Manage Lessons → paste JSON and sav
 15. 🍎 **Mâncare — Food & Snacks** — common food/drink words
 16. 📍 **Locuri — Places** — home/school/park and nearby places
 17. ↕️ **Opuse — Opposites** — high-frequency opposite pairs
+18. 🚗 **Vehicule — Vehicles** — moving toys & transport
+19. 🇲🇩 **Graiul Moldovenesc — Vorba Noastră** — Moldovan words (harbuz, zămos, păpușoi, curechi, etc.)
+20. 🗣️ **Expresii & Salutări Moldovenești** — family and greeting phrases (Noroc!, Hai la masă!)
+21. 🧸 **Pre-K — Gusturi & Cuvinte din Moldova** — audio-first Moldovan matching for young kids
+
 
 ## Tech Stack
 

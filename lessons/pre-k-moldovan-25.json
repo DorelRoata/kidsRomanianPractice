@@ -1,0 +1,165 @@
+{
+  "id": "pre-k-moldovan-25",
+  "title": "🧸 Pre-K — Gusturi & Cuvinte din Moldova",
+  "description": "Audio-first matching for little ones: harbuz, păpușoi, bostan, plăcintă și altele!",
+  "category": "Pre-K Audio",
+  "level": 1,
+  "order": 0.7,
+  "icon": "🍉",
+  "vocabulary": [
+    {
+      "romanian": "harbuz",
+      "english": "watermelon",
+      "pronunciation": "har-BOOZ",
+      "emoji": "🍉"
+    },
+    {
+      "romanian": "păpușoi",
+      "english": "corn",
+      "pronunciation": "puh-poo-SHOY",
+      "emoji": "🌽"
+    },
+    {
+      "romanian": "bostan",
+      "english": "pumpkin",
+      "pronunciation": "bos-TAHN",
+      "emoji": "🎃"
+    },
+    {
+      "romanian": "zămos",
+      "english": "melon",
+      "pronunciation": "zuh-MOS",
+      "emoji": "🍈"
+    },
+    {
+      "romanian": "plăcintă",
+      "english": "pie",
+      "pronunciation": "pluh-CHEEN-tuh",
+      "emoji": "🥧"
+    },
+    {
+      "romanian": "omăt",
+      "english": "snow",
+      "pronunciation": "oh-MUHT",
+      "emoji": "❄️"
+    },
+    {
+      "romanian": "huțușcă",
+      "english": "swing",
+      "pronunciation": "hoo-TSOO-shkuh",
+      "emoji": "🛝"
+    },
+    {
+      "romanian": "barabulă",
+      "english": "potato",
+      "pronunciation": "bah-rah-BOO-luh",
+      "emoji": "🥔"
+    }
+  ],
+  "exercises": [
+    {
+      "type": "listen_and_select",
+      "prompt": "harbuz",
+      "instruction": "Apasă pe difuzor, apoi alege harbuzul!",
+      "options": [
+        { "emoji": "🍉", "text": "harbuz" },
+        { "emoji": "🌽", "text": "păpușoi" },
+        { "emoji": "🎃", "text": "bostan" },
+        { "emoji": "🥔", "text": "barabulă" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "păpușoi",
+      "instruction": "Ascultă cu atenție și alege păpușoiul!",
+      "options": [
+        { "emoji": "🌽", "text": "păpușoi" },
+        { "emoji": "🍉", "text": "harbuz" },
+        { "emoji": "🍈", "text": "zămos" },
+        { "emoji": "🥧", "text": "plăcintă" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "bostan",
+      "instruction": "Apasă Play și alege bostanul!",
+      "options": [
+        { "emoji": "🎃", "text": "bostan" },
+        { "emoji": "🥔", "text": "barabulă" },
+        { "emoji": "❄️", "text": "omăt" },
+        { "emoji": "🛝", "text": "huțușcă" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "plăcintă",
+      "instruction": "Apasă Play și alege plăcinta gustoasă!",
+      "options": [
+        { "emoji": "🥧", "text": "plăcintă" },
+        { "emoji": "🍉", "text": "harbuz" },
+        { "emoji": "🌽", "text": "păpușoi" },
+        { "emoji": "🍈", "text": "zămos" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "omăt",
+      "instruction": "Ascultă cuvântul și alege omătul alb!",
+      "options": [
+        { "emoji": "❄️", "text": "omăt" },
+        { "emoji": "🛝", "text": "huțușcă" },
+        { "emoji": "🎃", "text": "bostan" },
+        { "emoji": "🍉", "text": "harbuz" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "zămos",
+      "instruction": "Apasă Play și alege zămosul dulce!",
+      "options": [
+        { "emoji": "🍈", "text": "zămos" },
+        { "emoji": "🌽", "text": "păpușoi" },
+        { "emoji": "🥔", "text": "barabulă" },
+        { "emoji": "🥧", "text": "plăcintă" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "huțușcă",
+      "instruction": "Apasă Play și alege huțușca pentru joacă!",
+      "options": [
+        { "emoji": "🛝", "text": "huțușcă" },
+        { "emoji": "❄️", "text": "omăt" },
+        { "emoji": "🍉", "text": "harbuz" },
+        { "emoji": "🎃", "text": "bostan" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "barabulă",
+      "instruction": "Apasă Play și alege barabula!",
+      "options": [
+        { "emoji": "🥔", "text": "barabulă" },
+        { "emoji": "🥧", "text": "plăcintă" },
+        { "emoji": "🍈", "text": "zămos" },
+        { "emoji": "🌽", "text": "păpușoi" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    }
+  ]
+}

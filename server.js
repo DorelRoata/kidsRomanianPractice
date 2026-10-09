@@ -4,6 +4,8 @@ const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const path = require('path');
 const fs = require('fs');
+const https = require('https');
+const googleTTS = require('google-tts-api');
 const db = require('./database');
 
 const app = express();
@@ -96,6 +98,39 @@ function loadLessons() {
     for (const file of files) {
         try {
             const data = JSON.parse(fs.readFileSync(path.join(LESSONS_DIR, file), 'utf-8'));
+            // Normalize tiers: 'bebe' (1-3), 'prek' (3-5), 'junior' (6-8)
+            if (!data.tiers) {
+                const isPreK = (data.category || '').toLowerCase().includes('pre-k');
+                const isFoundational = ['animals-04', 'colors-02', 'food-06', 'family-05', 'pre-k-objects-10', 'pre-k-animals-12', 'pre-k-toys-14', 'pre-k-moldovan-25', 'pre-k-vehicles-22', 'moldovan-words-23'].includes(data.id);
+                if (isFoundational) {
+                    data.tiers = ['bebe', 'prek', 'junior'];
+                } else if (isPreK) {
+                    data.tiers = ['bebe', 'prek'];
+                } else {
+                    data.tiers = ['prek', 'junior'];
+                }
+            }
+            // Normalize vocabulary IDs
+            if (data.vocabulary) {
+                data.vocabulary.forEach((v, idx) => {
+                    v.id = v.id || sanitizeAudio(v.romanian) || `v-${idx}`;
+                });
+            }
+            // Normalize exercise IDs and tiers
+            if (data.exercises) {
+                data.exercises.forEach((ex, idx) => {
+                    ex.id = ex.id || `ex-${data.id}-${idx}`;
+                    if (!ex.tiers) {
+                        if (ex.type === 'type_answer' || ex.type === 'translate') {
+                            ex.tiers = ['junior'];
+                        } else if (ex.type === 'listen_and_select' || ex.type === 'select_image') {
+                            ex.tiers = ['bebe', 'prek', 'junior'];
+                        } else {
+                            ex.tiers = ['prek', 'junior'];
+                        }
+                    }
+                });
+            }
             lessons.push(data);
         } catch (err) {
             console.warn(`⚠️  Failed to load lesson ${file}:`, err.message);
@@ -115,6 +150,193 @@ function getLessons() {
 function reloadLessons() {
     lessonsCache = loadLessons();
 }
+
+function sanitizeAudio(text) {
+    if (!text) return '';
+    return text.toString().toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]/g, '_')
+        .replace(/_+/g, '_')
+        .substring(0, 50);
+}
+
+const SAFE_AUDIO_FILENAME_RE = /^[a-z0-9_-]+\.mp3$/i;
+
+// ─── AUDIO ROUTES (Dynamic Generation & Caching) ──────────
+app.get('/audio/:lessonId/:filename', async (req, res, next) => {
+    const { lessonId, filename } = req.params;
+    if (!isSafeLessonId(lessonId) || !SAFE_AUDIO_FILENAME_RE.test(filename)) {
+        return res.status(400).send('Invalid audio request');
+    }
+
+    const lessonAudioDir = path.join(__dirname, 'public', 'audio', lessonId);
+    const filePath = path.join(lessonAudioDir, filename);
+
+    if (fs.existsSync(filePath)) {
+        return res.sendFile(filePath);
+    }
+
+    const lesson = getLessons().find(l => l.id === lessonId);
+    let targetText = null;
+    const baseName = filename.replace(/\.mp3$/, '');
+
+    if (lesson) {
+        if (lesson.vocabulary) {
+            const vMatch = lesson.vocabulary.find(v => sanitizeAudio(v.romanian) === baseName);
+            if (vMatch) targetText = vMatch.romanian;
+        }
+        if (!targetText && lesson.exercises) {
+            const exMatch = lesson.exercises.find(e => e.type === 'listen_and_select' && e.prompt && sanitizeAudio(e.prompt) === baseName);
+            if (exMatch) targetText = exMatch.prompt;
+        }
+    }
+
+    if (!targetText) {
+        targetText = baseName.replace(/_/g, ' ').trim();
+    }
+
+    if (!targetText) return res.status(404).send('Audio not found');
+
+    try {
+        if (!fs.existsSync(lessonAudioDir)) {
+            fs.mkdirSync(lessonAudioDir, { recursive: true });
+        }
+        const url = googleTTS.getAudioUrl(targetText, { lang: 'ro', host: 'https://translate.google.com' });
+        const request = https.get(url, (apiRes) => {
+            if (apiRes.statusCode !== 200) {
+                return res.status(apiRes.statusCode || 502).send('Failed to fetch TTS');
+            }
+            const fileStream = fs.createWriteStream(filePath);
+            apiRes.pipe(fileStream);
+            fileStream.on('finish', () => {
+                fileStream.close();
+                res.sendFile(filePath);
+            });
+        });
+        request.on('error', (err) => {
+            console.error('Audio generation error:', err.message);
+            res.status(500).send(err.message);
+        });
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+// General on-demand TTS route for arbitrary phrases or example sentences
+app.get('/api/tts', async (req, res) => {
+    const text = String(req.query.text || '').trim();
+    if (!text) return res.status(400).json({ error: 'Text required' });
+    if (text.length > 100) return res.status(400).json({ error: 'Text too long' });
+
+    const safeName = sanitizeAudio(text) || 'phrase';
+    const cacheDir = path.join(__dirname, 'public', 'audio', '_cache');
+    const filePath = path.join(cacheDir, `${safeName}.mp3`);
+
+    if (fs.existsSync(filePath)) {
+        return res.sendFile(filePath);
+    }
+
+    try {
+        if (!fs.existsSync(cacheDir)) {
+            fs.mkdirSync(cacheDir, { recursive: true });
+        }
+        const url = googleTTS.getAudioUrl(text, { lang: 'ro', host: 'https://translate.google.com' });
+        const request = https.get(url, (apiRes) => {
+            if (apiRes.statusCode !== 200) {
+                return res.status(apiRes.statusCode || 502).send('TTS error');
+            }
+            const fileStream = fs.createWriteStream(filePath);
+            apiRes.pipe(fileStream);
+            fileStream.on('finish', () => {
+                fileStream.close();
+                res.sendFile(filePath);
+            });
+        });
+        request.on('error', (err) => {
+            res.status(500).send(err.message);
+        });
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+// ─── STUDENT PROFILE & TIERS ───────────────────────────────
+app.get('/api/student/profile', (req, res) => {
+    const userId = req.session?.userId;
+    if (!userId) {
+        return res.json({ profile: { tier: 'prek', settings: {} } });
+    }
+    const profile = db.get('SELECT tier, birthYear, birthMonth, settings, updatedAt FROM student_profiles WHERE userId = ?', [userId]);
+    let settings = {};
+    if (profile && profile.settings) {
+        try { settings = JSON.parse(profile.settings); } catch {}
+    }
+    res.json({
+        profile: profile ? { ...profile, settings } : { tier: 'prek', settings: {} }
+    });
+});
+
+app.post('/api/student/profile', requireAuth, (req, res) => {
+    const userId = req.session.userId;
+    const { tier = 'prek', birthYear = null, birthMonth = null, settings = {} } = req.body;
+    const safeTier = ['bebe', 'prek', 'junior'].includes(tier) ? tier : 'prek';
+
+    const existing = db.get('SELECT userId FROM student_profiles WHERE userId = ?', [userId]);
+    if (existing) {
+        db.run(
+            `UPDATE student_profiles SET tier = ?, birthYear = ?, birthMonth = ?, settings = ?, updatedAt = datetime('now') WHERE userId = ?`,
+            [safeTier, birthYear, birthMonth, JSON.stringify(settings), userId]
+        );
+    } else {
+        db.run(
+            `INSERT INTO student_profiles (userId, tier, birthYear, birthMonth, settings) VALUES (?, ?, ?, ?, ?)`,
+            [userId, safeTier, birthYear, birthMonth, JSON.stringify(settings)]
+        );
+    }
+    db.save();
+    res.json({ success: true, profile: { tier: safeTier, birthYear, birthMonth, settings } });
+});
+
+// ─── ATTEMPTS (Fine-grained Event Log) ──────────────────────
+app.post('/api/attempts', (req, res) => {
+    try {
+        const { lessonId, exerciseId, itemWord, tier = 'prek', isCorrect, responseMs = 0, sessionId } = req.body;
+        if (!lessonId) return res.status(400).json({ error: 'lessonId required' });
+        const userId = req.session?.userId || null;
+
+        db.run(
+            `INSERT INTO attempts (userId, sessionId, lessonId, exerciseId, itemWord, tier, isCorrect, responseMs)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [userId, sessionId || null, String(lessonId), exerciseId || null, itemWord || null, String(tier), isCorrect ? 1 : 0, Number(responseMs) || 0]
+        );
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ─── STICKERS (Sticker Album Rewards) ──────────────────────
+app.get('/api/stickers', (req, res) => {
+    const userId = req.session?.userId;
+    if (!userId) return res.json({ stickers: [] });
+    const stickers = db.all('SELECT stickerId, lessonId, tier, unlockedAt FROM student_stickers WHERE userId = ? ORDER BY unlockedAt ASC', [userId]);
+    res.json({ stickers });
+});
+
+app.post('/api/stickers/unlock', (req, res) => {
+    const userId = req.session?.userId;
+    const { stickerId, lessonId, tier = 'prek' } = req.body;
+    if (!stickerId) return res.status(400).json({ error: 'stickerId required' });
+
+    if (userId) {
+        db.run(
+            `INSERT OR IGNORE INTO student_stickers (userId, stickerId, lessonId, tier) VALUES (?, ?, ?, ?)`,
+            [userId, stickerId, lessonId || null, tier]
+        );
+        db.save();
+    }
+    res.json({ success: true, stickerId });
+});
 
 // ═══════════════════════════════════════════════════════════
 //  AUTH ROUTES
@@ -288,20 +510,27 @@ app.post('/api/users/:id/reset-password', requireParent, async (req, res) => {
 //  LESSON ROUTES
 // ═══════════════════════════════════════════════════════════
 
-// Get all lessons (metadata only, no exercises)
+// Get all lessons (metadata only, supports ?tier=bebe|prek|junior)
 app.get('/api/lessons', (req, res) => {
-    const lessons = getLessons().map(l => ({
-        id: l.id,
-        title: l.title,
-        description: l.description,
-        category: l.category,
-        level: l.level,
-        order: l.order,
-        icon: l.icon,
-        exerciseCount: l.exercises ? l.exercises.length : 0,
-        vocabularyCount: l.vocabulary ? l.vocabulary.length : 0
-    }));
-    res.json({ lessons });
+    const tier = req.query.tier;
+    let lessons = getLessons();
+    if (tier && ['bebe', 'prek', 'junior'].includes(tier)) {
+        lessons = lessons.filter(l => (l.tiers || []).includes(tier));
+    }
+    res.json({
+        lessons: lessons.map(l => ({
+            id: l.id,
+            title: l.title,
+            description: l.description,
+            category: l.category,
+            level: l.level,
+            order: l.order,
+            icon: l.icon,
+            tiers: l.tiers || ['prek', 'junior'],
+            exerciseCount: l.exercises ? l.exercises.length : 0,
+            vocabularyCount: l.vocabulary ? l.vocabulary.length : 0
+        }))
+    });
 });
 
 // Get a single lesson with all content
@@ -406,20 +635,29 @@ app.get('/api/progress/lesson/:lessonId', requireAuth, (req, res) => {
 
 // Submit lesson result (completed lesson)
 app.post('/api/progress/complete', requireAuth, (req, res) => {
-    const { lessonId, score, totalQuestions, timeSpentSec } = req.body;
+    const { lessonId, score, totalQuestions, timeSpentSec, tier = 'prek' } = req.body;
     const userId = req.session.userId;
-    const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+    const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 100;
+    let stars = 1;
+    if (percentage >= 90) stars = 3;
+    else if (percentage >= 75) stars = 2;
 
     db.run(
         `INSERT INTO lesson_results (userId, lessonId, score, totalQuestions, percentage, timeSpentSec) VALUES (?, ?, ?, ?, ?, ?)`,
         [userId, lessonId, score, totalQuestions, percentage, timeSpentSec || 0]
     );
 
+    // Also record session event into lesson_sessions
+    db.run(
+        `INSERT INTO lesson_sessions (userId, lessonId, tier, score, totalQuestions, percentage, stars, timeSpentSec) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [userId, String(lessonId), String(tier), score, totalQuestions, percentage, stars, timeSpentSec || 0]
+    );
+
     // Clear saved progress for this lesson
     db.run('DELETE FROM lesson_progress WHERE userId = ? AND lessonId = ?', [userId, lessonId]);
     db.save();
 
-    res.json({ success: true, percentage });
+    res.json({ success: true, percentage, stars });
 });
 
 // Get all results for current user
@@ -431,14 +669,20 @@ app.get('/api/progress/my-results', requireAuth, (req, res) => {
     res.json({ results });
 });
 
-// Get all results for all users (parent only)
+// Get all results for family (parent sees self + kids, admin sees all)
 app.get('/api/progress/all-results', requireParent, (req, res) => {
-    const results = db.all(`
-    SELECT lr.*, u.displayName, u.avatar
-    FROM lesson_results lr
-    JOIN users u ON lr.userId = u.id
-    ORDER BY lr.completedAt DESC
-  `);
+    let sql = `
+      SELECT lr.*, u.displayName, u.avatar
+      FROM lesson_results lr
+      JOIN users u ON lr.userId = u.id
+    `;
+    let params = [];
+    if (req.session.role === 'parent') {
+        sql += ' WHERE u.id = ? OR u.parentId = ?';
+        params = [req.session.userId, req.session.userId];
+    }
+    sql += ' ORDER BY lr.completedAt DESC';
+    const results = db.all(sql, params);
     res.json({ results });
 });
 

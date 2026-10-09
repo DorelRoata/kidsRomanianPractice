@@ -1,0 +1,184 @@
+{
+  "id": "moldovan-words-23",
+  "title": "🇲🇩 Graiul Moldovenesc — Vorba Noastră",
+  "description": "Cuvinte specifice din Moldova și cum le spunem la noi (harbuz, zămos, păpușoi, curechi etc.)",
+  "category": "Graiul Moldovenesc",
+  "level": 1,
+  "order": 15,
+  "icon": "🇲🇩",
+  "vocabulary": [
+    {
+      "romanian": "harbuz",
+      "english": "watermelon (pepene verde)",
+      "pronunciation": "har-BOOZ",
+      "emoji": "🍉",
+      "example": {
+        "romanian": "Harbuzul este dulce și zemos.",
+        "english": "The watermelon is sweet and juicy."
+      }
+    },
+    {
+      "romanian": "zămos",
+      "english": "melon / cantaloupe (pepene galben)",
+      "pronunciation": "zuh-MOS",
+      "emoji": "🍈",
+      "example": {
+        "romanian": "Mâncăm o felie de zămos parfumat.",
+        "english": "We eat a fragrant slice of melon."
+      }
+    },
+    {
+      "romanian": "păpușoi",
+      "english": "corn (porumb)",
+      "pronunciation": "puh-poo-SHOY",
+      "emoji": "🌽",
+      "example": {
+        "romanian": "Fierbem păpușoi proaspeți și dulci.",
+        "english": "We boil fresh and sweet corn."
+      }
+    },
+    {
+      "romanian": "curechi",
+      "english": "cabbage (varză)",
+      "pronunciation": "coo-REK",
+      "emoji": "🥬",
+      "example": {
+        "romanian": "Bunica face plăcinte cu curechi.",
+        "english": "Grandma makes pies with cabbage."
+      }
+    },
+    {
+      "romanian": "bostan",
+      "english": "pumpkin (dovleac)",
+      "pronunciation": "bos-TAHN",
+      "emoji": "🎃",
+      "example": {
+        "romanian": "Avem un bostan mare și portocaliu.",
+        "english": "We have a big orange pumpkin."
+      }
+    },
+    {
+      "romanian": "barabulă",
+      "english": "potato (cartof)",
+      "pronunciation": "bah-rah-BOO-luh",
+      "emoji": "🥔",
+      "example": {
+        "romanian": "Coacem barabule la cuptor.",
+        "english": "We bake potatoes in the oven."
+      }
+    },
+    {
+      "romanian": "omăt",
+      "english": "snow (zăpadă)",
+      "pronunciation": "oh-MUHT",
+      "emoji": "❄️",
+      "example": {
+        "romanian": "Iarna este mult omăt alb în curte.",
+        "english": "In winter there is lots of white snow in the yard."
+      }
+    },
+    {
+      "romanian": "huțușcă",
+      "english": "swing (leagăn)",
+      "pronunciation": "hoo-TSOO-shkuh",
+      "emoji": "🛝",
+      "example": {
+        "romanian": "Copiii se dau în huțușcă afară.",
+        "english": "The kids play on the swing outside."
+      }
+    },
+    {
+      "romanian": "perje",
+      "english": "plums (prune)",
+      "pronunciation": "PER-zhe",
+      "emoji": "🍇",
+      "example": {
+        "romanian": "Culegem perje dulci din copac.",
+        "english": "We pick sweet plums from the tree."
+      }
+    },
+    {
+      "romanian": "plăcintă",
+      "english": "traditional pie / pastry",
+      "pronunciation": "pluh-CHEEN-tuh",
+      "emoji": "🥧",
+      "example": {
+        "romanian": "Plăcintele calde de la bunica sunt delicioase.",
+        "english": "Grandma's warm pies are delicious."
+      }
+    }
+  ],
+  "exercises": [
+    {
+      "type": "multiple_choice",
+      "question": "What does 'harbuz' mean?",
+      "options": ["Watermelon", "Potato", "Apple", "Corn"],
+      "correctAnswer": 0
+    },
+    {
+      "type": "multiple_choice_romanian",
+      "question": "How do we say 'corn' in Moldovan speech?",
+      "options": ["păpușoi", "curechi", "bostan", "perje"],
+      "correctAnswer": 0
+    },
+    {
+      "type": "match",
+      "instruction": "Match the Moldovan words with their English meanings!",
+      "pairs": [
+        { "romanian": "harbuz", "english": "watermelon" },
+        { "romanian": "păpușoi", "english": "corn" },
+        { "romanian": "curechi", "english": "cabbage" },
+        { "romanian": "bostan", "english": "pumpkin" },
+        { "romanian": "omăt", "english": "snow" }
+      ]
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "harbuz",
+      "instruction": "Tap Play, then choose the matching food.",
+      "options": [
+        { "emoji": "🍉", "text": "harbuz" },
+        { "emoji": "🌽", "text": "păpușoi" },
+        { "emoji": "🎃", "text": "bostan" },
+        { "emoji": "🥔", "text": "barabulă" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "listen_and_select",
+      "prompt": "plăcintă",
+      "instruction": "Tap Play, then choose the matching food.",
+      "options": [
+        { "emoji": "🥧", "text": "plăcintă" },
+        { "emoji": "🥬", "text": "curechi" },
+        { "emoji": "🍇", "text": "perje" },
+        { "emoji": "🍈", "text": "zămos" }
+      ],
+      "correctAnswer": 0,
+      "hideLabels": true
+    },
+    {
+      "type": "type_answer",
+      "question": "Type 'harbuz' in Romanian / Moldovan",
+      "answer": "harbuz",
+      "acceptAlternatives": ["harbuz", "pepene"]
+    },
+    {
+      "type": "multiple_choice",
+      "question": "What does 'omăt' mean?",
+      "options": ["Snow", "Rain", "Wind", "Sun"],
+      "correctAnswer": 0
+    },
+    {
+      "type": "match",
+      "instruction": "Match these tasty Moldovan words!",
+      "pairs": [
+        { "romanian": "zămos", "english": "melon" },
+        { "romanian": "barabulă", "english": "potato" },
+        { "romanian": "perje", "english": "plums" },
+        { "romanian": "huțușcă", "english": "swing" }
+      ]
+    }
+  ]
+}
